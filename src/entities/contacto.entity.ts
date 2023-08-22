@@ -14,4 +14,10 @@ export class Contacto {
   @ApiProperty()
   @Column()
   edad: number;
+
+  @ApiProperty()
+  @Column({
+    nullable: true,
+  })
+  email: string;
 }

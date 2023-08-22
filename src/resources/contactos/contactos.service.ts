@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateContactoDto } from './dto/create-contacto.dto';
 import { UpdateContactoDto } from './dto/update-contacto.dto';
-import { Contacto } from './entities/contacto.entity';
+import { Contacto } from '../../entities/contacto.entity';
 
 @Injectable()
 export class ContactosService {
   constructor(
     @InjectRepository(Contacto)
     private repository: Repository<Contacto>,
-  ) {}
+  ) { }
 
   create(createContactoDto: CreateContactoDto) {
     return this.repository.save(createContactoDto);

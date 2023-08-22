@@ -9,4 +9,8 @@ export class CreateContactoDto {
   @IsInt()
   @ApiProperty({ example: 22 })
   readonly edad: number;
+
+  @IsString()
+  @ApiProperty({ example: 'john.doe@email.com' })
+  readonly email: string;
 }
