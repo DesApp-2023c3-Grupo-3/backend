@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from './database/database.module';
-import { ContactosModule } from './resources/contactos/contactos.module';
 import { ConfigModule } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import serverConfig from './config/server.config';
+
+import { ContactosModule } from './resources/contactos/contactos.module';
+import { UserModule } from './resources/user/user.module';
 
 @Module({
   imports: [
@@ -12,7 +14,9 @@ import serverConfig from './config/server.config';
       isGlobal: true,
     }),
     DatabaseModule,
+
     ContactosModule,
+    UserModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
