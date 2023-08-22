@@ -6,6 +6,7 @@ import serverConfig from './config/server.config';
 
 import { ContactosModule } from './resources/contactos/contactos.module';
 import { UserModule } from './resources/user/user.module';
+import { ImageModule } from './resources/image/image.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { UserModule } from './resources/user/user.module';
 
     ContactosModule,
     UserModule,
+    ImageModule,
   ],
 })
 export class AppModule { }
