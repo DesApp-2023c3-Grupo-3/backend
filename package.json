@@ -26,6 +26,7 @@
     "db:drop": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js db:drop",
     "db:seed": "ts-node ./node_modules/typeorm-extension/dist/cli/index.js seed",
     "nest": "nest",
+    "generate": "nest g resource",
     "prepare": "husky install"
   },
   "dependencies": {
