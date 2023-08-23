@@ -8,15 +8,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ContactosService } from './contactos.service';
-import { CreateContactoDto } from './dto/create-contacto.dto';
-import { UpdateContactoDto } from './dto/update-contacto.dto';
+import { CreateContactoDto, UpdateContactoDto } from 'unahur-cartelera';
 import { Contacto } from '../../entities/contacto.entity';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('contactos')
 @Controller('contactos')
 export class ContactosController {
-  constructor(private readonly contactosService: ContactosService) { }
+  constructor(private readonly contactosService: ContactosService) {}
 
   @Post()
   create(@Body() createContactoDto: CreateContactoDto) {
