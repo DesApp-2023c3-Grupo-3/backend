@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ContactosService } from './contactos.service';
-import { CreateContactoDto, UpdateContactoDto } from 'unahur-cartelera';
+import { CreateContactoDto, UpdateContactoDto } from 'cartelera-unahur';
 import { Contacto } from '../../entities/contacto.entity';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 
