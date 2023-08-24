@@ -1,20 +1,28 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Inject, Module } from '@nestjs/common';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 
 import { connect, Msg, NatsConnection, NatsError } from 'nats';
+import serverConfig from '../../config/server.config';
 
 @Global()
 @Module({
+  imports: [ConfigModule.forFeature(serverConfig)],
   providers: [],
   exports: [],
 })
 export class NatsConnectionModule {
   public natsConnection: NatsConnection;
-  constructor() {
+  constructor(
+    @Inject(serverConfig.KEY)
+    private readonly serverConfiguration: ConfigType<typeof serverConfig>,
+  ) {
     this.initializeNatsConnection();
   }
 
   private async initializeNatsConnection() {
-    this.natsConnection = await connect({ 'servers': ['nats://localhost:4222'] })
+    const HOST = this.serverConfiguration.nats.host;
+    const PORT = this.serverConfiguration.nats.port;
+    this.natsConnection = await connect({ servers: [`nats://${HOST}:${PORT}`] });
     this.makeSubscription('course');
     this.makeSubscription('image');
   }
