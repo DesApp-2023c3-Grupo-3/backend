@@ -1,14 +1,12 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'SCHEDULE' })
+@Entity({ name: 'Schedule' })
 export class Schedule {
   @PrimaryGeneratedColumn('identity')
   id: number;
@@ -25,7 +23,7 @@ export class Schedule {
   @Column({ type: 'time' })
   endHour: string;
 
-  @Column({ type: 'timestamptz' }) // REVISAR
+  @Column({ type: 'varchar' })
   scheduleDays: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
@@ -34,6 +32,6 @@ export class Schedule {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deleteAt: Date;
+  @Column({ type: 'timestamptz' })
+  deletedAt: Date;
 }

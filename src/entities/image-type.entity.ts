@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'IMAGETYPE' })
+@Entity({ name: 'ImageType' })
 export class ImageType {
   @PrimaryGeneratedColumn('identity')
   id: number;
@@ -22,5 +22,5 @@ export class ImageType {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz' })
-  deleteAt: Date;
+  deletedAt: Date;
 }

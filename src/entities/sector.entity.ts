@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'SECTOR' })
+@Entity({ name: 'Sector' })
 export class Sector {
   @PrimaryGeneratedColumn('identity')
   id: number;
@@ -25,5 +25,5 @@ export class Sector {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz' })
-  deleteAt: Date;
+  deletedAt: Date;
 }

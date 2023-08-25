@@ -1,13 +1,12 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'COURSESCREEN' })
+@Entity({ name: 'CourseScreen' })
 export class CourseScreen {
   @PrimaryGeneratedColumn('identity')
   id: number;
@@ -22,11 +21,11 @@ export class CourseScreen {
   password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
+  deletedAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz' })
   deleteAt: Date;
 }
