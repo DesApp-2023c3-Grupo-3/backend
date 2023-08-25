@@ -2,9 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 
+import { NatsService } from 'src/plugins/nats/nats.service';
+
 @Injectable()
 export class CourseService {
+  constructor(
+    private readonly natsService: NatsService,
+  ) { }
+
   create(createCourseDto: CreateCourseDto) {
+    this.natsService.sendMessage('course', 'Este es un mensaje enviado desde CourseService.create')
     return 'This action adds a new course';
   }
 

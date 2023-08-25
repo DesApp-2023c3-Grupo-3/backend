@@ -38,6 +38,7 @@
     "@nestjs/swagger": "^6.1.4",
     "@nestjs/typeorm": "^9.0.1",
     "cartelera-unahur": "^0.1.2",
+    "nats": "^2.16.0",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",

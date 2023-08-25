@@ -15,6 +15,7 @@ import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
 import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
+import { NatsModule } from './plugins/nats/nats.module';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import { ImageScreenModule } from './resources/image-screen/image-screen.module'
       isGlobal: true,
     }),
     DatabaseModule,
+
+    NatsModule,
 
     ContactosModule,
     UserModule,
@@ -37,4 +40,4 @@ import { ImageScreenModule } from './resources/image-screen/image-screen.module'
     ImageScreenModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
