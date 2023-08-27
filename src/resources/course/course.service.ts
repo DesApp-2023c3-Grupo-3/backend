@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 
-import { NatsService } from 'src/plugins/nats/nats.service';
+import { SocketService } from 'src/plugins/socket/socket.service';
 
 @Injectable()
 export class CourseService {
   constructor(
-    private readonly natsService: NatsService,
+    private readonly natsService: SocketService,
   ) { }
 
   create(createCourseDto: CreateCourseDto) {

@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { ImageController } from './image.controller';
 
-import { NatsModule } from 'src/plugins/nats/nats.module';
+import { SocketModule } from 'src/plugins/socket/socket.module';
 
 @Module({
   controllers: [ImageController],
-  providers: [ImageService, NatsModule]
+  providers: [ImageService, SocketModule]
 })
 export class ImageModule { }

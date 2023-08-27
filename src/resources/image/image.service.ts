@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateImageDto } from './dto/create-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
 
-import { NatsService } from 'src/plugins/nats/nats.service';
+import { SocketService } from 'src/plugins/socket/socket.service';
 
 @Injectable()
 export class ImageService {
   constructor(
-    private readonly natsService: NatsService,
+    private readonly socketService: SocketService,
   ) { }
 
   create(createImageDto: CreateImageDto) {
-    this.natsService.sendMessage('image', 'Este es un mensaje enviado desde ImageService.create')
+    this.socketService.sendMessage('image', 'Este es un mensaje enviado desde ImageService.create')
     return 'This action adds a new image';
   }
 
