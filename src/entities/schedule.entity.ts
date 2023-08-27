@@ -18,7 +18,7 @@ export class Schedule {
   endDate: Date;
 
   @Column({ type: 'time' })
-  starHour: string;
+  startHour: string;
 
   @Column({ type: 'time' })
   endHour: string;
