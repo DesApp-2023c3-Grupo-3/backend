@@ -14,6 +14,15 @@ export class ImageScreen {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
+
   @ManyToOne(() => Image, (image) => image.id, {
     nullable: true,
     createForeignKeyConstraints: true,
@@ -25,13 +34,4 @@ export class ImageScreen {
     createForeignKeyConstraints: true,
   })
   screen: Screen;
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
 }

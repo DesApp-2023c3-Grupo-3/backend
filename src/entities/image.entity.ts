@@ -19,6 +19,15 @@ export class Image {
   @Column({ type: 'varchar' })
   name: string;
 
+  @CreateDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @Column({ type: 'timestamptz' })
+  deleteAt: Date;
+
   @ManyToOne(() => ImageType, (imageType) => imageType.id, {
     nullable: true,
     createForeignKeyConstraints: true,
@@ -42,13 +51,4 @@ export class Image {
     createForeignKeyConstraints: true,
   })
   schedule: Schedule;
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
-
-  @Column({ type: 'timestamptz' })
-  deleteAt: Date;
 }

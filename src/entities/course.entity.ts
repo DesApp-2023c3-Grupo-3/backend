@@ -20,6 +20,15 @@ export class Course {
   @Column({ type: 'varchar' })
   name: string;
 
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
+
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,
     createForeignKeyConstraints: true,
@@ -43,15 +52,4 @@ export class Course {
     createForeignKeyConstraints: true,
   })
   subject: Subject;
-
-  //clasroom
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
 }
