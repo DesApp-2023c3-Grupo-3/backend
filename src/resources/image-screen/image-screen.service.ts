@@ -1,26 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { CreateImageScreenDto } from './dto/create-image-screen.dto';
 import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ImageScreen } from 'src/entities/image-screen.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ImageScreenService {
+  constructor(
+    @InjectRepository(ImageScreen)
+    private imageScreenRepository: Repository<ImageScreen>,
+  ) {}
+
   create(createImageScreenDto: CreateImageScreenDto) {
-    return 'This action adds a new imageScreen';
+    return this.imageScreenRepository.save(createImageScreenDto);
   }
 
   findAll() {
-    return `This action returns all imageScreen`;
+    return this.imageScreenRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} imageScreen`;
+    return this.imageScreenRepository.findOneByOrFail({ id });
   }
 
   update(id: number, updateImageScreenDto: UpdateImageScreenDto) {
-    return `This action updates a #${id} imageScreen`;
+    return this.imageScreenRepository.update({ id }, updateImageScreenDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} imageScreen`;
+    return this.imageScreenRepository.delete({ id });
   }
 }
