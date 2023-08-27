@@ -12,7 +12,7 @@ import { CreateImageScreenDto } from './dto/create-image-screen.dto';
 import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('Image Screen')
+@ApiTags('ImageScreen')
 @Controller('image-screen')
 export class ImageScreenController {
   constructor(private readonly imageScreenService: ImageScreenService) {}
