@@ -8,9 +8,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { UpdateImageDto, CreateImageDto } from 'cartelera-unahur';
 import { ApiTags } from '@nestjs/swagger';
-import { CreateImageDto } from './dto/create-image.dto';
 
 @ApiTags('Image')
 @Controller('image')

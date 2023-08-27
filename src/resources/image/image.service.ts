@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Image } from 'src/entities/image.entity';
 import { Repository } from 'typeorm';
