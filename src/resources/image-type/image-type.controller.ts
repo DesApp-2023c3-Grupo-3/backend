@@ -10,7 +10,9 @@ import {
 import { ImageTypeService } from './image-type.service';
 import { CreateImageTypeDto } from './dto/create-image-type.dto';
 import { UpdateImageTypeDto } from './dto/update-image-type.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Image Type')
 @Controller('image-type')
 export class ImageTypeController {
   constructor(private readonly imageTypeService: ImageTypeService) {}
