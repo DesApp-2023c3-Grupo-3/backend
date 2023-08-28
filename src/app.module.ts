@@ -15,7 +15,7 @@ import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
 import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
-import { NatsModule } from './plugins/nats/nats.module';
+import { SocketModule } from './plugins/socket/socket.module';
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { NatsModule } from './plugins/nats/nats.module';
     }),
     DatabaseModule,
 
-    NatsModule,
+    SocketModule,
 
     ContactosModule,
     UserModule,

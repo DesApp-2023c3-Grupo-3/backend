@@ -12,10 +12,3 @@ services:
       - ./docker/postgres/init:/docker-entrypoint-initdb.d/
     ports:
       - '5432:5432'
-
-  nats:
-    image: nats
-    container_name: nats
-    ports:
-      - '4222:4222'
-    restart: always
