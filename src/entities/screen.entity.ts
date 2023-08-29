@@ -13,13 +13,8 @@ export class Screen {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
-  @ManyToOne(() => Sector, (sector) => sector.id, {
-    nullable: true,
-    createForeignKeyConstraints: true,
-  })
-  sector: Sector;
-
-  //subscription??
+  @Column({ type: 'varchar', length: 100 })
+  subscription: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
@@ -29,4 +24,10 @@ export class Screen {
 
   @Column({ type: 'timestamptz' })
   deleteAt: Date;
+
+  @ManyToOne(() => Sector, (sector) => sector.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  sector: Sector;
 }

@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Image } from 'src/entities/image.entity';
 import { Repository } from 'typeorm';
 
+import { SocketService } from 'src/plugins/socket/socket.service';
+
 @Injectable()
 export class ImageService {
   constructor(
@@ -12,7 +14,9 @@ export class ImageService {
   ) {}
 
   create(createImageDto: CreateImageDto) {
+    this.socketService.sendMessage('image', 'Este es un mensaje enviado desde ImageService.create')
     return this.imageRepository.create(createImageDto);
+    private readonly socketService: SocketService,
   }
 
   findAll() {

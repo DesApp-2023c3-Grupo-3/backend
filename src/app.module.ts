@@ -15,6 +15,9 @@ import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
 import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
+import { SocketModule } from './plugins/socket/socket.module';
+import { ClassroomModule } from './resources/classroom/classroom.module';
+import { RoleModule } from './resources/role/role.module';
 
 @Module({
   imports: [
@@ -23,6 +26,8 @@ import { ImageScreenModule } from './resources/image-screen/image-screen.module'
       isGlobal: true,
     }),
     DatabaseModule,
+
+    SocketModule,
 
     ContactosModule,
     UserModule,
@@ -35,6 +40,8 @@ import { ImageScreenModule } from './resources/image-screen/image-screen.module'
     ScreenModule,
     ImageTypeModule,
     ImageScreenModule,
+    ClassroomModule,
+    RoleModule,
   ],
 })
 export class AppModule {}

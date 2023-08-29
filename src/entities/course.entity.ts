@@ -11,6 +11,7 @@ import { Sector } from './sector.entity';
 import { User } from './user.entity';
 import { Schedule } from './schedule.entity';
 import { Subject } from './subject.entity';
+import { Classroom } from './classroom.entity';
 
 @Entity({ name: 'Course' })
 export class Course {
@@ -19,6 +20,15 @@ export class Course {
 
   @Column({ type: 'varchar' })
   name: string;
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,
@@ -44,14 +54,9 @@ export class Course {
   })
   subject: Subject;
 
-  //clasroom
-
-  @CreateDateColumn({ type: 'timestamptz' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
-
-  @DeleteDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  @ManyToOne(() => Classroom, (classroom) => classroom.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  classroom: Classroom;
 }

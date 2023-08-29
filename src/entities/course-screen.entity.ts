@@ -2,23 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Course } from './course.entity';
+import { Screen } from './screen.entity';
 
 @Entity({ name: 'CourseScreen' })
 export class CourseScreen {
   @PrimaryGeneratedColumn('identity')
   id: number;
-
-  @Column({ length: 1024 })
-  name: string;
-
-  @Column({ length: 1024 })
-  dni: string;
-
-  @Column({ length: 1024 })
-  password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
@@ -28,4 +22,16 @@ export class CourseScreen {
 
   @Column({ type: 'timestamptz' })
   deleteAt: Date;
+
+  @ManyToOne(() => Course, (course) => course.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  course: Course;
+
+  @ManyToOne(() => Screen, (screen) => screen.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  screen: Screen;
 }
