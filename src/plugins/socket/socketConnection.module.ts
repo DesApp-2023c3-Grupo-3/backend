@@ -22,8 +22,7 @@ export class SocketConnectionModule {
   }
 
   private async initializeSocketConnection() {
-    const HOST = this.serverConfiguration.nats.host;
-    const PORT = 1235;
+    const PORT = this.serverConfiguration.sockets.port;
     this.socketServer = new WebSocketServer({ port: PORT });
     this.socketServer.on('connection', (ws) => {
       ws.on('message', (data) => {
