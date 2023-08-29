@@ -22,7 +22,7 @@ export class SocketConnectionModule {
   }
 
   private async initializeSocketConnection() {
-    const PORT = this.serverConfiguration.sockets.port;
+    const PORT = this.serverConfiguration.socket.port;
     this.socketServer = new WebSocketServer({ port: PORT });
     this.socketServer.on('connection', (ws) => {
       ws.on('message', (data) => {

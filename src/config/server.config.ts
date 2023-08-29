@@ -5,7 +5,7 @@ type Env = 'development' | 'test' | 'production';
 export interface ServerConfig {
   port: number;
   environment: Env;
-  sockets: {
+  socket: {
     port: number;
   };
 }
@@ -15,8 +15,8 @@ export default registerAs(
   (): ServerConfig => ({
     port: parseInt(process.env.PORT, 10) || 4000,
     environment: (process.env.NODE_ENV as Env) ?? 'development',
-    sockets: {
-      port: Number(process.env.SOCKETS_PORT) || 1234,
+    socket: {
+      port: Number(process.env.SOCKET_PORT) || 1234,
     },
   }),
 );
