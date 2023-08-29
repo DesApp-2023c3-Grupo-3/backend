@@ -11,6 +11,7 @@ import { Sector } from './sector.entity';
 import { User } from './user.entity';
 import { Schedule } from './schedule.entity';
 import { Subject } from './subject.entity';
+import { Classroom } from './classroom.entity';
 
 @Entity({ name: 'Course' })
 export class Course {
@@ -52,4 +53,10 @@ export class Course {
     createForeignKeyConstraints: true,
   })
   subject: Subject;
+
+  @ManyToOne(() => Classroom, (classroom) => classroom.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  classroom: Classroom;
 }
