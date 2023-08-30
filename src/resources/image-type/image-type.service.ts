@@ -1,10 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateImageTypeDto } from './dto/create-image-type.dto';
-import { UpdateImageTypeDto } from './dto/update-image-type.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ImageType } from 'src/entities/image-type.entity';
 import { Repository } from 'typeorm';
 import { SocketService } from 'src/plugins/socket/socket.service';
+import { CreateImageTypeDto, UpdateImageTypeDto } from 'cartelera-unahur';
 
 @Injectable()
 export class ImageTypeService {

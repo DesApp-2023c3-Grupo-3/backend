@@ -8,7 +8,12 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
-import { ImageDto, CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
+import {
+  ImageDto,
+  CreateImageDto,
+  UpdateImageDto,
+  ResponseImageDto,
+} from 'cartelera-unahur';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Image')
@@ -23,13 +28,13 @@ export class ImageController {
   }
 
   @Get()
-  @ApiResponse({ type: Array<ImageDto> })
+  @ApiResponse({ type: ResponseImageDto, isArray: true })
   findAll() {
     return this.imageService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ type: ImageDto })
+  @ApiResponse({ type: ResponseImageDto })
   findOne(@Param('id') id: string) {
     return this.imageService.findOne(+id);
   }

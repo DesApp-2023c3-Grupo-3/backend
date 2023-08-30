@@ -15,11 +15,11 @@ export class ClassroomService {
 
   public async create(createClassroomDto: CreateClassroomDto) {
     console.log(createClassroomDto);
-    const newImage = this.classroomRepository.create(createClassroomDto);
-    const created = await this.classroomRepository.save(newImage);
+    const newClassroom = this.classroomRepository.create(createClassroomDto);
+    const created = await this.classroomRepository.save(newClassroom);
     this.socketService.sendMessage(
-      'image',
-      'Este es un mensaje enviado desde ImageService.create',
+      'Classroom',
+      'Este es un mensaje enviado desde ClassroomService.create',
     );
     return created;
   }
@@ -32,7 +32,7 @@ export class ClassroomService {
     try {
       return this.classroomRepository.find({ where: { id } });
     } catch (error) {
-      throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Classroom not found', HttpStatus.BAD_REQUEST);
     }
   }
 

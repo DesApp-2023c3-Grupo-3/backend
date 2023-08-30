@@ -8,7 +8,12 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { CourseDto, CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
+import {
+  CourseDto,
+  CreateCourseDto,
+  UpdateCourseDto,
+  ResponseCourseDto,
+} from 'cartelera-unahur';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Course')
@@ -23,13 +28,13 @@ export class CourseController {
   }
 
   @Get()
-  @ApiResponse({ type: Array<CourseDto> })
+  @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findAll() {
     return this.courseService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ type: CourseDto })
+  @ApiResponse({ type: ResponseCourseDto })
   findOne(@Param('id') id: string) {
     return this.courseService.findOne(+id);
   }
