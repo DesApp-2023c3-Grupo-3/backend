@@ -15,6 +15,8 @@ const credentials = url
       username: process.env.DATABASE_USERNAME || 'postgres',
       password: process.env.DATABASE_PASSWORD || 'admin1234',
       database: process.env.DATABASE_NAME || `contactos_${environment}`,
+      entities: [__dirname + '/../entities/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/../database/migrations/**/*{.ts,.js}'],
     };
 
 const typeOrmConfig = {

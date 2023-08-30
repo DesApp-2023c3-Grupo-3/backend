@@ -18,6 +18,7 @@ import { ImageScreenModule } from './resources/image-screen/image-screen.module'
 import { SocketModule } from './plugins/socket/socket.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { RoleModule } from './resources/role/role.module';
       isGlobal: true,
     }),
     DatabaseModule,
-
+    CommonModule,
     SocketModule,
 
     ContactosModule,
