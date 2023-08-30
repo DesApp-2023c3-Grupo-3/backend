@@ -30,7 +30,7 @@ export class User {
   updatedAt: Date;
 
   @DeleteDateColumn({ type: 'timestamptz' })
-  deleteAt: Date;
+  deletedAt: Date;
 
   @ManyToOne(() => Role, (role) => role.id, {
     nullable: true,

@@ -32,7 +32,7 @@ export class ScheduleService {
     try {
       return this.scheduleRepository.find({ where: { id } });
     } catch (error) {
-      throw new HttpException('Role not found', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Schedule not found', HttpStatus.BAD_REQUEST);
     }
   }
 
