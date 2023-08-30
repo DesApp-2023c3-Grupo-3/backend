@@ -8,10 +8,12 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ImageTypeService } from './image-type.service';
-import { CreateImageTypeDto } from './dto/create-image-type.dto';
-import { UpdateImageTypeDto } from './dto/update-image-type.dto';
+import {
+  ImageTypeDto,
+  CreateImageTypeDto,
+  UpdateImageTypeDto,
+} from 'cartelera-unahur';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ImageTypeDto } from 'cartelera-unahur';
 
 @ApiTags('ImageType')
 @Controller('image-type')
