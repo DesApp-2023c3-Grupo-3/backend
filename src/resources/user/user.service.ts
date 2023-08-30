@@ -10,17 +10,12 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createUserDto: CreateUserDto) {
     console.log(createUserDto);
     const newUser = this.userRepository.create(createUserDto);
     const created = await this.userRepository.save(newUser);
-    this.socketService.sendMessage(
-      'User',
-      'Este es un mensaje enviado desde UserService.create',
-    );
     return created;
   }
 

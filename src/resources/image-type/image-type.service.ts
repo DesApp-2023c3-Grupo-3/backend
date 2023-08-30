@@ -10,16 +10,11 @@ export class ImageTypeService {
   constructor(
     @InjectRepository(ImageType)
     private readonly imageTypeRepository: Repository<ImageType>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createImageTypeDto: CreateImageTypeDto) {
     const newImage = this.imageTypeRepository.create(createImageTypeDto);
     const created = await this.imageTypeRepository.save(newImage);
-    this.socketService.sendMessage(
-      'imageType',
-      'Este es un mensaje enviado desde ImageTypeService.create',
-    );
     return created;
   }
 

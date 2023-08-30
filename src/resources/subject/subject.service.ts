@@ -10,17 +10,12 @@ export class SubjectService {
   constructor(
     @InjectRepository(Subject)
     private readonly subjectRepository: Repository<Subject>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createSubjectDto: CreateSubjectDto) {
     console.log(createSubjectDto);
     const newSubject = this.subjectRepository.create(createSubjectDto);
     const created = await this.subjectRepository.save(newSubject);
-    this.socketService.sendMessage(
-      'Subject',
-      'Este es un mensaje enviado desde SubjectService.create',
-    );
     return created;
   }
 

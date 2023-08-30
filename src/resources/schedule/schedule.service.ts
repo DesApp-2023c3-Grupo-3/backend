@@ -10,17 +10,12 @@ export class ScheduleService {
   constructor(
     @InjectRepository(Schedule)
     private readonly scheduleRepository: Repository<Schedule>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createScheduleDto: CreateScheduleDto) {
     console.log(createScheduleDto);
     const newSchedule = this.scheduleRepository.create(createScheduleDto);
     const created = await this.scheduleRepository.save(newSchedule);
-    this.socketService.sendMessage(
-      'Schedule',
-      'Este es un mensaje enviado desde ScheduleService.create',
-    );
     return created;
   }
 

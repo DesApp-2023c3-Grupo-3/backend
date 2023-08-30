@@ -10,17 +10,12 @@ export class ClassroomService {
   constructor(
     @InjectRepository(Classroom)
     private readonly classroomRepository: Repository<Classroom>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createClassroomDto: CreateClassroomDto) {
     console.log(createClassroomDto);
     const newClassroom = this.classroomRepository.create(createClassroomDto);
     const created = await this.classroomRepository.save(newClassroom);
-    this.socketService.sendMessage(
-      'Classroom',
-      'Este es un mensaje enviado desde ClassroomService.create',
-    );
     return created;
   }
 

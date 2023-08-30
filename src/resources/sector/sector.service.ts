@@ -10,17 +10,12 @@ export class SectorService {
   constructor(
     @InjectRepository(Sector)
     private readonly sectorRepository: Repository<Sector>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createSectorDto: CreateSectorDto) {
     console.log(createSectorDto);
     const newSector = this.sectorRepository.create(createSectorDto);
     const created = await this.sectorRepository.save(newSector);
-    this.socketService.sendMessage(
-      'Sector',
-      'Este es un mensaje enviado desde SectorService.create',
-    );
     return created;
   }
 

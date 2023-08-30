@@ -10,17 +10,12 @@ export class RoleService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-    private readonly socketService: SocketService,
   ) {}
 
   public async create(createRoleDto: CreateRoleDto) {
     console.log(createRoleDto);
     const newRole = this.roleRepository.create(createRoleDto);
     const created = await this.roleRepository.save(newRole);
-    this.socketService.sendMessage(
-      'Role',
-      'Este es un mensaje enviado desde RoleService.create',
-    );
     return created;
   }
 
