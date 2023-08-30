@@ -1,26 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
+import { User } from 'src/entities/user.entity';
+import { SocketService } from 'src/plugins/socket/socket.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  public async create(createUserDto: CreateUserDto) {
+    console.log(createUserDto);
+    const newUser = this.userRepository.create(createUserDto);
+    const created = await this.userRepository.save(newUser);
+    return created;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  public async findAll() {
+    return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  public async findOne(id: number) {
+    try {
+      return this.userRepository.find({ where: { id } });
+    } catch (error) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  public async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      return this.userRepository.update({ id }, updateUserDto);
+    } catch (error) {
+      throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  public async remove(id: number) {
+    try {
+      return this.userRepository.update(
+        { id },
+        {
+          id,
+          deletedAt: Date.now(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }

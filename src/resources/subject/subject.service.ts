@@ -1,26 +1,55 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSubjectDto } from './dto/create-subject.dto';
-import { UpdateSubjectDto } from './dto/update-subject.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateSubjectDto, UpdateSubjectDto } from 'cartelera-unahur';
+import { Subject } from 'src/entities/subject.entity';
+import { SocketService } from 'src/plugins/socket/socket.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SubjectService {
-  create(createSubjectDto: CreateSubjectDto) {
-    return 'This action adds a new subject';
+  constructor(
+    @InjectRepository(Subject)
+    private readonly subjectRepository: Repository<Subject>,
+  ) {}
+
+  public async create(createSubjectDto: CreateSubjectDto) {
+    console.log(createSubjectDto);
+    const newSubject = this.subjectRepository.create(createSubjectDto);
+    const created = await this.subjectRepository.save(newSubject);
+    return created;
   }
 
-  findAll() {
-    return `This action returns all subject`;
+  public async findAll() {
+    return this.subjectRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} subject`;
+  public async findOne(id: number) {
+    try {
+      return this.subjectRepository.find({ where: { id } });
+    } catch (error) {
+      throw new HttpException('Subject not found', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateSubjectDto: UpdateSubjectDto) {
-    return `This action updates a #${id} subject`;
+  public async update(id: number, updateSubjectDto: UpdateSubjectDto) {
+    try {
+      return this.subjectRepository.update({ id }, updateSubjectDto);
+    } catch (error) {
+      throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subject`;
+  public async remove(id: number) {
+    try {
+      return this.subjectRepository.update(
+        { id },
+        {
+          id,
+          deletedAt: Date.now(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }

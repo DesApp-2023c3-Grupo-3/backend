@@ -27,7 +27,7 @@ export class ImageTypeController {
   }
 
   @Get()
-  @ApiResponse({ type: Array<ImageTypeDto> })
+  @ApiResponse({ type: ImageTypeDto, isArray: true })
   findAll() {
     return this.imageTypeService.findAll();
   }

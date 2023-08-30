@@ -18,7 +18,6 @@ import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
-import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [

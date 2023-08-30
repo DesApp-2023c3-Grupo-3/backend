@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -17,13 +18,13 @@ export class Screen {
   subscription: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamptz' })
-  deleteAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 
   @ManyToOne(() => Sector, (sector) => sector.id, {
     nullable: true,

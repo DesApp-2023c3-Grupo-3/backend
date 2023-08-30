@@ -4,9 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'Clasroom' })
+@Entity({ name: 'Classroom' })
 export class Classroom {
   @PrimaryGeneratedColumn('identity')
   id: number;
@@ -15,11 +16,11 @@ export class Classroom {
   name: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamptz' })
-  deleteAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 }

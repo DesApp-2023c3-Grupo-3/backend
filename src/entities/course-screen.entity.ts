@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,13 +16,13 @@ export class CourseScreen {
   id: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamptz' })
-  deleteAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 
   @ManyToOne(() => Course, (course) => course.id, {
     nullable: true,

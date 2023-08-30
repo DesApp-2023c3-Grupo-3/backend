@@ -8,29 +8,38 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ClassroomService } from './classroom.service';
-import { CreateClassroomDto } from './dto/create-classroom.dto';
-import { UpdateClassroomDto } from './dto/update-classroom.dto';
+import {
+  ClassroomDto,
+  CreateClassroomDto,
+  UpdateClassroomDto,
+} from 'cartelera-unahur';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Classroom')
 @Controller('classroom')
 export class ClassroomController {
   constructor(private readonly classroomService: ClassroomService) {}
 
   @Post()
+  @ApiResponse({ type: CreateClassroomDto })
   create(@Body() createClassroomDto: CreateClassroomDto) {
     return this.classroomService.create(createClassroomDto);
   }
 
   @Get()
+  @ApiResponse({ type: ClassroomDto, isArray: true })
   findAll() {
     return this.classroomService.findAll();
   }
 
   @Get(':id')
+  @ApiResponse({ type: ClassroomDto })
   findOne(@Param('id') id: string) {
     return this.classroomService.findOne(+id);
   }
 
   @Patch(':id')
+  @ApiResponse({ type: ClassroomDto })
   update(
     @Param('id') id: string,
     @Body() updateClassroomDto: UpdateClassroomDto,
@@ -39,6 +48,7 @@ export class ClassroomController {
   }
 
   @Delete(':id')
+  @ApiResponse({ type: ClassroomDto })
   remove(@Param('id') id: string) {
     return this.classroomService.remove(+id);
   }
