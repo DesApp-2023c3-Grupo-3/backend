@@ -3,9 +3,12 @@ import { ImageService } from './image.service';
 import { ImageController } from './image.controller';
 
 import { SocketModule } from 'src/plugins/socket/socket.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Image } from 'src/entities/image.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Image])],
   controllers: [ImageController],
-  providers: [ImageService, SocketModule]
+  providers: [ImageService, SocketModule],
 })
-export class ImageModule { }
+export class ImageModule {}
