@@ -33,6 +33,12 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
+  @Get('findAllBurnt')
+  @ApiResponse({ type: ResponseCourseDto, isArray: true })
+  findAllBurnt() {
+    return this.courseService.findAllBurnt();
+  }
+
   @Get(':id')
   @ApiResponse({ type: ResponseCourseDto })
   findOne(@Param('id') id: string) {
