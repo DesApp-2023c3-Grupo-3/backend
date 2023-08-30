@@ -15,6 +15,7 @@ export class ImageService {
   ) {}
 
   public async create(createImageDto: CreateImageDto) {
+    console.log(createImageDto);
     const newImage = this.imageRepository.create(createImageDto);
     const created = await this.imageRepository.save(newImage);
     this.socketService.sendMessage(
