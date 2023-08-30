@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Entity,
+  DeleteDateColumn,
 } from 'typeorm';
 import { ImageType } from './image-type.entity';
 import { Schedule } from './schedule.entity';
@@ -20,13 +21,13 @@ export class Image {
   name: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamptz' })
-  deleteAt: Date;
+  @DeleteDateColumn({ type: 'timestamptz' })
+  deletedAt: Date;
 
   @ManyToOne(() => ImageType, (imageType) => imageType.id, {
     nullable: true,

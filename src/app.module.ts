@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import serverConfig from './config/server.config';
+import { DatabaseModule } from './database/database.module';
+import { CommonModule } from './common/common.module';
+import { SocketModule } from './plugins/socket/socket.module';
 
-import { ContactosModule } from './resources/contactos/contactos.module';
 import { UserModule } from './resources/user/user.module';
 import { ImageModule } from './resources/image/image.module';
 import { CourseModule } from './resources/course/course.module';
@@ -15,10 +16,8 @@ import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
 import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
-import { SocketModule } from './plugins/socket/socket.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
-import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -30,7 +29,6 @@ import { CommonModule } from './common/common.module';
     CommonModule,
     SocketModule,
 
-    ContactosModule,
     UserModule,
     ImageModule,
     CourseModule,
