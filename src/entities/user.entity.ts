@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -23,12 +24,12 @@ export class User {
   password: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
-  deletedAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @Column({ type: 'timestamptz' })
+  @DeleteDateColumn({ type: 'timestamptz' })
   deleteAt: Date;
 
   @ManyToOne(() => Role, (role) => role.id, {

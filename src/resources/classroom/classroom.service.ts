@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreateClassroomDto } from './dto/create-classroom.dto';
-import { UpdateClassroomDto } from './dto/update-classroom.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CreateClassroomDto, UpdateClassroomDto } from 'cartelera-unahur';
+import { Classroom } from 'src/entities/classroom.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { SocketService } from 'src/plugins/socket/socket.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ClassroomService {
-  create(createClassroomDto: CreateClassroomDto) {
-    return 'This action adds a new classroom';
+  constructor(
+    @InjectRepository(Classroom)
+    private readonly classroomRepository: Repository<Classroom>,
+    private readonly socketService: SocketService,
+  ) {}
+
+  public async create(createClassroomDto: CreateClassroomDto) {
+    console.log(createClassroomDto);
+    const newImage = this.classroomRepository.create(createClassroomDto);
+    const created = await this.classroomRepository.save(newImage);
+    this.socketService.sendMessage(
+      'image',
+      'Este es un mensaje enviado desde ImageService.create',
+    );
+    return created;
   }
 
-  findAll() {
-    return `This action returns all classroom`;
+  public async findAll() {
+    return this.classroomRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} classroom`;
+  public async findOne(id: number) {
+    try {
+      return this.classroomRepository.find({ where: { id } });
+    } catch (error) {
+      throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateClassroomDto: UpdateClassroomDto) {
-    return `This action updates a #${id} classroom`;
+  public async update(id: number, updateClassroomDto: UpdateClassroomDto) {
+    try {
+      return this.classroomRepository.update({ id }, updateClassroomDto);
+    } catch (error) {
+      throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} classroom`;
+  public async remove(id: number) {
+    try {
+      return this.classroomRepository.update(
+        { id },
+        {
+          id,
+          deletedAt: Date.now(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }
