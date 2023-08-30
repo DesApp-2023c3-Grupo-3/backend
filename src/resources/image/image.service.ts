@@ -1,33 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
 
 import { SocketService } from 'src/plugins/socket/socket.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Image } from 'src/entities/image.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ImageService {
   constructor(
+    @InjectRepository(Image)
+    private readonly imageRepository: Repository<Image>,
     private readonly socketService: SocketService,
-  ) { }
+  ) {}
 
-  create(createImageDto: CreateImageDto) {
-    this.socketService.sendMessage('image', 'Este es un mensaje enviado desde ImageService.create')
-    return 'This action adds a new image';
+  public async create(createImageDto: CreateImageDto) {
+    const newImage = this.imageRepository.create(createImageDto);
+    const created = await this.imageRepository.save(newImage);
+    this.socketService.sendMessage(
+      'image',
+      'Este es un mensaje enviado desde ImageService.create',
+    );
+    return created;
   }
 
-  findAll() {
-    return `This action returns all image`;
+  public async findAll() {
+    return this.imageRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
+  public async findOne(id: number) {
+    try {
+      return this.imageRepository.find({ where: { id } });
+    } catch (error) {
+      throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`;
+  public async update(id: number, updateImageDto: UpdateImageDto) {
+    try {
+      return this.imageRepository.update({ id }, updateImageDto);
+    } catch (error) {
+      throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  public async remove(id: number) {
+    try {
+      return this.imageRepository.update(
+        { id },
+        {
+          id,
+          deletedAt: Date.now(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }
