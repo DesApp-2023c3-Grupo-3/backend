@@ -1,4 +1,6 @@
-export const cousesStub = [
+import { CourseDto, ResponseCourseDto } from 'cartelera-unahur';
+
+export const coursesStub: ResponseCourseDto[] = [
   {
     id: 2,
     name: 'Programación Avanzada',
@@ -23,8 +25,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 2,
-      startDate: '2023-09-15',
-      endDate: '2023-12-15',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '13:30',
       endHour: '16:30',
       scheduleDays: '2023-9-18, 2023-9-20, 2023-9-25',
@@ -58,8 +60,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 3,
-      startDate: '2023-09-10',
-      endDate: '2023-12-20',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '10:00',
       endHour: '11:30',
       scheduleDays: '2023-9-12, 2023-9-14, 2023-9-19',
@@ -93,8 +95,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 4,
-      startDate: '2023-09-18',
-      endDate: '2023-12-15',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '14:00',
       endHour: '17:00',
       scheduleDays: '2023-9-20, 2023-9-22, 2023-9-27',
@@ -128,8 +130,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 5,
-      startDate: '2023-09-14',
-      endDate: '2023-12-10',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '16:30',
       endHour: '18:00',
       scheduleDays: '2023-9-16, 2023-9-21, 2023-9-23',
@@ -163,8 +165,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 6,
-      startDate: '2023-09-12',
-      endDate: '2023-12-18',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '11:00',
       endHour: '13:00',
       scheduleDays: '2023-9-14, 2023-9-19, 2023-9-26',
@@ -198,8 +200,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 7,
-      startDate: '2023-09-10',
-      endDate: '2023-12-10',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '9:00',
       endHour: '10:30',
       scheduleDays: '2023-9-12, 2023-9-14, 2023-9-19',
@@ -233,8 +235,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 8,
-      startDate: '2023-09-15',
-      endDate: '2023-12-18',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '10:30',
       endHour: '12:00',
       scheduleDays: '2023-9-18, 2023-9-20, 2023-9-25',
@@ -268,8 +270,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 9,
-      startDate: '2023-09-18',
-      endDate: '2023-12-20',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '13:00',
       endHour: '15:00',
       scheduleDays: '2023-9-20, 2023-9-22, 2023-9-27',
@@ -303,8 +305,8 @@ export const cousesStub = [
     },
     schedule: {
       id: 10,
-      startDate: '2023-09-12',
-      endDate: '2023-12-15',
+      startDate: new Date(),
+      endDate: new Date(),
       startHour: '15:30',
       endHour: '18:00',
       scheduleDays: '2023-9-14, 2023-9-19, 2023-9-26',

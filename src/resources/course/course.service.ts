@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Course } from 'src/entities/course.entity';
-import { cousesStub } from './stubs/courses.stub';
+import { coursesStub } from './stubs/courses.stub';
 
 @Injectable()
 export class CourseService {
@@ -61,6 +61,6 @@ export class CourseService {
   }
 
   public async findBySector(sectorId: number) {
-    return cousesStub;
+    return coursesStub;
   }
 }
