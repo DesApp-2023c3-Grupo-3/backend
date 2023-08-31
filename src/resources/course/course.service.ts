@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Course } from 'src/entities/course.entity';
+import { coursesStub } from './stubs/courses.stub';
 
 @Injectable()
 export class CourseService {
@@ -57,5 +58,9 @@ export class CourseService {
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async findBySector(sectorId: number) {
+    return coursesStub;
   }
 }

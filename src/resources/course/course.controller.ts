@@ -33,6 +33,12 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
+  @Get('sector/:sectorId')
+  @ApiResponse({ type: ResponseCourseDto, isArray: true })
+  findBySector(@Param('sectorId') sectorId: number) {
+    return this.courseService.findBySector(sectorId);
+  }
+
   @Get(':id')
   @ApiResponse({ type: ResponseCourseDto })
   findOne(@Param('id') id: string) {
