@@ -18,6 +18,7 @@ import { ImageTypeModule } from './resources/image-type/image-type.module';
 import { ImageScreenModule } from './resources/image-screen/image-screen.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
+import { UploadsController } from './resources/uploads/uploads.controller';
 
 @Module({
   imports: [
@@ -42,5 +43,6 @@ import { RoleModule } from './resources/role/role.module';
     ClassroomModule,
     RoleModule,
   ],
+  controllers: [UploadsController],
 })
 export class AppModule {}
