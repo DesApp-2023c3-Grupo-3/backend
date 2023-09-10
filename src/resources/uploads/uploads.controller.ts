@@ -21,7 +21,6 @@ import { UploadImageResponseDTO } from 'cartelera-unahur';
 
 @ApiTags('uploads')
 @ApiBearerAuth()
-@ApiResponse({ status: 401, description: 'Unauthorized' })
 @Controller('uploads')
 export class UploadsController {
   @ApiOperation({ summary: 'Carga al servidor un archivo de Cargo' })
