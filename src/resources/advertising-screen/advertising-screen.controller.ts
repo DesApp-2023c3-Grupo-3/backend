@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { AdvertisingScreenService } from './image-screen.service';
+import { AdvertisingScreenService } from './advertising-screen.service';
 import { CreateImageScreenDto } from './dto/create-image-screen.dto';
 import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
 

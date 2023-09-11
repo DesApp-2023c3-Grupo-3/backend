@@ -7,7 +7,7 @@ import {
   Entity,
   DeleteDateColumn,
 } from 'typeorm';
-import { ImageType } from './image-type.entity';
+import { AdvertisingType } from './advertising-type.entity';
 import { Schedule } from './schedule.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
@@ -29,11 +29,11 @@ export class Advertising {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @ManyToOne(() => ImageType, (imageType) => imageType.id, {
+  @ManyToOne(() => AdvertisingType, (advertisingType) => advertisingType.id, {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  imageType: ImageType;
+  imageType: AdvertisingType;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,

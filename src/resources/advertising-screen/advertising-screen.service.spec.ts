@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ImageScreenService } from './image-screen.service';
+import { ImageScreenService } from './advertising-screen.service';
 
 describe('ImageScreenService', () => {
   let service: ImageScreenService;

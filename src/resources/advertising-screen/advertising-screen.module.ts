@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AdvertisingScreenService } from './image-screen.service';
-import { AdvertisingScreenController } from './image-screen.controller';
+import { AdvertisingScreenService } from './advertising-screen.service';
+import { AdvertisingScreenController } from './advertising-screen.controller';
 
 @Module({
   controllers: [AdvertisingScreenController],

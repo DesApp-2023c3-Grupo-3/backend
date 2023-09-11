@@ -23,7 +23,7 @@ import { UploadImageResponseDTO } from 'cartelera-unahur';
 @ApiBearerAuth()
 @Controller('uploads')
 export class UploadsController {
-  @ApiOperation({ summary: 'Carga al servidor un archivo de Cargo' })
+  @ApiOperation({ summary: 'Carga al servidor una imagen' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -43,7 +43,7 @@ export class UploadsController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file', multerOptions()))
-  @Post('/cargos')
+  @Post('/image')
   uploadFileCargo(
     @UploadedFile(parseFilePipeBuilder)
     file: Express.Multer.File,

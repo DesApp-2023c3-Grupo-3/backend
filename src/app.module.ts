@@ -14,8 +14,8 @@ import { SubjectModule } from './resources/subject/subject.module';
 import { CourseScreenModule } from './resources/course-screen/course-screen.module';
 import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
-import { ImageTypeModule } from './resources/image-type/image-type.module';
-import { AdvertisingScreenModule } from './resources/advertising-screen/image-screen.module';
+import { AdvertisingTypeModule } from './resources/Advertising-type/advertising-type.module';
+import { AdvertisingScreenModule } from './resources/advertising-screen/advertising-screen.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { UploadsController } from './resources/uploads/uploads.controller';
@@ -38,7 +38,7 @@ import { UploadsController } from './resources/uploads/uploads.controller';
     CourseScreenModule,
     SectorModule,
     ScreenModule,
-    ImageTypeModule,
+    AdvertisingTypeModule,
     AdvertisingScreenModule,
     ClassroomModule,
     RoleModule,

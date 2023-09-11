@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdvertisingScreenController } from './image-screen.controller';
-import { AdvertisingScreenService } from './image-screen.service';
+import { AdvertisingScreenController } from './advertising-screen.controller';
+import { AdvertisingScreenService } from './advertising-screen.service';
 
 describe('AdvertisingScreenController', () => {
   let controller: AdvertisingScreenController;

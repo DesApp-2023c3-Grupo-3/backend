@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ImageController } from './advertising.controller';
-import { ImageService } from './advertising.service';
+import { AdvertisingController } from './advertising.controller';
+import { AdvertisingService } from './advertising.service';
 
-describe('ImageController', () => {
-  let controller: ImageController;
+describe('AdvertisingController', () => {
+  let controller: AdvertisingController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ImageController],
-      providers: [ImageService],
+      controllers: [AdvertisingController],
+      providers: [AdvertisingService],
     }).compile();
 
-    controller = module.get<ImageController>(ImageController);
+    controller = module.get<AdvertisingController>(AdvertisingController);
   });
 
   it('should be defined', () => {

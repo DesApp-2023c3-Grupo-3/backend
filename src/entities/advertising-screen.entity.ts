@@ -27,7 +27,7 @@ export class AdvertisingScreen {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  image: Advertising;
+  advertising: Advertising;
 
   @ManyToOne(() => Screen, (screen) => screen.id, {
     nullable: true,

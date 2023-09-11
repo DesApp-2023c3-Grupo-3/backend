@@ -1,30 +1,30 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ImageType } from 'src/entities/image-type.entity';
+import { AdvertisingType } from 'src/entities/advertising-type.entity';
 import { Repository } from 'typeorm';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { CreateImageTypeDto, UpdateImageTypeDto } from 'cartelera-unahur';
 
 @Injectable()
-export class ImageTypeService {
+export class AdvertisingTypeService {
   constructor(
-    @InjectRepository(ImageType)
-    private readonly imageTypeRepository: Repository<ImageType>,
+    @InjectRepository(AdvertisingType)
+    private readonly advertisingTypeRepository: Repository<AdvertisingType>,
   ) {}
 
   public async create(createImageTypeDto: CreateImageTypeDto) {
-    const newImage = this.imageTypeRepository.create(createImageTypeDto);
-    const created = await this.imageTypeRepository.save(newImage);
+    const newImage = this.advertisingTypeRepository.create(createImageTypeDto);
+    const created = await this.advertisingTypeRepository.save(newImage);
     return created;
   }
 
   public async findAll() {
-    return this.imageTypeRepository.find();
+    return this.advertisingTypeRepository.find();
   }
 
   public async findOne(id: number) {
     try {
-      return this.imageTypeRepository.find({ where: { id } });
+      return this.advertisingTypeRepository.find({ where: { id } });
     } catch (error) {
       throw new HttpException('ImageType not found', HttpStatus.BAD_REQUEST);
     }
@@ -32,7 +32,7 @@ export class ImageTypeService {
 
   public async update(id: number, updateImageTypeDto: UpdateImageTypeDto) {
     try {
-      return this.imageTypeRepository.update({ id }, updateImageTypeDto);
+      return this.advertisingTypeRepository.update({ id }, updateImageTypeDto);
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
@@ -40,7 +40,7 @@ export class ImageTypeService {
 
   public async remove(id: number) {
     try {
-      return this.imageTypeRepository.update(
+      return this.advertisingTypeRepository.update(
         { id },
         {
           id,

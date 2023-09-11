@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ImageTypeService } from './image-type.service';
+import { AdvertisingTypeService } from './advertising-type.service';
 import {
   ImageTypeDto,
   CreateImageTypeDto,
@@ -15,10 +15,10 @@ import {
 } from 'cartelera-unahur';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('ImageType')
-@Controller('image-type')
-export class ImageTypeController {
-  constructor(private readonly imageTypeService: ImageTypeService) {}
+@ApiTags('AdvertisingType')
+@Controller('advertising-type')
+export class AdvertisingTypeController {
+  constructor(private readonly imageTypeService: AdvertisingTypeService) {}
 
   @Post()
   @ApiResponse({ type: ImageTypeDto })
