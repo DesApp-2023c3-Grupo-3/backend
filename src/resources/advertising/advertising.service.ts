@@ -1,7 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
-
-import { SocketService } from 'src/plugins/socket/socket.service';
+import { SocketService } from '../../plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
 import { Repository } from 'typeorm';
