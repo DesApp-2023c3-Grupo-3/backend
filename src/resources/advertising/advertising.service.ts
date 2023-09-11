@@ -3,21 +3,21 @@ import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
 
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Image } from 'src/entities/image.entity';
+import { Advertising } from '../../entities/advertising.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class ImageService {
+export class AdvertisingService {
   constructor(
-    @InjectRepository(Image)
-    private readonly imageRepository: Repository<Image>,
+    @InjectRepository(Advertising)
+    private readonly advertisingRepository: Repository<Advertising>,
     private readonly socketService: SocketService,
   ) {}
 
   public async create(createImageDto: CreateImageDto) {
     console.log(createImageDto);
-    const newImage = this.imageRepository.create(createImageDto);
-    const created = await this.imageRepository.save(newImage);
+    const newImage = this.advertisingRepository.create(createImageDto);
+    const created = await this.advertisingRepository.save(newImage);
     this.socketService.sendMessage(
       'image',
       'Este es un mensaje enviado desde ImageService.create',
@@ -26,12 +26,12 @@ export class ImageService {
   }
 
   public async findAll() {
-    return this.imageRepository.find();
+    return this.advertisingRepository.find();
   }
 
   public async findOne(id: number) {
     try {
-      return this.imageRepository.find({ where: { id } });
+      return this.advertisingRepository.find({ where: { id } });
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
     }
@@ -39,7 +39,7 @@ export class ImageService {
 
   public async update(id: number, updateImageDto: UpdateImageDto) {
     try {
-      return this.imageRepository.update({ id }, updateImageDto);
+      return this.advertisingRepository.update({ id }, updateImageDto);
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
@@ -47,7 +47,7 @@ export class ImageService {
 
   public async remove(id: number) {
     try {
-      return this.imageRepository.update(
+      return this.advertisingRepository.update(
         { id },
         {
           id,

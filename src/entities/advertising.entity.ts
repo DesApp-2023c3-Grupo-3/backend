@@ -12,8 +12,8 @@ import { Schedule } from './schedule.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
 
-@Entity({ name: 'Image' })
-export class Image {
+@Entity({ name: 'Advertising' })
+export class Advertising {
   @PrimaryGeneratedColumn('identity')
   id: number;
 

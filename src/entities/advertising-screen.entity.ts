@@ -6,11 +6,11 @@ import {
   DeleteDateColumn,
   Entity,
 } from 'typeorm';
-import { Image } from './image.entity';
+import { Advertising } from './advertising.entity';
 import { Screen } from './screen.entity';
 
-@Entity({ name: 'ImageScreen' })
-export class ImageScreen {
+@Entity({ name: 'AdvertisingScreen' })
+export class AdvertisingScreen {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
@@ -23,11 +23,11 @@ export class ImageScreen {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @ManyToOne(() => Image, (image) => image.id, {
+  @ManyToOne(() => Advertising, (advertising) => advertising.id, {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  image: Image;
+  image: Advertising;
 
   @ManyToOne(() => Screen, (screen) => screen.id, {
     nullable: true,

@@ -3,7 +3,7 @@ import { CreateImageScreenDto } from './dto/create-image-screen.dto';
 import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
 
 @Injectable()
-export class ImageScreenService {
+export class AdvertisingScreenService {
   create(createImageScreenDto: CreateImageScreenDto) {
     return 'This action adds a new imageScreen';
   }

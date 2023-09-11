@@ -7,27 +7,29 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ImageScreenService } from './image-screen.service';
+import { AdvertisingScreenService } from './image-screen.service';
 import { CreateImageScreenDto } from './dto/create-image-screen.dto';
 import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
 
-@Controller('image-screen')
-export class ImageScreenController {
-  constructor(private readonly imageScreenService: ImageScreenService) {}
+@Controller('advertising-screen')
+export class AdvertisingScreenController {
+  constructor(
+    private readonly advertisingScreenService: AdvertisingScreenService,
+  ) {}
 
   @Post()
   create(@Body() createImageScreenDto: CreateImageScreenDto) {
-    return this.imageScreenService.create(createImageScreenDto);
+    return this.advertisingScreenService.create(createImageScreenDto);
   }
 
   @Get()
   findAll() {
-    return this.imageScreenService.findAll();
+    return this.advertisingScreenService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.imageScreenService.findOne(+id);
+    return this.advertisingScreenService.findOne(+id);
   }
 
   @Patch(':id')
@@ -35,11 +37,11 @@ export class ImageScreenController {
     @Param('id') id: string,
     @Body() updateImageScreenDto: UpdateImageScreenDto,
   ) {
-    return this.imageScreenService.update(+id, updateImageScreenDto);
+    return this.advertisingScreenService.update(+id, updateImageScreenDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.imageScreenService.remove(+id);
+    return this.advertisingScreenService.remove(+id);
   }
 }

@@ -7,7 +7,7 @@ import { CommonModule } from './common/common.module';
 import { SocketModule } from './plugins/socket/socket.module';
 
 import { UserModule } from './resources/user/user.module';
-import { ImageModule } from './resources/image/image.module';
+import { AdvertisingModule } from './resources/advertising/advertising.module';
 import { CourseModule } from './resources/course/course.module';
 import { ScheduleModule } from './resources/schedule/schedule.module';
 import { SubjectModule } from './resources/subject/subject.module';
@@ -15,7 +15,7 @@ import { CourseScreenModule } from './resources/course-screen/course-screen.modu
 import { SectorModule } from './resources/sector/sector.module';
 import { ScreenModule } from './resources/screen/screen.module';
 import { ImageTypeModule } from './resources/image-type/image-type.module';
-import { ImageScreenModule } from './resources/image-screen/image-screen.module';
+import { AdvertisingScreenModule } from './resources/advertising-screen/image-screen.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { UploadsController } from './resources/uploads/uploads.controller';
@@ -31,7 +31,7 @@ import { UploadsController } from './resources/uploads/uploads.controller';
     SocketModule,
 
     UserModule,
-    ImageModule,
+    AdvertisingModule,
     CourseModule,
     ScheduleModule,
     SubjectModule,
@@ -39,7 +39,7 @@ import { UploadsController } from './resources/uploads/uploads.controller';
     SectorModule,
     ScreenModule,
     ImageTypeModule,
-    ImageScreenModule,
+    AdvertisingScreenModule,
     ClassroomModule,
     RoleModule,
   ],
