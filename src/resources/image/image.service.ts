@@ -18,10 +18,12 @@ export class ImageService {
     console.log(createImageDto);
     const newImage = this.imageRepository.create(createImageDto);
     const created = await this.imageRepository.save(newImage);
-    this.socketService.sendMessage(
-      'image',
-      'Este es un mensaje enviado desde ImageService.create',
-    );
+    this.socketService.sendMessage('advertising', {
+      id: 1,
+      advertisingTypeId: 1,
+      title: 'aviso default',
+      payload: 'url default',
+    });
     return created;
   }
 
