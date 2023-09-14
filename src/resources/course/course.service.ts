@@ -19,10 +19,13 @@ export class CourseService {
   public async create(createCourseDto: CreateCourseDto) {
     const newCourse = this.courseRepository.create(createCourseDto);
     const created = await this.courseRepository.save(newCourse);
-    this.natsService.sendMessage(
-      'course',
-      'Este es un mensaje enviado desde CourseService.create',
-    );
+    this.natsService.sendMessage('course', {
+      id: 1,
+      title: 'comision default',
+      subject: 'materia default',
+      classroom: 'aula default',
+      schedule: 'horario default',
+    });
     return created;
   }
 
