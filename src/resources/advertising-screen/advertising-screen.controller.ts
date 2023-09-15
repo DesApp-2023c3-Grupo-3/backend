@@ -8,8 +8,10 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingScreenService } from './advertising-screen.service';
-import { CreateImageScreenDto } from './dto/create-image-screen.dto';
-import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
+import {
+  CreateAdvertisingScreenDto,
+  UpdateAdvertisingScreenDto,
+} from 'cartelera-unahur';
 
 @Controller('advertising-screen')
 export class AdvertisingScreenController {
@@ -18,8 +20,8 @@ export class AdvertisingScreenController {
   ) {}
 
   @Post()
-  create(@Body() createImageScreenDto: CreateImageScreenDto) {
-    return this.advertisingScreenService.create(createImageScreenDto);
+  create(@Body() createAdvertisingScreenDto: CreateAdvertisingScreenDto) {
+    return this.advertisingScreenService.create(createAdvertisingScreenDto);
   }
 
   @Get()
@@ -35,9 +37,12 @@ export class AdvertisingScreenController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateImageScreenDto: UpdateImageScreenDto,
+    @Body() updateAdvertisingScreenDto: UpdateAdvertisingScreenDto,
   ) {
-    return this.advertisingScreenService.update(+id, updateImageScreenDto);
+    return this.advertisingScreenService.update(
+      +id,
+      updateAdvertisingScreenDto,
+    );
   }
 
   @Delete(':id')

@@ -33,7 +33,7 @@ export class Advertising {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  imageType: AdvertisingType;
+  advertisingType: AdvertisingType;
 
   @ManyToOne(() => User, (user) => user.id, {
     nullable: true,
