@@ -18,10 +18,12 @@ export class AdvertisingService {
     const newAdvertising =
       this.advertisingRepository.create(createAdvertisingDto);
     const created = await this.advertisingRepository.save(newAdvertising);
-    this.socketService.sendMessage(
-      'Advertising',
-      'Este es un mensaje enviado desde AdvertisingService.create',
-    );
+    this.socketService.sendMessage('advertising', {
+      id: 1,
+      advertisingTypeId: 1,
+      title: 'aviso default',
+      payload: 'url default',
+    });
     return created;
   }
 
