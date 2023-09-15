@@ -4,8 +4,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 export const filesConfigCargos = {
-  destination: process.env.FILESYSTEM_STORAGE || './localUpload',
-  fileType: process.env.UPLOAD_TYPES_SUPPORTED || 'jpg|jpeg|png',
+  destination: process.env.FILESYSTEM_STORAGE || './public',
+  fileType: process.env.UPLOAD_TYPES_SUPPORTED || 'jpg|jpeg|png|pdf',
   maxSize: parseInt(process.env.UPLOAD_SIZE_SUPPORTED) || 1024 * 1024 * 5,
   responseHeaders: (fileName: string): any => {
     return {

@@ -1,28 +1,31 @@
 import {
   Controller,
+  Get,
   Post,
-  UploadedFile,
+  Body,
+  Patch,
+  Param,
+  Delete,
   UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import {
-  multerOptions,
-  parseFilePipeBuilder,
-} from '../../config/uploads.config';
+import { ImageService } from './image.service';
+import { multerOptions, parseFilePipeBuilder } from 'src/config/uploads.config';
 import { UploadImageResponseDTO } from 'cartelera-unahur';
 
-@ApiTags('uploads')
-@ApiBearerAuth()
-@Controller('uploads')
-export class UploadsController {
+@ApiTags('Image')
+@Controller('image')
+export class ImageController {
+  constructor(public readonly roleService: ImageService) {}
+
   @ApiOperation({ summary: 'Carga al servidor una imagen' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -43,11 +46,13 @@ export class UploadsController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file', multerOptions()))
-  @Post('/image')
-  uploadFileCargo(
-    @UploadedFile(parseFilePipeBuilder)
-    file: Express.Multer.File,
-  ) {
-    return new UploadImageResponseDTO(file);
+  @Post()
+  create(@UploadedFile(parseFilePipeBuilder) file: Express.Multer.File) {
+    return this.roleService.create(file);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.roleService.findOne(+id);
   }
 }

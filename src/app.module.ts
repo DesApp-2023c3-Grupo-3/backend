@@ -18,8 +18,7 @@ import { AdvertisingTypeModule } from './resources/Advertising-type/advertising-
 import { AdvertisingScreenModule } from './resources/advertising-screen/advertising-screen.module';
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
-import { UploadsController } from './resources/uploads/uploads.controller';
-
+import { ImageModule } from './resources/image/image.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,7 +41,7 @@ import { UploadsController } from './resources/uploads/uploads.controller';
     AdvertisingScreenModule,
     ClassroomModule,
     RoleModule,
+    ImageModule,
   ],
-  controllers: [UploadsController],
 })
 export class AppModule {}
