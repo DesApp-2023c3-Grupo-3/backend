@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { ImageService } from './image.service';
 import {
-  filesConfigImages,
+  filesConfigImage,
   multerOptions,
   parseFilePipeBuilder,
 } from 'src/config/uploads.config';
@@ -64,11 +64,11 @@ export class ImageController {
     @Param('id') id: string,
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
-    const cargo = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
 
-    const imagePath = createReadStream(cargo.path);
+    const imagePath = createReadStream(image.path);
 
-    response.set(filesConfigImages.responseHeaders(cargo.path));
+    response.set(filesConfigImage.responseHeaders(image.path));
 
     return new StreamableFile(imagePath);
   }
