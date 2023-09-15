@@ -3,7 +3,6 @@ import { CreateRoleDto, UpdateRoleDto } from 'cartelera-unahur';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
-import { CreateImageDto } from './dto/create-image.dto';
 
 @Injectable()
 export class ImageService {

@@ -19,7 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { ImageService } from './image.service';
 import { multerOptions, parseFilePipeBuilder } from 'src/config/uploads.config';
-import { UploadImageResponseDTO } from 'cartelera-unahur';
+import { UploadImageDTO } from 'cartelera-unahur';
 
 @ApiTags('Image')
 @Controller('image')
@@ -42,7 +42,7 @@ export class ImageController {
   @ApiResponse({
     status: 201,
     description: 'Created',
-    type: UploadImageResponseDTO,
+    type: UploadImageDTO,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file', multerOptions()))

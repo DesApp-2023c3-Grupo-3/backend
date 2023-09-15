@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateScreenDto } from './dto/create-screen.dto';
-import { UpdateScreenDto } from './dto/update-screen.dto';
+import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
 
 @Injectable()
 export class ScreenService {

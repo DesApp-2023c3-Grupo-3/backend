@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCourseScreenDto } from './dto/create-course-screen.dto';
-import { UpdateCourseScreenDto } from './dto/update-course-screen.dto';
+import { CreateCourseScreenDto, UpdateCourseScreenDto } from 'cartelera-unahur';
 
 @Injectable()
 export class CourseScreenService {
