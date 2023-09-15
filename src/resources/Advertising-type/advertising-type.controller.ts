@@ -8,48 +8,50 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingTypeService } from './advertising-type.service';
-import {
-  ImageTypeDto,
-  CreateImageTypeDto,
-  UpdateImageTypeDto,
-} from 'cartelera-unahur';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  AdvertisingTypeDto,
+  CreateAdvertisingTypeDto,
+  UpdateAdvertisingTypeDto,
+} from 'cartelera-unahur';
 
 @ApiTags('AdvertisingType')
 @Controller('advertising-type')
 export class AdvertisingTypeController {
-  constructor(private readonly imageTypeService: AdvertisingTypeService) {}
+  constructor(
+    private readonly advertisingTypeService: AdvertisingTypeService,
+  ) {}
 
   @Post()
-  @ApiResponse({ type: ImageTypeDto })
-  create(@Body() createImageTypeDto: CreateImageTypeDto) {
-    return this.imageTypeService.create(createImageTypeDto);
+  @ApiResponse({ type: AdvertisingTypeDto })
+  create(@Body() createAdvertisingTypeDto: CreateAdvertisingTypeDto) {
+    return this.advertisingTypeService.create(createAdvertisingTypeDto);
   }
 
   @Get()
-  @ApiResponse({ type: ImageTypeDto, isArray: true })
+  @ApiResponse({ type: AdvertisingTypeDto, isArray: true })
   findAll() {
-    return this.imageTypeService.findAll();
+    return this.advertisingTypeService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ type: ImageTypeDto })
+  @ApiResponse({ type: AdvertisingTypeDto })
   findOne(@Param('id') id: string) {
-    return this.imageTypeService.findOne(+id);
+    return this.advertisingTypeService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiResponse({ type: ImageTypeDto })
+  @ApiResponse({ type: AdvertisingTypeDto })
   update(
     @Param('id') id: string,
-    @Body() updateImageTypeDto: UpdateImageTypeDto,
+    @Body() updateAdvertisingTypeDto: UpdateAdvertisingTypeDto,
   ) {
-    return this.imageTypeService.update(+id, updateImageTypeDto);
+    return this.advertisingTypeService.update(+id, updateAdvertisingTypeDto);
   }
 
   @Delete(':id')
-  @ApiResponse({ type: ImageTypeDto })
+  @ApiResponse({ type: AdvertisingTypeDto })
   remove(@Param('id') id: string) {
-    return this.imageTypeService.remove(+id);
+    return this.advertisingTypeService.remove(+id);
   }
 }

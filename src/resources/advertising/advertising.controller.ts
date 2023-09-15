@@ -8,13 +8,13 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import {
-  ImageDto,
-  CreateImageDto,
-  UpdateImageDto,
-  ResponseImageDto,
-} from 'cartelera-unahur';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  AdvertisingDto,
+  CreateAdvertisingDto,
+  ResponseAdvertisingDto,
+  UpdateAdvertisingDto,
+} from 'cartelera-unahur';
 
 @ApiTags('Advertising')
 @Controller('advertising')
@@ -22,31 +22,34 @@ export class AdvertisingController {
   constructor(private readonly advertisingService: AdvertisingService) {}
 
   @Post()
-  @ApiResponse({ type: ImageDto })
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.advertisingService.create(createImageDto);
+  @ApiResponse({ type: AdvertisingDto })
+  create(@Body() createAdvertisingDto: CreateAdvertisingDto) {
+    return this.advertisingService.create(createAdvertisingDto);
   }
 
   @Get()
-  @ApiResponse({ type: ResponseImageDto, isArray: true })
+  @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   findAll() {
     return this.advertisingService.findAll();
   }
 
   @Get(':id')
-  @ApiResponse({ type: ResponseImageDto })
+  @ApiResponse({ type: ResponseAdvertisingDto })
   findOne(@Param('id') id: string) {
     return this.advertisingService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiResponse({ type: ImageDto })
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.advertisingService.update(+id, updateImageDto);
+  @ApiResponse({ type: AdvertisingDto })
+  update(
+    @Param('id') id: string,
+    @Body() updateAdvertisingDto: UpdateAdvertisingDto,
+  ) {
+    return this.advertisingService.update(+id, updateAdvertisingDto);
   }
 
   @Delete(':id')
-  @ApiResponse({ type: ImageDto })
+  @ApiResponse({ type: AdvertisingDto })
   remove(@Param('id') id: string) {
     return this.advertisingService.remove(+id);
   }

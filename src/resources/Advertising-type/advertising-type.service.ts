@@ -1,9 +1,11 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  CreateAdvertisingTypeDto,
+  UpdateAdvertisingTypeDto,
+} from 'cartelera-unahur';
 import { AdvertisingType } from 'src/entities/advertising-type.entity';
 import { Repository } from 'typeorm';
-import { SocketService } from 'src/plugins/socket/socket.service';
-import { CreateImageTypeDto, UpdateImageTypeDto } from 'cartelera-unahur';
 
 @Injectable()
 export class AdvertisingTypeService {
@@ -12,8 +14,10 @@ export class AdvertisingTypeService {
     private readonly advertisingTypeRepository: Repository<AdvertisingType>,
   ) {}
 
-  public async create(createImageTypeDto: CreateImageTypeDto) {
-    const newImage = this.advertisingTypeRepository.create(createImageTypeDto);
+  public async create(createAdvertisingTypeDto: CreateAdvertisingTypeDto) {
+    const newImage = this.advertisingTypeRepository.create(
+      createAdvertisingTypeDto,
+    );
     const created = await this.advertisingTypeRepository.save(newImage);
     return created;
   }
@@ -30,9 +34,15 @@ export class AdvertisingTypeService {
     }
   }
 
-  public async update(id: number, updateImageTypeDto: UpdateImageTypeDto) {
+  public async update(
+    id: number,
+    updateAdvertisingTypeDto: UpdateAdvertisingTypeDto,
+  ) {
     try {
-      return this.advertisingTypeRepository.update({ id }, updateImageTypeDto);
+      return this.advertisingTypeRepository.update(
+        { id },
+        updateAdvertisingTypeDto,
+      );
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }

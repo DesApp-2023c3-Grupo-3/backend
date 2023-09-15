@@ -1,9 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
 import { SocketService } from '../../plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
 import { Repository } from 'typeorm';
+import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 
 @Injectable()
 export class AdvertisingService {
@@ -13,13 +13,14 @@ export class AdvertisingService {
     private readonly socketService: SocketService,
   ) {}
 
-  public async create(createImageDto: CreateImageDto) {
-    console.log(createImageDto);
-    const newImage = this.advertisingRepository.create(createImageDto);
-    const created = await this.advertisingRepository.save(newImage);
+  public async create(createAdvertisingDto: CreateAdvertisingDto) {
+    console.log(createAdvertisingDto);
+    const newAdvertising =
+      this.advertisingRepository.create(createAdvertisingDto);
+    const created = await this.advertisingRepository.save(newAdvertising);
     this.socketService.sendMessage(
-      'image',
-      'Este es un mensaje enviado desde ImageService.create',
+      'Advertising',
+      'Este es un mensaje enviado desde AdvertisingService.create',
     );
     return created;
   }
@@ -36,9 +37,9 @@ export class AdvertisingService {
     }
   }
 
-  public async update(id: number, updateImageDto: UpdateImageDto) {
+  public async update(id: number, updateAdvertisingDto: UpdateAdvertisingDto) {
     try {
-      return this.advertisingRepository.update({ id }, updateImageDto);
+      return this.advertisingRepository.update({ id }, updateAdvertisingDto);
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
