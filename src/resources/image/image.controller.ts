@@ -5,6 +5,8 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -15,13 +17,19 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ImageService } from './image.service';
-import { multerOptions, parseFilePipeBuilder } from 'src/config/uploads.config';
+import {
+  filesConfigImages,
+  multerOptions,
+  parseFilePipeBuilder,
+} from 'src/config/uploads.config';
 import { UploadImageDTO } from 'cartelera-unahur';
+import type { Response } from 'express';
+import { createReadStream } from 'fs';
 
 @ApiTags('Image')
 @Controller('image')
 export class ImageController {
-  constructor(public readonly roleService: ImageService) {}
+  constructor(public readonly imageService: ImageService) {}
 
   @ApiOperation({ summary: 'Carga al servidor una imagen' })
   @ApiConsumes('multipart/form-data')
@@ -45,11 +53,23 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('file', multerOptions()))
   @Post()
   create(@UploadedFile(parseFilePipeBuilder) file: Express.Multer.File) {
-    return this.roleService.create(file);
+    return this.imageService.create(file);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  @ApiOperation({ summary: 'Descargar una imagen asociada al ID' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @Get(':id/download')
+  async download(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const cargo = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+
+    const imagePath = createReadStream(cargo.path);
+
+    response.set(filesConfigImages.responseHeaders(cargo.path));
+
+    return new StreamableFile(imagePath);
   }
 }

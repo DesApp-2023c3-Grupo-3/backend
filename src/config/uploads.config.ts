@@ -3,7 +3,7 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
-export const filesConfigCargos = {
+export const filesConfigImages = {
   destination: process.env.FILESYSTEM_STORAGE || './public',
   fileType: process.env.UPLOAD_TYPES_SUPPORTED || 'jpg|jpeg|png|pdf',
   maxSize: parseInt(process.env.UPLOAD_SIZE_SUPPORTED) || 1024 * 1024 * 5,
@@ -17,7 +17,7 @@ export const filesConfigCargos = {
 
 export const multerOptions = (): MulterOptions => ({
   storage: diskStorage({
-    destination: filesConfigCargos.destination,
+    destination: filesConfigImages.destination,
     filename: (req, file, callback) => {
       const suffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = extname(file.originalname);
@@ -37,9 +37,9 @@ export const multerOptions = (): MulterOptions => ({
 
 export const parseFilePipeBuilder = new ParseFilePipeBuilder()
   .addFileTypeValidator({
-    fileType: filesConfigCargos.fileType,
+    fileType: filesConfigImages.fileType,
   })
   .addMaxSizeValidator({
-    maxSize: filesConfigCargos.maxSize,
+    maxSize: filesConfigImages.maxSize,
   })
   .build();
