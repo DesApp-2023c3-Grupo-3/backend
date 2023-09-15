@@ -2,10 +2,7 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
   Param,
-  Delete,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
