@@ -65,14 +65,14 @@ export class ImageController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<StreamableFile> {
     const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
-
     const imagePath = createReadStream(image.path);
-
     response.set(filesConfigImage.responseHeaders(image.path));
-
     return new StreamableFile(imagePath);
   }
 
+  @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
   @Get(':id/view')
   async view(
     @Param('id') id: string,
