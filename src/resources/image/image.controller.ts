@@ -72,4 +72,15 @@ export class ImageController {
 
     return new StreamableFile(imagePath);
   }
+
+  @Get(':id/view')
+  async view(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ): Promise<void> {
+    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+    response.setHeader('Content-Type', ['image/jpeg']);
+    const imagePath = createReadStream(image.path);
+    imagePath.pipe(response);
+  }
 }

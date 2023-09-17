@@ -5,7 +5,7 @@ import { extname } from 'path';
 
 export const filesConfigImage = {
   destination: process.env.FILESYSTEM_STORAGE || './public',
-  fileType: process.env.UPLOAD_TYPES_SUPPORTED || 'jpg|jpeg|png|pdf',
+  fileType: process.env.UPLOAD_TYPES_SUPPORTED || 'jpg|jpeg|png|pdf|webp',
   maxSize: parseInt(process.env.UPLOAD_SIZE_SUPPORTED) || 1024 * 1024 * 5,
   responseHeaders: (fileName: string): any => {
     return {
