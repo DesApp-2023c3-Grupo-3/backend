@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CreateImageScreenDto } from './dto/create-image-screen.dto';
-import { UpdateImageScreenDto } from './dto/update-image-screen.dto';
+import {
+  CreateAdvertisingScreenDto,
+  UpdateAdvertisingScreenDto,
+} from 'cartelera-unahur';
 
 @Injectable()
-export class ImageScreenService {
-  create(createImageScreenDto: CreateImageScreenDto) {
+export class AdvertisingScreenService {
+  create(createAdvertisingScreenDto: CreateAdvertisingScreenDto) {
     return 'This action adds a new imageScreen';
   }
 
@@ -16,7 +18,7 @@ export class ImageScreenService {
     return `This action returns a #${id} imageScreen`;
   }
 
-  update(id: number, updateImageScreenDto: UpdateImageScreenDto) {
+  update(id: number, updateAdvertisingScreenDto: UpdateAdvertisingScreenDto) {
     return `This action updates a #${id} imageScreen`;
   }
 

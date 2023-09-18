@@ -7,8 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'ImageType' })
-export class ImageType {
+@Entity({ name: 'AdvertisingType' })
+export class AdvertisingType {
   @PrimaryGeneratedColumn('identity')
   id: number;
 

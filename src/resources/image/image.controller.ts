@@ -2,52 +2,85 @@ import {
   Controller,
   Get,
   Post,
-  Body,
-  Patch,
   Param,
-  Delete,
+  UseInterceptors,
+  UploadedFile,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ImageService } from './image.service';
 import {
-  ImageDto,
-  CreateImageDto,
-  UpdateImageDto,
-  ResponseImageDto,
-} from 'cartelera-unahur';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+  filesConfigImage,
+  multerOptions,
+  parseFilePipeBuilder,
+} from 'src/config/uploads.config';
+import { UploadImageDTO } from 'cartelera-unahur';
+import type { Response } from 'express';
+import { createReadStream } from 'fs';
 
 @ApiTags('Image')
 @Controller('image')
 export class ImageController {
-  constructor(private readonly imageService: ImageService) {}
+  constructor(public readonly imageService: ImageService) {}
 
+  @ApiOperation({ summary: 'Carga al servidor una imagen' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+    type: UploadImageDTO,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @UseInterceptors(FileInterceptor('file', multerOptions()))
   @Post()
-  @ApiResponse({ type: ImageDto })
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imageService.create(createImageDto);
+  create(@UploadedFile(parseFilePipeBuilder) file: Express.Multer.File) {
+    return this.imageService.create(file);
   }
 
-  @Get()
-  @ApiResponse({ type: ResponseImageDto, isArray: true })
-  findAll() {
-    return this.imageService.findAll();
+  @ApiOperation({ summary: 'Descargar una imagen asociada al ID' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @Get(':id/download')
+  async download(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<StreamableFile> {
+    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+    const imagePath = createReadStream(image.path);
+    response.set(filesConfigImage.responseHeaders(image.path));
+    return new StreamableFile(imagePath);
   }
 
-  @Get(':id')
-  @ApiResponse({ type: ResponseImageDto })
-  findOne(@Param('id') id: string) {
-    return this.imageService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @ApiResponse({ type: ImageDto })
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imageService.update(+id, updateImageDto);
-  }
-
-  @Delete(':id')
-  @ApiResponse({ type: ImageDto })
-  remove(@Param('id') id: string) {
-    return this.imageService.remove(+id);
+  @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @Get(':id/view')
+  async view(
+    @Param('id') id: string,
+    @Res() response: Response,
+  ): Promise<void> {
+    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+    response.setHeader('Content-Type', ['image/jpeg']);
+    const imagePath = createReadStream(image.path);
+    imagePath.pipe(response);
   }
 }

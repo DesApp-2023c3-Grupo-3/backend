@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSubjectDto, UpdateSubjectDto } from 'cartelera-unahur';
 import { Subject } from 'src/entities/subject.entity';
-import { SocketService } from 'src/plugins/socket/socket.service';
 import { Repository } from 'typeorm';
 
 @Injectable()

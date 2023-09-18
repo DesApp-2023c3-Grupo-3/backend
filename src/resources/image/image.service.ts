@@ -1,63 +1,28 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { CreateImageDto, UpdateImageDto } from 'cartelera-unahur';
-
-import { SocketService } from 'src/plugins/socket/socket.service';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class ImageService {
   constructor(
     @InjectRepository(Image)
-    private readonly imageRepository: Repository<Image>,
-    private readonly socketService: SocketService,
+    public readonly imageRepository: Repository<Image>,
   ) {}
 
-  public async create(createImageDto: CreateImageDto) {
-    console.log(createImageDto);
-    const newImage = this.imageRepository.create(createImageDto);
-    const created = await this.imageRepository.save(newImage);
-    this.socketService.sendMessage('advertising', {
-      id: 1,
-      advertisingTypeId: 1,
-      title: 'aviso default',
-      payload: 'url default',
+  public async create(file: Express.Multer.File) {
+    const newImage = this.imageRepository.create({
+      originalName: file.originalname,
+      path: file.path,
     });
+    const created = await this.imageRepository.save(newImage);
     return created;
   }
 
-  public async findAll() {
-    return this.imageRepository.find();
-  }
-
-  public async findOne(id: number) {
-    try {
-      return this.imageRepository.find({ where: { id } });
-    } catch (error) {
-      throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  public async update(id: number, updateImageDto: UpdateImageDto) {
-    try {
-      return this.imageRepository.update({ id }, updateImageDto);
-    } catch (error) {
-      throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  public async remove(id: number) {
-    try {
-      return this.imageRepository.update(
-        { id },
-        {
-          id,
-          deletedAt: Date.now(),
-        },
-      );
-    } catch (error) {
-      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
-    }
+  findByIdAndArchivoNotIsNull(id: number) {
+    return this.imageRepository.findOneOrFail({
+      select: ['originalName', 'path'],
+      where: { id, originalName: Not(IsNull()) },
+    });
   }
 }

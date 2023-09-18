@@ -1,10 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
-
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 

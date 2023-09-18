@@ -8,8 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CourseScreenService } from './course-screen.service';
-import { CreateCourseScreenDto } from './dto/create-course-screen.dto';
-import { UpdateCourseScreenDto } from './dto/update-course-screen.dto';
+import { CreateCourseScreenDto, UpdateCourseScreenDto } from 'cartelera-unahur';
 
 @Controller('course-screen')
 export class CourseScreenController {

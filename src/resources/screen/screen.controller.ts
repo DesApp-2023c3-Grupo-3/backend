@@ -8,8 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ScreenService } from './screen.service';
-import { CreateScreenDto } from './dto/create-screen.dto';
-import { UpdateScreenDto } from './dto/update-screen.dto';
+import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
 
 @Controller('screen')
 export class ScreenController {
