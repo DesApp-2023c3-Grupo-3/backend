@@ -83,4 +83,28 @@ export class ImageController {
     const imagePath = createReadStream(image.path);
     imagePath.pipe(response);
   }
+
+  @ApiOperation({ summary: 'Carga al servidor un archivo excel' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('excel')
+  async createExcel(@UploadedFile() file: Express.Multer.File) {
+    return this.imageService.createJson(file);
+  }
 }
