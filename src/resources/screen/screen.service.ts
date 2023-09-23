@@ -1,25 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
+import { Screen } from 'src/entities/screen.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ScreenService {
-  create(createScreenDto: CreateScreenDto) {
-    return 'This action adds a new screen';
+  constructor(
+    @InjectRepository(Screen)
+    private readonly screenRepository: Repository<Screen>,
+  ) {}
+
+  async create(createScreenDto: any /* CreateScreenDto */): Promise<Screen> {
+    const newScreen = this.screenRepository.create({});
+    const created = await this.screenRepository.save(newScreen);
+    return created;
   }
 
-  findAll() {
+  async findAll() {
     return `This action returns all screen`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} screen`;
+  async findOne(id: number): Promise<Screen> {
+    try {
+      console.log('antes del findOne');
+      const [response] = await this.screenRepository.find({ where: { id } });
+      console.log('despues del findOne');
+      return response;
+    } catch (error) {
+      throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
+    }
   }
 
-  update(id: number, updateScreenDto: UpdateScreenDto) {
+  async update(id: number, updateScreenDto: UpdateScreenDto) {
     return `This action updates a #${id} screen`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} screen`;
   }
 }

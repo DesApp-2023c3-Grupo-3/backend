@@ -6,8 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Advertising])],
+  imports: [TypeOrmModule.forFeature([Advertising]), SocketModule],
   controllers: [AdvertisingController],
-  providers: [AdvertisingService, SocketModule],
+  providers: [AdvertisingService],
 })
 export class AdvertisingModule {}
