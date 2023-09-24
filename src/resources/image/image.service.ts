@@ -42,4 +42,19 @@ export class ImageService {
       throw new Error('El archivo no es un archivo Excel válido.');
     }
   }
+
+  async createExcelFromJSON(data: any, fileName: string) {
+    const worksheet = xlsx.utils.json_to_sheet(data);
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const excelBuffer = xlsx.write(workbook, {
+      bookType: 'xlsx',
+      type: 'buffer',
+    });
+
+    return {
+      buffer: excelBuffer,
+      fileName: `${fileName}.xlsx`,
+    };
+  }
 }
