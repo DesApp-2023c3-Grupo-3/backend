@@ -31,12 +31,12 @@ export class AdvertisingService {
     return this.advertisingRepository.find();
   }
 
-  public async findAllRole(role: string) {
+  public async findAllRole(roleId: number) {
     const avisos = await this.advertisingRepository.find({
       relations: ['user', 'user.role', 'advertisingType', 'schedule', 'sector'],
     });
     const filtradoPorRol = avisos.filter((aviso) => {
-      return aviso.user.role && aviso.user.role.name === role;
+      return aviso.user.role && aviso.user.role.id == roleId;
     });
     return filtradoPorRol;
   }
