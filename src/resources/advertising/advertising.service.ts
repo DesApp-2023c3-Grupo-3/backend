@@ -31,9 +31,28 @@ export class AdvertisingService {
     return this.advertisingRepository.find();
   }
 
+  public async findAllRole(role: string) {
+    const avisos = await this.advertisingRepository.find({
+      relations: ['user', 'user.role', 'advertisingType', 'schedule', 'sector'],
+    });
+    const filtradoPorRol = avisos.filter((aviso) => {
+      return aviso.user.role && aviso.user.role.name === role;
+    });
+    return filtradoPorRol;
+  }
+
   public async findOne(id: number) {
     try {
-      return this.advertisingRepository.find({ where: { id } });
+      return this.advertisingRepository.find({
+        relations: [
+          'user',
+          'user.role',
+          'advertisingType',
+          'schedule',
+          'sector',
+        ],
+        where: { id },
+      });
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
     }

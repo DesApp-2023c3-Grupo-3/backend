@@ -33,6 +33,12 @@ export class AdvertisingController {
     return this.advertisingService.findAll();
   }
 
+  @Get(':role')
+  @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
+  findAllRole(@Param('role') role: string) {
+    return this.advertisingService.findAllRole(role);
+  }
+
   @Get(':id')
   @ApiResponse({ type: ResponseAdvertisingDto })
   findOne(@Param('id') id: string) {
