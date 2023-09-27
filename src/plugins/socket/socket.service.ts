@@ -15,20 +15,13 @@ export class SocketService {
     data: advertisingMessageDto | courseMessageDto,
   ): Promise<any> {
     try {
-      // TODO: Revisar caso de multiples conecciones inactivas o caidas
-      // this.socketConnectionModule.socketConnections.forEach(({ webSocket }) => {
-      //   const id = Math.floor(Math.random() * 100); // TODO: Mejorar este ID
-      //   webSocket.send(
-      //     JSON.stringify({
-      //       id,
-      //       topic,
-      //       data,
-      //     }),
-      //   );
-      //   console.info(`Message ${id} sended successfully`);
-      // });
+      const sector =
+        this.socketConnectionModule.sectors.find((sectorSubject) => {
+          sectorSubject.data.topic === topic; // TODO: Revisar si esto anda
+        }) || this.socketConnectionModule.sectors[0];
+      sector.notify();
     } catch (error) {
-      console.log('should not send message and throw exception');
+      console.error('SEND_MESSAGE ERROR: ', error);
     }
   }
 }

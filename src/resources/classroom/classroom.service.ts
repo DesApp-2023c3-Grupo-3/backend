@@ -12,7 +12,6 @@ export class ClassroomService {
   ) {}
 
   public async create(createClassroomDto: CreateClassroomDto) {
-    console.log(createClassroomDto);
     const newClassroom = this.classroomRepository.create(createClassroomDto);
     const created = await this.classroomRepository.save(newClassroom);
     return created;

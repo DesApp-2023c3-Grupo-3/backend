@@ -19,7 +19,7 @@ import { SectorService } from 'src/resources/sector/sector.service';
 export class SocketConnectionModule {
   public socketServer: WebSocketServer;
   // public socketConnections: { sectorId: number; webSocket: WebSocket }[] = [];
-  public sectors: SectorSubject[];
+  public sectors: SectorSubject[] = [];
 
   constructor(
     @Inject(serverConfig.KEY)
@@ -29,58 +29,46 @@ export class SocketConnectionModule {
     @Inject(SectorService)
     private readonly sectorService: SectorService,
   ) {
-    console.log('por inicializar');
     this.initializeSocketConnection();
   }
 
   private async initializeSocketConnection() {
     const PORT = this.serverConfiguration.socket.port;
     this.socketServer = new WebSocketServer({ port: PORT });
-    this.socketServer.on('connection', this.makeConnection);
-
+    this.socketServer.on('connection', this.makeConnection.bind(this));
     console.info(`Socket server connected on port ${PORT}...`);
   }
 
   private async makeConnection(ws: WebSocket) {
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
-      console.log(`Recived message: ${data.message}`);
-
       try {
-        console.log('SCREENID | data.screenId |', data.screenId);
-        console.log(this.screenService); // TODO: ACA ME LLEGA UNDEFINED
-        console.log(this.sectorService); // TODO: ACA ME LLEGA UNDEFINED
         let screenFound = await this.screenService.findOne(data.screenId);
-        console.log('SCREEN FOUND |', screenFound);
         if (!screenFound) {
-          console.log('Creating new screen');
-          screenFound = await this.screenService.create({}); // TODO: Crear el default
-          console.log('new screen created', screenFound);
+          screenFound = await this.screenService.create({
+            sector: await this.sectorService.findOne(1),
+          });
         }
         const sectorFound = await this.sectorService.findOne(
-          screenFound.sector.id,
+          screenFound.sector?.id,
         );
-        console.log('SECTOR FOUND |', sectorFound);
         if (!sectorFound) {
           console.error('ERROR ON CONNECTION');
         }
         let sectorSubject = this.sectors.find(
           (sector) => sector.data.id === sectorFound.id,
         );
-        console.log('SECTOR SUBJECT FOUND |', sectorSubject);
         if (!sectorSubject) {
-          console.log('Creating new sector subject');
           sectorSubject = new SectorSubject({
             data: sectorFound,
           });
-          console.log('new sector subject created', sectorSubject);
           this.sectors.push(sectorSubject);
         }
         if (!sectorSubject.contains(screenFound.id)) {
-          console.log('IF Sector Subject Not contains screen');
-          console.log('create new screen observer');
-          const screenObserver = new ScreenObserver({ id: screenFound.id });
-          console.log('new screen observer created');
+          const screenObserver = new ScreenObserver({
+            id: screenFound.id,
+            ws,
+          });
           sectorSubject.attach(screenObserver);
         }
 
@@ -92,7 +80,7 @@ export class SocketConnectionModule {
           }),
         );
       } catch (error) {
-        console.log('asdasdasdasda');
+        console.error('SCREEN CONNECTION FAILED: ', error);
       }
     });
   }

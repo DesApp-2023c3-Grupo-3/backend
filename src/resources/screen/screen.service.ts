@@ -11,8 +11,8 @@ export class ScreenService {
     private readonly screenRepository: Repository<Screen>,
   ) {}
 
-  async create(createScreenDto: any /* CreateScreenDto */): Promise<Screen> {
-    const newScreen = this.screenRepository.create({});
+  async create(createScreenDto: CreateScreenDto): Promise<Screen> {
+    const newScreen = this.screenRepository.create({ subscription: 'asd' });
     const created = await this.screenRepository.save(newScreen);
     return created;
   }
@@ -23,9 +23,7 @@ export class ScreenService {
 
   async findOne(id: number): Promise<Screen> {
     try {
-      console.log('antes del findOne');
       const [response] = await this.screenRepository.find({ where: { id } });
-      console.log('despues del findOne');
       return response;
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);

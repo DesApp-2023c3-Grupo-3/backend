@@ -14,7 +14,6 @@ export class AdvertisingService {
   ) {}
 
   public async create(createAdvertisingDto: CreateAdvertisingDto) {
-    console.log(createAdvertisingDto);
     const newAdvertising =
       this.advertisingRepository.create(createAdvertisingDto);
     const created = await this.advertisingRepository.save(newAdvertising);

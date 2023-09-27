@@ -12,7 +12,6 @@ export class ScheduleService {
   ) {}
 
   public async create(createScheduleDto: CreateScheduleDto) {
-    console.log(createScheduleDto);
     const newSchedule = this.scheduleRepository.create(createScheduleDto);
     const created = await this.scheduleRepository.save(newSchedule);
     return created;

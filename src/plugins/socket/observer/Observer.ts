@@ -8,16 +8,21 @@ export interface Observer {
 
 export class ScreenObserver implements Observer {
   id: number;
+  ws: WebSocket;
 
-  constructor({ id }) {
+  constructor({ id, ws }) {
     this.id = id;
+    this.ws = ws;
   }
 
   public update(subject: Subject): void {
-    // if (subject instanceof ConcreteSubject && subject.state < 3) {
-    //     console.log('ConcreteObserverA: Reacted to the event.');
-    // }
-
-    console.log('Screen Notificated');
+    this.ws.send(
+      JSON.stringify({
+        id: -1,
+        topic: 'advertising',
+        data: 'ESTE ES UN MENSAJE DE PRUEBA',
+      }),
+    );
+    console.log(`Screen ${this.id} Notificated`);
   }
 }

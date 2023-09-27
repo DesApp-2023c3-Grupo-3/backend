@@ -12,7 +12,6 @@ export class SectorService {
   ) {}
 
   public async create(createSectorDto: CreateSectorDto) {
-    console.log(createSectorDto);
     const newSector = this.sectorRepository.create(createSectorDto);
     const created = await this.sectorRepository.save(newSector);
     return created;
@@ -22,7 +21,7 @@ export class SectorService {
     return this.sectorRepository.find();
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: number): Promise<Sector> {
     try {
       return this.sectorRepository.findOne({ where: { id } });
     } catch (error) {
