@@ -6,11 +6,13 @@ import {
   UpdateDateColumn,
   Entity,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { AdvertisingType } from './advertising-type.entity';
 import { Schedule } from './schedule.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
+import { AdvertisingSchedule } from './advertising-schedule.entity';
 
 @Entity({ name: 'Advertising' })
 export class Advertising {
@@ -47,9 +49,13 @@ export class Advertising {
   })
   sector: Sector;
 
-  @ManyToOne(() => Schedule, (schedule) => schedule.id, {
-    nullable: true,
-    createForeignKeyConstraints: true,
-  })
-  schedule: Schedule;
+  @OneToMany(
+    () => AdvertisingSchedule,
+    (advertisingSchedule) => advertisingSchedule.advertising,
+    {
+      nullable: true,
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSchedules: AdvertisingSchedule[];
 }

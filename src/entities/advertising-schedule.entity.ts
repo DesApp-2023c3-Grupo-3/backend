@@ -29,7 +29,7 @@ export class AdvertisingSchedule {
   })
   advertising: Advertising;
 
-  @ManyToOne(() => Schedule, (schedule) => schedule.id, {
+  @ManyToOne(() => Schedule, (schedule) => schedule.advertisingSchedules, {
     nullable: true,
     createForeignKeyConstraints: true,
   })

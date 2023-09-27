@@ -8,9 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingScheduleService } from './advertising-schedule.service';
-import { CreateAdvertisingScheduleDto } from './dto/create-advertising-schedule.dto';
-import { UpdateAdvertisingScheduleDto } from './dto/update-advertising-schedule.dto';
 
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  CreateAdvertisingScheduleDto,
+  ResponseAdvertisingScheduleDto,
+  UpdateAdvertisingScheduleDto,
+} from 'cartelera-unahur';
+
+@ApiTags('advertising-schedule')
 @Controller('advertising-schedule')
 export class AdvertisingScheduleController {
   constructor(
@@ -18,7 +24,9 @@ export class AdvertisingScheduleController {
   ) {}
 
   @Post()
+  @ApiResponse({ type: ResponseAdvertisingScheduleDto })
   create(@Body() createAdvertisingScheduleDto: CreateAdvertisingScheduleDto) {
+    console.log(createAdvertisingScheduleDto);
     return this.advertisingScheduleService.create(createAdvertisingScheduleDto);
   }
 

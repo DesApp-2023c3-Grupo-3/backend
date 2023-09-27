@@ -24,6 +24,7 @@ export class AdvertisingController {
   @Post()
   @ApiResponse({ type: AdvertisingDto })
   create(@Body() createAdvertisingDto: CreateAdvertisingDto) {
+    console.log('En el controller');
     return this.advertisingService.create(createAdvertisingDto);
   }
 

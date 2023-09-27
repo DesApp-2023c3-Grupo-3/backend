@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAdvertisingScheduleDto } from './dto/create-advertising-schedule.dto';
-import { UpdateAdvertisingScheduleDto } from './dto/update-advertising-schedule.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AdvertisingSchedule } from 'src/entities/advertising-schedule.entity';
+import {
+  CreateAdvertisingScheduleDto,
+  UpdateAdvertisingScheduleDto,
+} from 'cartelera-unahur';
 
 @Injectable()
 export class AdvertisingScheduleService {
@@ -11,8 +13,14 @@ export class AdvertisingScheduleService {
     @InjectRepository(AdvertisingSchedule)
     private readonly advertisingSchedule: Repository<AdvertisingSchedule>,
   ) {}
-  create(createAdvertisingScheduleDto: CreateAdvertisingScheduleDto) {
-    return 'This action adds a new advertisingSchedule';
+  public async create(
+    createAdvertisingScheduleDto: CreateAdvertisingScheduleDto,
+  ) {
+    const newAdvertisingSchedule = this.advertisingSchedule.create(
+      createAdvertisingScheduleDto,
+    );
+    const created = await this.advertisingSchedule.save(newAdvertisingSchedule);
+    return created;
   }
 
   findAll() {

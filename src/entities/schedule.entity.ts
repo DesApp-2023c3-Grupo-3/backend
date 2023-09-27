@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AdvertisingSchedule } from './advertising-schedule.entity';
 
 @Entity({ name: 'Schedule' })
 export class Schedule {
@@ -35,4 +37,13 @@ export class Schedule {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
+
+  @OneToMany(
+    () => AdvertisingSchedule,
+    (advertisingSchedule) => advertisingSchedule.schedule,
+    {
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSchedules: AdvertisingSchedule[];
 }
