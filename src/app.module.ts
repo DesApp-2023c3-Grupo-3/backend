@@ -19,6 +19,7 @@ import { AdvertisingScreenModule } from './resources/advertising-screen/advertis
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
+import { AdvertisingScheduleModule } from './resources/advertising-schedule/advertising-schedule.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,6 +43,7 @@ import { ImageModule } from './resources/image/image.module';
     ClassroomModule,
     RoleModule,
     ImageModule,
+    AdvertisingScheduleModule,
   ],
 })
 export class AppModule {}
