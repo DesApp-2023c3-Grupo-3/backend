@@ -9,7 +9,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { AdvertisingType } from './advertising-type.entity';
-import { Schedule } from './schedule.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
 import { AdvertisingSchedule } from './advertising-schedule.entity';

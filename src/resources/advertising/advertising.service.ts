@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { SocketService } from '../../plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
-import { And, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
@@ -20,17 +20,14 @@ export class AdvertisingService {
   ) {}
 
   public async create(createAdvertisingDto: CreateAdvertisingDto) {
-    // Crear Advertsing
     const newAdvertising =
       this.advertisingRepository.create(createAdvertisingDto);
     const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
 
-    // Crear Schedules
     const schedulesCreated = await Promise.all(
       createAdvertisingDto.schedules.map(async (shceduleToCreate) => {
-        // TODO: agregar Schedules al DTO
         return await this.scheduleService.create({
           startDate: shceduleToCreate.startDate,
           endDate: shceduleToCreate.endDate,
@@ -40,8 +37,6 @@ export class AdvertisingService {
         });
       }),
     );
-
-    // Crear Relacion entre Advertising y Schedule
 
     const advertisingSchedulesCreated = await Promise.all(
       schedulesCreated.map(async (scheduleCreated) => {
@@ -76,7 +71,7 @@ export class AdvertisingService {
             id: roleId,
           },
         },
-      }, // TODO: Filtrar por rol
+      },
       relations: [
         'user',
         'user.role',
@@ -84,7 +79,7 @@ export class AdvertisingService {
         'sector',
         'advertisingSchedules',
         'advertisingSchedules.schedule',
-      ], // TODO: Traerte el schedule
+      ],
     });
     return avisos.map((aviso) => ({
       ...aviso,
@@ -105,13 +100,6 @@ export class AdvertisingService {
     };
     return dayCodes[String(code)] || defaultDay;
   }
-
-  // TODO: Armarte funcion para obtener el status
-
-  // Deprecated: la fecha actual esta delante de el endDate de TODOS los schedules
-  // Pending: si la fecha actual esta dentro del rango de fechas pero a NINGUN schedule le corresponde el dia
-  // Today: Si la fecha actual esta dentro del rango de fechas y a un schedule le corresponde el dia pero NO el rango de horas
-  // Active: Si la fecha actual esta dentro del rango de fechas y a un schedule le corresponde el dia y el rango de horas
 
   public getStatus(
     advertising: Advertising,
