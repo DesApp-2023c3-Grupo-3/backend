@@ -23,10 +23,10 @@ export class SectorSubject implements Subject {
   public attach(observer: Observer): void {
     const isExist = this.observers.includes(observer);
     if (isExist) {
-      return console.log('Subject: Observer has been attached already.');
+      return console.info('Subject: Observer has been attached already.');
     }
 
-    console.log('Subject: Succesfuly subscription.');
+    console.info('Subject: Succesfuly subscription.');
     this.observers.push(observer);
   }
 
@@ -35,11 +35,11 @@ export class SectorSubject implements Subject {
       (observer) => observer.id === id,
     );
     if (observerIndex === -1) {
-      return console.log('Subject: Nonexistent observer.');
+      return console.info('Subject: Nonexistent observer.');
     }
 
     this.observers.splice(observerIndex, 1);
-    console.log('Subject: subscription deleted.');
+    console.info('Subject: subscription deleted.');
   }
 
   public contains(id: number): boolean {
@@ -47,7 +47,7 @@ export class SectorSubject implements Subject {
   }
 
   public notify(topic: string, data: any): void {
-    console.log('Subject: Notifying observers...');
+    console.info('Subject: Notifying observers...');
     for (const observer of this.observers) {
       observer.update(topic, data);
     }

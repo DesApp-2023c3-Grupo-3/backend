@@ -21,6 +21,6 @@ export class ScreenObserver implements Observer {
         data,
       }),
     );
-    console.log(`Screen ${this.id} Notificated`);
+    console.info(`Screen ${this.id} Notificated`);
   }
 }
