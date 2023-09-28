@@ -47,15 +47,12 @@ export class AdvertisingService {
       }),
     );
 
-    // const [advertisingStatus] = await this.getStatus([advertisingCreated]);
-    // if (['active', 'today'].find(status => status === advertisingStatus)) {
-    //   this.socketService.sendMessage('advertising', {
-    //     id: 1,
-    //     advertisingTypeId: 1,
-    //     title: 'aviso default',
-    //     payload: 'url default',
-    //   });
-    // }
+    this.socketService.sendMessage('advertising', {
+      id: 1,
+      advertisingTypeId: 1,
+      title: 'aviso default',
+      payload: 'url default',
+    });
     return advertisingCreated;
   }
 
