@@ -26,7 +26,6 @@ export class AdvertisingScheduleController {
   @Post()
   @ApiResponse({ type: ResponseAdvertisingScheduleDto })
   create(@Body() createAdvertisingScheduleDto: CreateAdvertisingScheduleDto) {
-    console.log(createAdvertisingScheduleDto);
     return this.advertisingScheduleService.create(createAdvertisingScheduleDto);
   }
 

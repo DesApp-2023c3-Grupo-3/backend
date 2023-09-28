@@ -15,19 +15,19 @@ export class Schedule {
   id: number;
 
   @Column({ type: 'timestamptz' })
-  startDate: Date;
+  startDate: Date; //Rango de cunado inicia
 
   @Column({ type: 'timestamptz' })
-  endDate: Date;
+  endDate: Date; //Cuando termina el rango
 
-  @Column({ type: 'time' })
-  startHour: string;
+  @Column({ type: 'timestamptz' })
+  startHour: Date; // Hora de inicio LU-20:34:67
 
-  @Column({ type: 'time' })
-  endHour: string;
+  @Column({ type: 'timestamptz' })
+  endHour: Date;
 
-  @Column({ type: 'varchar' })
-  scheduleDays: string;
+  @Column({ type: 'text' })
+  dayCode: string; // TODO: Esto debe persistir el dia ["LU", "MA", "MI", "JU", "VI", "SA", "DO"]
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;

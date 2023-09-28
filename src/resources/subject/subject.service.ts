@@ -12,7 +12,6 @@ export class SubjectService {
   ) {}
 
   public async create(createSubjectDto: CreateSubjectDto) {
-    console.log(createSubjectDto);
     const newSubject = this.subjectRepository.create(createSubjectDto);
     const created = await this.subjectRepository.save(newSubject);
     return created;

@@ -26,8 +26,6 @@ export class SocketService {
         );
         console.info(`Message ${id} sended successfully`);
       });
-    } catch (error) {
-      console.log('should not send message and throw exception');
-    }
+    } catch (error) {}
   }
 }
