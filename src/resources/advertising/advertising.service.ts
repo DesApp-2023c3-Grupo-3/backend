@@ -107,7 +107,6 @@ export class AdvertisingService {
     const currentDate = new Date();
     let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
     advertising.advertisingSchedules.map((schedule) => {
-      console.log('Actual: ', status);
       const enRango =
         schedule.schedule.startDate <= currentDate &&
         schedule.schedule.endDate >= currentDate;

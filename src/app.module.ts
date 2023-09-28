@@ -5,6 +5,7 @@ import serverConfig from './config/server.config';
 import { DatabaseModule } from './database/database.module';
 import { CommonModule } from './common/common.module';
 import { SocketModule } from './plugins/socket/socket.module';
+import { SocketConnectionModule } from './plugins/socket/socketConnection.module';
 
 import { UserModule } from './resources/user/user.module';
 import { AdvertisingModule } from './resources/advertising/advertising.module';

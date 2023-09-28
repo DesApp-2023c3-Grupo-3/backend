@@ -6,8 +6,8 @@ import { SocketModule } from 'src/plugins/socket/socket.module';
 import { Course } from 'src/entities/course.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Course])],
+  imports: [TypeOrmModule.forFeature([Course]), SocketModule],
   controllers: [CourseController],
-  providers: [CourseService, SocketModule],
+  providers: [CourseService],
 })
 export class CourseModule {}

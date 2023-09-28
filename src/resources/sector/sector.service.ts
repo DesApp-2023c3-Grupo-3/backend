@@ -21,9 +21,9 @@ export class SectorService {
     return this.sectorRepository.find();
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: number): Promise<Sector> {
     try {
-      return this.sectorRepository.find({ where: { id } });
+      return this.sectorRepository.findOne({ where: { id } });
     } catch (error) {
       throw new HttpException('Sector not found', HttpStatus.BAD_REQUEST);
     }

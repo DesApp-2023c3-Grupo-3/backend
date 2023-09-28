@@ -10,10 +10,11 @@ import { AdvertisingScheduleModule } from '../advertising-schedule/advertising-s
 @Module({
   imports: [
     TypeOrmModule.forFeature([Advertising]),
+    SocketModule,
     ScheduleModule,
     AdvertisingScheduleModule,
   ],
   controllers: [AdvertisingController],
-  providers: [AdvertisingService, SocketModule],
+  providers: [AdvertisingService],
 })
 export class AdvertisingModule {}
