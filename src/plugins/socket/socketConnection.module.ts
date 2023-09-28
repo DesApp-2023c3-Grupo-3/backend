@@ -18,7 +18,6 @@ import { SectorService } from 'src/resources/sector/sector.service';
 })
 export class SocketConnectionModule {
   public socketServer: WebSocketServer;
-  // public socketConnections: { sectorId: number; webSocket: WebSocket }[] = [];
   public sectors: SectorSubject[] = [];
 
   constructor(
