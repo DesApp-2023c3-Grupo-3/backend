@@ -126,27 +126,26 @@ export class AdvertisingService {
       const diaActual =
         schedule.schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
       const hayActivo = status === 'active';
-      if (!hayActivo && schedule.schedule.endDate < currentDate) {
-        status = 'deprecated';
+      if (!hayActivo) {
+        if (schedule.schedule.endDate < currentDate) {
+          status = 'deprecated';
+        } else if (enRango) {
+          if (diaActual) {
+            if (
+              this.estaEnHorarioActual(
+                schedule.schedule.startHour,
+                schedule.schedule.endHour,
+              )
+            ) {
+              status = 'active';
+            } else {
+              status = 'today';
+            }
+          } else {
+            status = 'pending';
+          }
+        }
       }
-      if (!hayActivo && enRango) {
-        status = 'pending';
-      }
-      if (!hayActivo && enRango && diaActual) {
-        status = 'today';
-      }
-      if (
-        !hayActivo &&
-        enRango &&
-        diaActual &&
-        this.estaEnHorarioActual(
-          schedule.schedule.startHour,
-          schedule.schedule.endHour,
-        )
-      ) {
-        status = 'active';
-      }
-      console.log('Despues: ', status);
     });
     return status;
   }
