@@ -124,28 +124,24 @@ export class AdvertisingService {
       console.log('Inicio: ', schedule.schedule.startDate);
       console.log('Inicio: ', schedule.schedule.startDate.getTime());
       console.log('Fin: ', schedule.schedule.endDate);
+      const enRango =
+        schedule.schedule.startDate <= currentDate &&
+        schedule.schedule.endDate >= currentDate;
+      const diaActual =
+        schedule.schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
 
       if (schedule.schedule.endDate < currentDate) {
         status = 'deprecated';
       }
-      if (
-        schedule.schedule.startDate <= currentDate &&
-        schedule.schedule.endDate >= currentDate
-      ) {
+      if (enRango) {
         status = 'pending';
       }
-      if (
-        schedule.schedule.startDate <= currentDate &&
-        schedule.schedule.endDate >= currentDate &&
-        schedule.schedule.dayCode === this.getDayCode(currentDate.getDay() - 1)
-      ) {
+      if (enRango && diaActual) {
         status = 'today';
       }
       if (
-        schedule.schedule.startDate <= currentDate &&
-        schedule.schedule.endDate >= currentDate &&
-        schedule.schedule.dayCode ===
-          this.getDayCode(currentDate.getDay() - 1) &&
+        enRango &&
+        diaActual &&
         this.estaEnHorarioActual(
           schedule.schedule.startHour,
           schedule.schedule.endHour,
