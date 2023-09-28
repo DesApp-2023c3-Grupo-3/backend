@@ -1,9 +1,7 @@
-import { Subject } from './Subject';
-
 export interface Observer {
   id: number;
-  // Receive update from subject.
-  update(subject: Subject): void;
+
+  update(topic: string, data: any): void;
 }
 
 export class ScreenObserver implements Observer {
@@ -15,12 +13,12 @@ export class ScreenObserver implements Observer {
     this.ws = ws;
   }
 
-  public update(subject: Subject): void {
+  public update(topic: string, data: any): void {
     this.ws.send(
       JSON.stringify({
         id: -1,
-        topic: 'advertising',
-        data: 'ESTE ES UN MENSAJE DE PRUEBA',
+        topic,
+        data,
       }),
     );
     console.log(`Screen ${this.id} Notificated`);

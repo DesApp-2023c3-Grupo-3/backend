@@ -4,11 +4,11 @@ import { Observer } from './Observer';
 export interface Subject {
   attach(observer: Observer): void;
 
-  detach(observer: Observer): void;
+  detach(id: number): void;
 
   contains(id: number): boolean;
 
-  notify(): void;
+  notify(topic: string, data: any): void;
 }
 
 export class SectorSubject implements Subject {
@@ -30,8 +30,10 @@ export class SectorSubject implements Subject {
     this.observers.push(observer);
   }
 
-  public detach(observer: Observer): void {
-    const observerIndex = this.observers.indexOf(observer);
+  public detach(id: number): void {
+    const observerIndex = this.observers.findIndex(
+      (observer) => observer.id === id,
+    );
     if (observerIndex === -1) {
       return console.log('Subject: Nonexistent observer.');
     }
@@ -44,10 +46,10 @@ export class SectorSubject implements Subject {
     return !!this.observers.find((observer) => observer.id === id);
   }
 
-  public notify(): void {
+  public notify(topic: string, data: any): void {
     console.log('Subject: Notifying observers...');
     for (const observer of this.observers) {
-      observer.update(this);
+      observer.update(topic, data);
     }
   }
 }

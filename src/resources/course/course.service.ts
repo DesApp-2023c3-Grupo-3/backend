@@ -11,13 +11,13 @@ export class CourseService {
   constructor(
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
-    private readonly natsService: SocketService,
+    private readonly socketService: SocketService,
   ) {}
 
   public async create(createCourseDto: CreateCourseDto) {
     const newCourse = this.courseRepository.create(createCourseDto);
     const created = await this.courseRepository.save(newCourse);
-    this.natsService.sendMessage('course', {
+    this.socketService.sendMessage('course', {
       id: 1,
       title: 'comision default',
       subject: 'materia default',

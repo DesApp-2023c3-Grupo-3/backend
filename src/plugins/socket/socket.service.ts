@@ -19,7 +19,7 @@ export class SocketService {
         this.socketConnectionModule.sectors.find((sectorSubject) => {
           sectorSubject.data.topic === topic; // TODO: Revisar si esto anda
         }) || this.socketConnectionModule.sectors[0];
-      sector.notify();
+      sector.notify(topic, data);
     } catch (error) {
       console.error('SEND_MESSAGE ERROR: ', error);
     }

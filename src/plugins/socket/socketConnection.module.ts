@@ -64,13 +64,14 @@ export class SocketConnectionModule {
           });
           this.sectors.push(sectorSubject);
         }
-        if (!sectorSubject.contains(screenFound.id)) {
-          const screenObserver = new ScreenObserver({
-            id: screenFound.id,
-            ws,
-          });
-          sectorSubject.attach(screenObserver);
+        if (sectorSubject.contains(screenFound.id)) {
+          sectorSubject.detach(screenFound.id);
         }
+        const screenObserver = new ScreenObserver({
+          id: screenFound.id,
+          ws,
+        });
+        sectorSubject.attach(screenObserver);
 
         ws.send(
           JSON.stringify({
