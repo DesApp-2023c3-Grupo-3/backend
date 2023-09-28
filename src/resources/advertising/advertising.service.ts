@@ -117,29 +117,26 @@ export class AdvertisingService {
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
     const currentDate = new Date();
-    let status: 'active' | 'today' | 'pending' | 'deprecated' = 'active';
+    let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
     advertising.advertisingSchedules.map((schedule) => {
-      console.log('Actual: ', currentDate.getTime());
-      console.log('Actual: ', currentDate);
-      console.log('Inicio: ', schedule.schedule.startDate);
-      console.log('Inicio: ', schedule.schedule.startDate.getTime());
-      console.log('Fin: ', schedule.schedule.endDate);
+      console.log('Actual: ', status);
       const enRango =
         schedule.schedule.startDate <= currentDate &&
         schedule.schedule.endDate >= currentDate;
       const diaActual =
         schedule.schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
-
-      if (schedule.schedule.endDate < currentDate) {
+      const hayActivo = status === 'active';
+      if (!hayActivo && schedule.schedule.endDate < currentDate) {
         status = 'deprecated';
       }
-      if (enRango) {
+      if (!hayActivo && enRango) {
         status = 'pending';
       }
-      if (enRango && diaActual) {
+      if (!hayActivo && enRango && diaActual) {
         status = 'today';
       }
       if (
+        !hayActivo &&
         enRango &&
         diaActual &&
         this.estaEnHorarioActual(
@@ -149,6 +146,7 @@ export class AdvertisingService {
       ) {
         status = 'active';
       }
+      console.log('Despues: ', status);
     });
     return status;
   }
