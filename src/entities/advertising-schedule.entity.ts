@@ -1,16 +1,16 @@
 import {
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
-import { Course } from './course.entity';
-import { Screen } from './screen.entity';
+import { Advertising } from './advertising.entity';
+import { Schedule } from './schedule.entity';
 
-@Entity({ name: 'CourseScreen' })
-export class CourseScreen {
+@Entity({ name: 'AdvertisingSchedule' })
+export class AdvertisingSchedule {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
@@ -23,15 +23,15 @@ export class CourseScreen {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @ManyToOne(() => Course, (course) => course.id, {
+  @ManyToOne(() => Advertising, (advertising) => advertising.id, {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  course: Course;
+  advertising: Advertising;
 
-  @ManyToOne(() => Screen, (screen) => screen.id, {
+  @ManyToOne(() => Schedule, (schedule) => schedule.advertisingSchedules, {
     nullable: true,
     createForeignKeyConstraints: true,
   })
-  screen: Screen;
+  schedule: Schedule;
 }
