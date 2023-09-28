@@ -10,7 +10,6 @@ import { SocketConnectionModule } from './plugins/socket/socketConnection.module
 import { UserModule } from './resources/user/user.module';
 import { AdvertisingModule } from './resources/advertising/advertising.module';
 import { CourseModule } from './resources/course/course.module';
-import { ScheduleModule } from './resources/schedule/schedule.module';
 import { SubjectModule } from './resources/subject/subject.module';
 import { CourseScreenModule } from './resources/course-screen/course-screen.module';
 import { SectorModule } from './resources/sector/sector.module';
@@ -20,6 +19,8 @@ import { AdvertisingScreenModule } from './resources/advertising-screen/advertis
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
+// import { ScheduleModule } from './resources/schedule/schedule.module';
+// import { AdvertisingScheduleModule } from './resources/advertising-schedule/advertising-schedule.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,7 +34,6 @@ import { ImageModule } from './resources/image/image.module';
     UserModule,
     AdvertisingModule,
     CourseModule,
-    ScheduleModule,
     SubjectModule,
     CourseScreenModule,
     SectorModule,
@@ -43,6 +43,8 @@ import { ImageModule } from './resources/image/image.module';
     ClassroomModule,
     RoleModule,
     ImageModule,
+    // ScheduleModule,
+    // AdvertisingScheduleModule,
   ],
 })
 export class AppModule {}

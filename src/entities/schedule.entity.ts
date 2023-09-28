@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { AdvertisingSchedule } from './advertising-schedule.entity';
 
 @Entity({ name: 'Schedule' })
 export class Schedule {
@@ -18,14 +20,13 @@ export class Schedule {
   @Column({ type: 'timestamptz' })
   endDate: Date;
 
-  @Column({ type: 'time' })
-  startHour: string;
+  @Column({ type: 'timestamptz' })
+  startHour: Date;
+  @Column({ type: 'timestamptz' })
+  endHour: Date;
 
-  @Column({ type: 'time' })
-  endHour: string;
-
-  @Column({ type: 'varchar' })
-  scheduleDays: string;
+  @Column({ type: 'text' })
+  dayCode: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
@@ -35,4 +36,13 @@ export class Schedule {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
+
+  @OneToMany(
+    () => AdvertisingSchedule,
+    (advertisingSchedule) => advertisingSchedule.schedule,
+    {
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSchedules: AdvertisingSchedule[];
 }

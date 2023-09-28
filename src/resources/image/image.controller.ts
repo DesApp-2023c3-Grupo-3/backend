@@ -7,6 +7,7 @@ import {
   UploadedFile,
   Res,
   StreamableFile,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -103,8 +104,33 @@ export class ImageController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file'))
-  @Post('excel')
+  @Post('excel-to-json')
   async createExcel(@UploadedFile() file: Express.Multer.File) {
     return this.imageService.createJson(file);
+  }
+
+  @ApiOperation({ summary: 'Carga al servidor un json y descarga un excel' })
+  @Post('json-to-excel')
+  async jsonToExcel(@Body() jsonData: [], @Res() res: Response) {
+    try {
+      const excelData = await this.imageService.createExcelFromJSON(
+        jsonData,
+        'excel_output',
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=${excelData.fileName}`,
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+      res.send(excelData.buffer);
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Error al crear el archivo Excel.',
+        error: error.message,
+      });
+    }
   }
 }
