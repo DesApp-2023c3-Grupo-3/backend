@@ -11,14 +11,14 @@ export class ScreenService {
     private readonly screenRepository: Repository<Screen>,
   ) {}
 
-  async create(createScreenDto: CreateScreenDto): Promise<Screen> {
-    const newScreen = this.screenRepository.create({ subscription: 'asd' });
+  async create(createScreenDto: CreateScreenDto) {
+    const newScreen = this.screenRepository.create(createScreenDto);
     const created = await this.screenRepository.save(newScreen);
     return created;
   }
 
   async findAll() {
-    return `This action returns all screen`;
+    return this.screenRepository.find();
   }
 
   async findOne(id: number): Promise<Screen> {
@@ -31,10 +31,20 @@ export class ScreenService {
   }
 
   async update(id: number, updateScreenDto: UpdateScreenDto) {
-    return `This action updates a #${id} screen`;
+    return this.screenRepository.update({ id }, updateScreenDto);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} screen`;
+  public async remove(id: number) {
+    try {
+      return this.screenRepository.update(
+        { id },
+        {
+          id,
+          deletedAt: Date.now(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }
