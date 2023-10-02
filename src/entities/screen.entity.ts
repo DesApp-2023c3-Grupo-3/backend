@@ -15,6 +15,9 @@ export class Screen {
   id: number;
 
   @Column({ type: 'varchar', length: 100 })
+  subscription: string;
+
+  @Column({ type: 'varchar', length: 100 })
   templeteId: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
