@@ -20,6 +20,12 @@ export class Screen {
   @Column({ type: 'varchar', length: 100 })
   templeteId: string;
 
+  @Column({ type: 'int' })
+  courseIntervalTime: number;
+
+  @Column({ type: 'int' })
+  advertisingIntervalTime: number;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
