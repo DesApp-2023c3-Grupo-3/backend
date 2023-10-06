@@ -61,8 +61,6 @@ export class SocketConnectionModule {
           sectorSubject = new SectorSubject({
             data: sectorFound,
           });
-          console.log('ESTOY CREANDO UN SECTOR SUBJECT');
-          console.log({ sectorSubject });
           this.sectors.push(sectorSubject);
         }
         if (sectorSubject.contains(screenFound.id)) {
@@ -73,8 +71,6 @@ export class SocketConnectionModule {
           ws,
         });
         sectorSubject.attach(screenObserver);
-        console.log({ screenObserver });
-        console.log({ sectorSubjectEND: sectorSubject });
 
         ws.send(
           JSON.stringify({
