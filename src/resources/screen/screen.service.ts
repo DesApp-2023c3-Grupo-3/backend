@@ -11,19 +11,25 @@ export class ScreenService {
     private readonly screenRepository: Repository<Screen>,
   ) {}
 
-  async create(createScreenDto: CreateScreenDto): Promise<Screen> {
-    const newScreen = this.screenRepository.create({ subscription: 'asd' });
+  async create(createScreenDto: CreateScreenDto) {
+    const newScreen = this.screenRepository.create(createScreenDto);
     const created = await this.screenRepository.save(newScreen);
     return created;
   }
 
-  async findAll() {
-    return this.screenRepository.find();
+  async findAll(): Promise<Screen[]> {
+    return this.screenRepository.find({
+      where: {
+        deletedAt: null,
+      },
+    });
   }
 
   async findOne(id: number): Promise<Screen> {
     try {
-      const [response] = await this.screenRepository.find({ where: { id } });
+      const [response] = await this.screenRepository.find({
+        where: { id, deletedAt: null },
+      });
       return response;
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
@@ -31,10 +37,20 @@ export class ScreenService {
   }
 
   async update(id: number, updateScreenDto: UpdateScreenDto) {
-    return `This action updates a #${id} screen`;
+    return this.screenRepository.update({ id }, updateScreenDto);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} screen`;
+  public async remove(id: number) {
+    try {
+      return this.screenRepository.update(
+        { id },
+        {
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }
