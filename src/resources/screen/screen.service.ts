@@ -43,7 +43,7 @@ export class ScreenService {
   public async remove(id: number) {
     try {
       return this.screenRepository.update(
-        { id, deletedAt: null },
+        { id },
         {
           deletedAt: new Date(),
           updatedAt: new Date(),
