@@ -17,13 +17,19 @@ export class ScreenService {
     return created;
   }
 
-  async findAll() {
-    return this.screenRepository.find();
+  async findAll(): Promise<Screen[]> {
+    return this.screenRepository.find({
+      where: {
+        deletedAt: null,
+      },
+    });
   }
 
   async findOne(id: number): Promise<Screen> {
     try {
-      const [response] = await this.screenRepository.find({ where: { id } });
+      const [response] = await this.screenRepository.find({
+        where: { id, deletedAt: null },
+      });
       return response;
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
@@ -37,10 +43,10 @@ export class ScreenService {
   public async remove(id: number) {
     try {
       return this.screenRepository.update(
-        { id },
+        { id, deletedAt: null },
         {
-          id,
-          deletedAt: Date.now(),
+          deletedAt: new Date(),
+          updatedAt: new Date(),
         },
       );
     } catch (error) {
