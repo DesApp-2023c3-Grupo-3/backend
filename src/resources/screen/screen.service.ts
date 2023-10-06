@@ -18,7 +18,7 @@ export class ScreenService {
   }
 
   async findAll() {
-    return `This action returns all screen`;
+    return this.screenRepository.find();
   }
 
   async findOne(id: number): Promise<Screen> {

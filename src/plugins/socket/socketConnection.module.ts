@@ -76,7 +76,10 @@ export class SocketConnectionModule {
           JSON.stringify({
             id: -1,
             topic: 'connection',
-            data: 'Hello! This is the server',
+            data: {
+              sector: sectorFound,
+              screen: screenFound,
+            },
           }),
         );
       } catch (error) {

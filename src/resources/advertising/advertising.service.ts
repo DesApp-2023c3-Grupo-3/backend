@@ -60,9 +60,39 @@ export class AdvertisingService {
     return this.advertisingRepository.find();
   }
 
+  public async findTodayScreenAdvertising(screenId: number) {
+    // TODO: Tipar output
+    const avisos = await this.advertisingRepository.find({
+      where: {
+        deletedAt: null,
+        sector: {
+          screens: {
+            id: screenId,
+          },
+        },
+      },
+      relations: [
+        'sector',
+        'sector.screens',
+        'advertisingSchedules',
+        'advertisingSchedules.schedule',
+      ],
+    });
+    const advertisingsWithStatus = avisos.map((aviso) => ({
+      ...aviso,
+      status: this.getStatus(aviso),
+    }));
+    const filteredAdvertisings = advertisingsWithStatus.filter(
+      (advertisingWithStatus) =>
+        ['today', 'active'].includes(advertisingWithStatus.status),
+    );
+    return filteredAdvertisings;
+  }
+
   public async findAllRole(roleId: number) {
     const avisos = await this.advertisingRepository.find({
       where: {
+        deletedAt: null,
         user: {
           role: {
             id: roleId,
@@ -84,7 +114,7 @@ export class AdvertisingService {
     }));
   }
 
-  public getDayCode(code: number) {
+  private getDayCode(code: number) {
     const defaultDay = 'LU';
     const dayCodes = {
       0: 'LU',
@@ -98,27 +128,28 @@ export class AdvertisingService {
     return dayCodes[String(code)] || defaultDay;
   }
 
-  public getStatus(
+  private getStatus(
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
+    // TODO: Fixear null
     const currentDate = new Date();
     let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
-    advertising.advertisingSchedules.map((schedule) => {
-      const enRango =
-        schedule.schedule.startDate <= currentDate &&
-        schedule.schedule.endDate >= currentDate;
-      const diaActual =
-        schedule.schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
-      const hayActivo = status === 'active';
-      if (!hayActivo) {
-        if (schedule.schedule.endDate < currentDate) {
+    advertising.advertisingSchedules.map((advertisingSchedule) => {
+      const inRange =
+        advertisingSchedule.schedule.startDate <= currentDate &&
+        advertisingSchedule.schedule.endDate >= currentDate;
+      const isDayToday =
+        advertisingSchedule.schedule.dayCode ===
+        this.getDayCode(currentDate.getDay() - 1);
+      if (status !== 'active') {
+        if (advertisingSchedule.schedule.endDate < currentDate) {
           status = 'deprecated';
-        } else if (enRango) {
-          if (diaActual) {
+        } else if (inRange) {
+          if (isDayToday) {
             if (
               this.estaEnHorarioActual(
-                schedule.schedule.startHour,
-                schedule.schedule.endHour,
+                advertisingSchedule.schedule.startHour,
+                advertisingSchedule.schedule.endHour,
               )
             ) {
               status = 'active';
@@ -134,7 +165,7 @@ export class AdvertisingService {
     return status;
   }
 
-  estaEnHorarioActual(horaInicio, horaFin) {
+  private estaEnHorarioActual(horaInicio, horaFin) {
     const ahora = new Date();
     const horaActual = ahora.getHours();
     const minutosActuales = ahora.getMinutes();
@@ -181,13 +212,19 @@ export class AdvertisingService {
 
   public async remove(id: number) {
     try {
-      return this.advertisingRepository.update(
-        { id },
+      const { affected } = await this.advertisingRepository.update(
         {
           id,
-          deletedAt: Date.now(),
+        },
+        {
+          deletedAt: new Date(),
+          updatedAt: new Date(),
         },
       );
+      const message = affected
+        ? 'Advertising deleted successfully'
+        : 'Advertising not deleted';
+      return { message };
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
