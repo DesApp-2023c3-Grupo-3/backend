@@ -185,27 +185,64 @@ export class AdvertisingService {
     );
   }
 
-  public async findOne(id: number) {
+  public async findOne(id: number): Promise<Advertising> {
     try {
-      return this.advertisingRepository.find({
+      const [response] = await this.advertisingRepository.find({
         relations: [
           'user',
           'user.role',
-          'advertisingType',
-          'schedule',
           'sector',
+          'advertisingType',
+          'advertisingSchedules',
+          'advertisingSchedules.schedule',
         ],
-        where: { id },
+        where: { id, deletedAt: null },
       });
+      return response;
     } catch (error) {
+      console.error('FIND_ONE_ERROR: ', error);
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
     }
   }
 
   public async update(id: number, updateAdvertisingDto: UpdateAdvertisingDto) {
+    // TODO: CONTINUAR ACA
     try {
-      return this.advertisingRepository.update({ id }, updateAdvertisingDto);
+      const advertisingFound = await this.findOne(id);
+
+      // TODO: Encontrar los schedules a eliminar
+      const { scheduleWithId, scheduleWithoutId } =
+        updateAdvertisingDto.schedules.reduce(
+          (reducer, schedule) => {
+            if (schedule.id) {
+              reducer.scheduleWithId.push(schedule);
+            } else {
+              reducer.scheduleWithoutId.push(schedule);
+            }
+            return reducer;
+          },
+          { scheduleWithId: [], scheduleWithoutId: [] },
+        );
+      const schedulesWithId = scheduleWithId.map((schedule) => schedule.id);
+      const schedulesToDelete = advertisingFound.advertisingSchedules.filter(
+        (advertisingSchedule) =>
+          !schedulesWithId.includes(advertisingSchedule.schedule.id),
+      );
+      const scheduleIdsToDelete = schedulesToDelete.map((a) => a.schedule.id);
+      if (scheduleIdsToDelete.length) {
+        await this.scheduleService.removeMultiple(scheduleIdsToDelete);
+      }
+
+      // TODO: Crear nuevos schedules
+      // TODO: Crear un nuevo Schedule por cada scheduleWithoutId
+      // TODO: Crear un nuevo AdvertisingSchedule por cada Schedule creado
+      // TODO: Atualizar datos del aviso como sector, nombre, tipo de aviso (evaluar), payload
+
+      // this.advertisingRepository.update({ id }, updateAdvertisingDto);
+
+      return {};
     } catch (error) {
+      console.error('ADVERTISING_UPDATE_ERROR: ', error);
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
   }
