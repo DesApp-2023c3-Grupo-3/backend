@@ -60,14 +60,14 @@ export class CourseController {
     return this.courseService.remove(+id);
   }
 
-  @Post('custom-json-to-excel')
+  @Post('commissionTemplate')
   async customJsonToExcel(@Res() res: Response) {
     try {
-      const excelBuffer = await this.courseService.createCustomExcel();
+      const excelBuffer = await this.courseService.CreateCommissionTemplate();
 
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename=custom_excel_template.xlsx`,
+        `attachment; filename=commission-template.xlsx`,
       );
       res.setHeader(
         'Content-Type',
@@ -77,7 +77,7 @@ export class CourseController {
       res.send(excelBuffer);
     } catch (error) {
       return res.status(500).json({
-        message: 'Error al crear el archivo Excel personalizado.',
+        message: 'Error al crear el archivo Excel.',
         error: error.message,
       });
     }
