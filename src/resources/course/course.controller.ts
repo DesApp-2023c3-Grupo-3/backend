@@ -61,9 +61,9 @@ export class CourseController {
   }
 
   @Post('commissionTemplate')
-  async customJsonToExcel(@Res() res: Response) {
+  async commissionTemplate(@Res() res: Response) {
     try {
-      const excelBuffer = await this.courseService.CreateCommissionTemplate();
+      const excelBuffer = await this.courseService.createCommissionTemplate();
 
       res.setHeader(
         'Content-Disposition',

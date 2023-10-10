@@ -68,7 +68,7 @@ export class CourseService {
     return coursesStub;
   }
 
-  async CreateCommissionTemplate() {
+  async createCommissionTemplate() {
     const data = [['Nombre', 'Hora inicio', 'Hora fin']];
 
     const worksheet = xlsx.utils.aoa_to_sheet(data);
