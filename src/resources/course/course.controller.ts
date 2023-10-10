@@ -15,6 +15,9 @@ import {
   ResponseCourseDto,
 } from 'cartelera-unahur';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { Res } from '@nestjs/common';
+import { Response } from 'express';
+import * as fs from 'fs';
 
 @ApiTags('Course')
 @Controller('course')
@@ -55,5 +58,28 @@ export class CourseController {
   @ApiResponse({ type: CourseDto })
   remove(@Param('id') id: string) {
     return this.courseService.remove(+id);
+  }
+
+  @Post('custom-json-to-excel')
+  async customJsonToExcel(@Res() res: Response) {
+    try {
+      const excelBuffer = await this.courseService.createCustomExcel();
+
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=custom_excel_template.xlsx`,
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+
+      res.send(excelBuffer);
+    } catch (error) {
+      return res.status(500).json({
+        message: 'Error al crear el archivo Excel personalizado.',
+        error: error.message,
+      });
+    }
   }
 }

@@ -5,6 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
+import * as xlsx from 'xlsx';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class CourseService {
@@ -63,5 +66,22 @@ export class CourseService {
 
   public async findBySector(sectorId: number) {
     return coursesStub;
+  }
+
+  async createCustomExcel() {
+    const data = [['Nombre', 'Hora inicio', 'Hora fin']];
+
+    const worksheet = xlsx.utils.aoa_to_sheet(data);
+
+    worksheet['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 15 }];
+
+    const workbook = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(workbook, worksheet, 'Comisiones');
+    const excelBuffer = xlsx.write(workbook, {
+      bookType: 'xlsx',
+      type: 'buffer',
+    });
+
+    return excelBuffer;
   }
 }
