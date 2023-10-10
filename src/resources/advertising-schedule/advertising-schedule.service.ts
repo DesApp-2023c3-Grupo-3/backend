@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AdvertisingSchedule } from 'src/entities/advertising-schedule.entity';
 import {
   CreateAdvertisingScheduleDto,
@@ -40,5 +40,17 @@ export class AdvertisingScheduleService {
 
   remove(id: number) {
     return `This action removes a #${id} advertisingSchedule`;
+  }
+
+  public async removeMultiple(ids: number[]) {
+    try {
+      return this.advertisingSchedule.update(
+        { id: In(ids) },
+        {
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {}
   }
 }

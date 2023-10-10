@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { SocketService } from '../../plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
@@ -187,22 +187,24 @@ export class AdvertisingService {
   public async findOne(id: number): Promise<Advertising> {
     try {
       const [response] = await this.advertisingRepository.find({
-        relations: [
-          'user',
-          'user.role',
-          'sector',
-          'advertisingType',
-          'advertisingSchedules',
-          'advertisingSchedules.schedule',
-        ],
         where: {
           id,
           deletedAt: null,
           advertisingSchedules: {
-            deletedAt: null,
+            deletedAt: IsNull(),
             schedule: {
-              deletedAt: null,
+              deletedAt: IsNull(),
             },
+          },
+        },
+        relations: {
+          user: {
+            role: true,
+          },
+          sector: true,
+          advertisingType: true,
+          advertisingSchedules: {
+            schedule: true,
           },
         },
       });
@@ -214,77 +216,73 @@ export class AdvertisingService {
   }
 
   public async update(id: number, updateAdvertisingDto: UpdateAdvertisingDto) {
-    // TODO: CONTINUAR ACA
     try {
       const advertisingFound = await this.findOne(id);
-
-      // TODO: Encontrar los schedules a eliminar
-      const { schedulesWithId, scheduleWithoutId } =
+      const schedulesFound = advertisingFound.advertisingSchedules.map(
+        (advertisingSchedule) => ({
+          ...advertisingSchedule.schedule,
+          advertisingSchedule,
+        }),
+      );
+      const schedulesToDelete = [];
+      const { schedulesToCreate, schedulesToUpdate } =
         updateAdvertisingDto.schedules.reduce(
           (reducer, schedule) => {
-            if (schedule.id) {
-              reducer.schedulesWithId.push(schedule);
+            const scheduleFoundIndex = schedulesFound.findIndex(
+              (scheduleFound) => scheduleFound.id === schedule.id,
+            );
+            if (scheduleFoundIndex + 1) {
+              reducer.schedulesToUpdate.push(schedule);
+              schedulesFound.splice(scheduleFoundIndex, 1);
             } else {
-              reducer.scheduleWithoutId.push(schedule);
+              reducer.schedulesToCreate.push(schedule);
             }
             return reducer;
           },
-          { schedulesWithId: [], scheduleWithoutId: [] },
+          { schedulesToCreate: [], schedulesToUpdate: [] },
         );
-      const schedulesWithIdIds = schedulesWithId.map((schedule) => schedule.id);
-      const { advertisingSchedulesToDelete, advertisingSchedulesToUpdate } =
-        advertisingFound.advertisingSchedules.reduce(
-          (reducer, advertisingSchedule) => {
-            if (
-              !schedulesWithIdIds.includes(advertisingSchedule.schedule?.id)
-            ) {
-              reducer.advertisingSchedulesToDelete.push(advertisingSchedule);
-            } else {
-              reducer.advertisingSchedulesToUpdate.push(advertisingSchedule);
-            }
-            return reducer;
-          },
-          {
-            advertisingSchedulesToDelete: [],
-            advertisingSchedulesToUpdate: [],
-          },
+      schedulesToDelete.push(...schedulesFound);
+      if (schedulesToDelete.length) {
+        const scheduleIdsToDelete = schedulesToDelete.map(
+          (scheduleToDelete) => scheduleToDelete.id,
         );
-      const scheduleIdsToDelete = advertisingSchedulesToDelete.map(
-        (a) => a.schedule?.id,
-      );
-      if (scheduleIdsToDelete.length) {
+        const advertisingScheduleIdsToDelete = schedulesToDelete.map(
+          (scheduleToDelete) => scheduleToDelete.advertisingSchedule.id,
+        );
         await this.scheduleService.removeMultiple(scheduleIdsToDelete);
+        await this.advertisingScheduleService.removeMultiple(
+          advertisingScheduleIdsToDelete,
+        );
       }
-      const schedulesCreated = await Promise.all(
-        scheduleWithoutId.map(async (shceduleToCreate) => {
-          return await this.scheduleService.create({
-            startDate: shceduleToCreate.startDate,
-            endDate: shceduleToCreate.endDate,
-            startHour: shceduleToCreate.startHour,
-            endHour: shceduleToCreate.endHour,
-            dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)), // TODO: Hacer que esto ande
-          });
-        }),
-      );
-      await Promise.all(
-        schedulesCreated.map(async (scheduleCreated) => {
-          return await this.advertisingScheduleService.create({
-            advertising: { id },
-            schedule: { id: scheduleCreated.id },
-          });
-        }),
-      );
-
-      // TODO: Hacer funcionar update de schedules desde el body
-      console.log(advertisingSchedulesToUpdate);
-      this.scheduleService.updateMultiple(
-        advertisingSchedulesToUpdate.map((advertisingSchedule) => ({
-          ...advertisingSchedule.schedule,
-          dayCode: this.getDayCode(
-            parseInt(advertisingSchedule.schedule.dayCode),
-          ),
-        })),
-      );
+      if (schedulesToCreate.length) {
+        const schedulesCreated = await Promise.all(
+          schedulesToCreate.map(async (shceduleToCreate) => {
+            return await this.scheduleService.create({
+              startDate: shceduleToCreate.startDate,
+              endDate: shceduleToCreate.endDate,
+              startHour: shceduleToCreate.startHour,
+              endHour: shceduleToCreate.endHour,
+              dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
+            });
+          }),
+        );
+        await Promise.all(
+          schedulesCreated.map(async (scheduleCreated) => {
+            return await this.advertisingScheduleService.create({
+              advertising: { id },
+              schedule: { id: scheduleCreated.id },
+            });
+          }),
+        );
+      }
+      if (schedulesToUpdate.length) {
+        await this.scheduleService.updateMultiple(
+          schedulesToUpdate.map((scheduleToUpdate) => ({
+            ...scheduleToUpdate,
+            dayCode: this.getDayCode(parseInt(scheduleToUpdate.dayCode)),
+          })),
+        );
+      }
 
       await this.advertisingRepository.update(
         { id },
