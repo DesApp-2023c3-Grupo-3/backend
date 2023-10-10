@@ -51,6 +51,12 @@ export class ScheduleService {
     }
   }
 
+  public async updateMultiple(schedules: Schedule[]) {
+    try {
+      return this.scheduleRepository.save(schedules);
+    } catch (error) {}
+  }
+
   public async removeMultiple(ids: number[]) {
     try {
       return this.scheduleRepository.update(

@@ -131,25 +131,24 @@ export class AdvertisingService {
   private getStatus(
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
-    // TODO: Fixear null
     const currentDate = new Date();
     let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
     advertising.advertisingSchedules.map((advertisingSchedule) => {
       const inRange =
-        advertisingSchedule.schedule.startDate <= currentDate &&
-        advertisingSchedule.schedule.endDate >= currentDate;
+        advertisingSchedule.schedule?.startDate <= currentDate &&
+        advertisingSchedule.schedule?.endDate >= currentDate;
       const isDayToday =
-        advertisingSchedule.schedule.dayCode ===
+        advertisingSchedule.schedule?.dayCode ===
         this.getDayCode(currentDate.getDay() - 1);
       if (status !== 'active') {
-        if (advertisingSchedule.schedule.endDate < currentDate) {
+        if (advertisingSchedule.schedule?.endDate < currentDate) {
           status = 'deprecated';
         } else if (inRange) {
           if (isDayToday) {
             if (
               this.estaEnHorarioActual(
-                advertisingSchedule.schedule.startHour,
-                advertisingSchedule.schedule.endHour,
+                advertisingSchedule.schedule?.startHour,
+                advertisingSchedule.schedule?.endHour,
               )
             ) {
               status = 'active';
@@ -196,7 +195,16 @@ export class AdvertisingService {
           'advertisingSchedules',
           'advertisingSchedules.schedule',
         ],
-        where: { id, deletedAt: null },
+        where: {
+          id,
+          deletedAt: null,
+          advertisingSchedules: {
+            deletedAt: null,
+            schedule: {
+              deletedAt: null,
+            },
+          },
+        },
       });
       return response;
     } catch (error) {
@@ -211,36 +219,87 @@ export class AdvertisingService {
       const advertisingFound = await this.findOne(id);
 
       // TODO: Encontrar los schedules a eliminar
-      const { scheduleWithId, scheduleWithoutId } =
+      const { schedulesWithId, scheduleWithoutId } =
         updateAdvertisingDto.schedules.reduce(
           (reducer, schedule) => {
             if (schedule.id) {
-              reducer.scheduleWithId.push(schedule);
+              reducer.schedulesWithId.push(schedule);
             } else {
               reducer.scheduleWithoutId.push(schedule);
             }
             return reducer;
           },
-          { scheduleWithId: [], scheduleWithoutId: [] },
+          { schedulesWithId: [], scheduleWithoutId: [] },
         );
-      const schedulesWithId = scheduleWithId.map((schedule) => schedule.id);
-      const schedulesToDelete = advertisingFound.advertisingSchedules.filter(
-        (advertisingSchedule) =>
-          !schedulesWithId.includes(advertisingSchedule.schedule.id),
+      const schedulesWithIdIds = schedulesWithId.map((schedule) => schedule.id);
+      const { advertisingSchedulesToDelete, advertisingSchedulesToUpdate } =
+        advertisingFound.advertisingSchedules.reduce(
+          (reducer, advertisingSchedule) => {
+            if (
+              !schedulesWithIdIds.includes(advertisingSchedule.schedule?.id)
+            ) {
+              reducer.advertisingSchedulesToDelete.push(advertisingSchedule);
+            } else {
+              reducer.advertisingSchedulesToUpdate.push(advertisingSchedule);
+            }
+            return reducer;
+          },
+          {
+            advertisingSchedulesToDelete: [],
+            advertisingSchedulesToUpdate: [],
+          },
+        );
+      const scheduleIdsToDelete = advertisingSchedulesToDelete.map(
+        (a) => a.schedule?.id,
       );
-      const scheduleIdsToDelete = schedulesToDelete.map((a) => a.schedule.id);
       if (scheduleIdsToDelete.length) {
         await this.scheduleService.removeMultiple(scheduleIdsToDelete);
       }
+      const schedulesCreated = await Promise.all(
+        scheduleWithoutId.map(async (shceduleToCreate) => {
+          return await this.scheduleService.create({
+            startDate: shceduleToCreate.startDate,
+            endDate: shceduleToCreate.endDate,
+            startHour: shceduleToCreate.startHour,
+            endHour: shceduleToCreate.endHour,
+            dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)), // TODO: Hacer que esto ande
+          });
+        }),
+      );
+      await Promise.all(
+        schedulesCreated.map(async (scheduleCreated) => {
+          return await this.advertisingScheduleService.create({
+            advertising: { id },
+            schedule: { id: scheduleCreated.id },
+          });
+        }),
+      );
 
-      // TODO: Crear nuevos schedules
-      // TODO: Crear un nuevo Schedule por cada scheduleWithoutId
-      // TODO: Crear un nuevo AdvertisingSchedule por cada Schedule creado
-      // TODO: Atualizar datos del aviso como sector, nombre, tipo de aviso (evaluar), payload
+      // TODO: Hacer funcionar update de schedules desde el body
+      console.log(advertisingSchedulesToUpdate);
+      this.scheduleService.updateMultiple(
+        advertisingSchedulesToUpdate.map((advertisingSchedule) => ({
+          ...advertisingSchedule.schedule,
+          dayCode: this.getDayCode(
+            parseInt(advertisingSchedule.schedule.dayCode),
+          ),
+        })),
+      );
 
-      // this.advertisingRepository.update({ id }, updateAdvertisingDto);
+      await this.advertisingRepository.update(
+        { id },
+        {
+          name: updateAdvertisingDto.name,
+          advertisingType: updateAdvertisingDto.advertisingType,
+          user: updateAdvertisingDto.user,
+          sector: updateAdvertisingDto.sector,
+          // payload: updateAdvertisingDto.payload // TODO: Agregar al DTO
+        },
+      );
 
-      return {};
+      return {
+        message: 'Advertising update successfully',
+      };
     } catch (error) {
       console.error('ADVERTISING_UPDATE_ERROR: ', error);
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
