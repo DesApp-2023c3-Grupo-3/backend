@@ -53,7 +53,7 @@ export class SocketConnectionModule {
           });
         }
         const sectorFound = await this.sectorService.findOne(
-          screenFound.sector?.id,
+          screenFound.sector.id,
         );
         if (!sectorFound) {
           console.error('ERROR ON CONNECTION');
