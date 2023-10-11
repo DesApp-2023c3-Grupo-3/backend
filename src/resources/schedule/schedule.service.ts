@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScheduleDto, UpdateScheduleDto } from 'cartelera-unahur';
 import { Schedule } from 'src/entities/schedule.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class ScheduleService {
@@ -49,5 +49,23 @@ export class ScheduleService {
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async updateMultiple(schedules: Schedule[]) {
+    try {
+      return this.scheduleRepository.save(schedules);
+    } catch (error) {}
+  }
+
+  public async removeMultiple(ids: number[]) {
+    try {
+      return this.scheduleRepository.update(
+        { id: In(ids) },
+        {
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {}
   }
 }
