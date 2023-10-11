@@ -45,7 +45,6 @@ export class SocketConnectionModule {
         let screenFound = await this.screenService.findOne(data.screenId);
         if (!screenFound) {
           screenFound = await this.screenService.create({
-            // TODO: ELIMINAR ESTO
             subscription: 'default',
             templeteId: '1',
             courseIntervalTime: 15,
