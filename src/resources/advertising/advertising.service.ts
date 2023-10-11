@@ -19,12 +19,19 @@ export class AdvertisingService {
     private readonly advertisingScheduleService: AdvertisingScheduleService,
   ) {}
 
-  public async create(createAdvertisingDto: CreateAdvertisingDto) {
+  public async create(createAdvertisingDto: any) {
+    // TODO: Modificar el DTO
     const newAdvertising =
       this.advertisingRepository.create(createAdvertisingDto);
-    const advertisingCreated = await this.advertisingRepository.save(
+    const [advertisingCreated] = await this.advertisingRepository.save(
       newAdvertising,
     );
+
+    // TODO: Agregar creacion de AdvertisingSector
+
+    // createAdvertisingDto.sectors.map((sector) => {
+
+    // }) // TODO: fixear y descomentar
 
     const schedulesCreated = await Promise.all(
       createAdvertisingDto.schedules.map(async (shceduleToCreate) => {
@@ -290,6 +297,8 @@ export class AdvertisingService {
           // payload: updateAdvertisingDto.payload // TODO: Agregar al DTO
         },
       );
+
+      // TODO: Agregar actualizacion de AdvertisingSector
 
       return {
         message: 'Advertising update successfully',

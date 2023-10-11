@@ -12,6 +12,7 @@ import { AdvertisingType } from './advertising-type.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
 import { AdvertisingSchedule } from './advertising-schedule.entity';
+import { AdvertisingSector } from './advertising-sector.entity';
 
 @Entity({ name: 'Advertising' })
 export class Advertising {
@@ -50,6 +51,16 @@ export class Advertising {
     createForeignKeyConstraints: true,
   })
   sector: Sector;
+
+  @OneToMany(
+    () => AdvertisingSector,
+    (advertisingSector) => advertisingSector.advertising,
+    {
+      nullable: true,
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSectors: AdvertisingSector[];
 
   @OneToMany(
     () => AdvertisingSchedule,
