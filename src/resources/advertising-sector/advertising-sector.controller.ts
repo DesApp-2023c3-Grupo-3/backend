@@ -10,11 +10,11 @@ import {
 import { AdvertisingSectorService } from './advertising-sector.service';
 
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-// import {
-//   CreateAdvertisingSectorDto,
-//   ResponseAdvertisingSectorDto,
-//   UpdateAdvertisingSectorDto,
-// } from 'cartelera-unahur'; // TODO: fixear y descomentar
+import {
+  CreateAdvertisingSectorDto,
+  ResponseAdvertisingSectorDto,
+  UpdateAdvertisingSectorDto,
+} from 'cartelera-unahur';
 
 @ApiTags('advertising-sector')
 @Controller('advertising-sector')
@@ -24,11 +24,8 @@ export class AdvertisingSectorController {
   ) {}
 
   @Post()
-  // @ApiResponse({ type: ResponseAdvertisingSectorDto }) // TODO: fixear y descomentar
-  create(
-    @Body() createAdvertisingSectorDto /* : CreateAdvertisingSectorDto */,
-  ) {
-    // TODO: fixear y descomentar
+  @ApiResponse({ type: ResponseAdvertisingSectorDto })
+  create(@Body() createAdvertisingSectorDto: CreateAdvertisingSectorDto) {
     return this.advertisingSectorService.create(createAdvertisingSectorDto);
   }
 
@@ -45,7 +42,7 @@ export class AdvertisingSectorController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateAdvertisingSectorDto /* : UpdateAdvertisingSectorDto */, // TODO: fixear y descomentar
+    @Body() updateAdvertisingSectorDto: UpdateAdvertisingSectorDto,
   ) {
     return this.advertisingSectorService.update(
       +id,

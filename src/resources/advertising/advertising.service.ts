@@ -43,7 +43,7 @@ export class AdvertisingService {
           endDate: shceduleToCreate.endDate,
           startHour: shceduleToCreate.startHour,
           endHour: shceduleToCreate.endHour,
-          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)), // TODO: Hacer que esto ande
+          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
         });
       }),
     );

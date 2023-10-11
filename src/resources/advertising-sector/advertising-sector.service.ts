@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdvertisingSector } from 'src/entities/advertising-sector.entity';
-// import {
-//   CreateAdvertisingSectorDto,
-//   UpdateAdvertisingSectorDto,
-// } from 'cartelera-unahur'; // TODO: fixear y descomentar
+import {
+  CreateAdvertisingSectorDto,
+  UpdateAdvertisingSectorDto,
+} from 'cartelera-unahur';
 
 @Injectable()
 export class AdvertisingSectorService {
@@ -13,9 +13,7 @@ export class AdvertisingSectorService {
     @InjectRepository(AdvertisingSector)
     private readonly advertisingSector: Repository<AdvertisingSector>,
   ) {}
-  public async create(
-    createAdvertisingSectorDto /* : CreateAdvertisingSectorDto */, // TODO: fixear y descomentar
-  ) {
+  public async create(createAdvertisingSectorDto: CreateAdvertisingSectorDto) {
     const newAdvertisingSector = this.advertisingSector.create(
       createAdvertisingSectorDto,
     );
@@ -31,10 +29,7 @@ export class AdvertisingSectorService {
     return `This action returns a #${id} advertisingSector`;
   }
 
-  update(
-    id: number,
-    updateAdvertisingSectorDto /* : UpdateAdvertisingSectorDto */, // TODO: fixear y descomentar
-  ) {
+  update(id: number, updateAdvertisingSectorDto: UpdateAdvertisingSectorDto) {
     return `This action updates a #${id} advertisingSector`;
   }
 

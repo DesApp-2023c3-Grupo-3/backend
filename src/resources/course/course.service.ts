@@ -41,7 +41,7 @@ export class CourseService {
 
   public async update(id: number, updateCourseDto: UpdateCourseDto) {
     try {
-      return this.courseRepository.update({ id }, updateCourseDto); // TODO: Revisar el output del update
+      return this.courseRepository.update({ id }, updateCourseDto);
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
@@ -53,7 +53,7 @@ export class CourseService {
         { id },
         {
           id,
-          deletedAt: Date.now(), // TODO: Probar el borrado logico de @DeletedAtColumn
+          deletedAt: new Date(),
         },
       );
     } catch (error) {
