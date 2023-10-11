@@ -41,6 +41,7 @@ export class SocketConnectionModule {
   private async makeConnection(ws: WebSocket) {
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
+      console.log(data);
       try {
         let screenFound = await this.screenService.findOne(data.screenId);
         if (!screenFound) {
@@ -52,14 +53,15 @@ export class SocketConnectionModule {
             sector: await this.sectorService.findOne(1),
           });
         }
+        console.log(screenFound);
         const sectorFound = await this.sectorService.findOne(
-          screenFound.sector.id,
+          screenFound.sector?.id,
         );
         if (!sectorFound) {
           console.error('ERROR ON CONNECTION');
         }
         let sectorSubject = this.sectors.find(
-          (sector) => sector.data.id === sectorFound.id,
+          (sector) => sector.data?.id === sectorFound.id,
         );
         if (!sectorSubject) {
           sectorSubject = new SectorSubject({
