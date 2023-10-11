@@ -61,7 +61,6 @@ export class AdvertisingService {
   }
 
   public async findTodayScreenAdvertising(screenId: number) {
-    // TODO: Tipar output
     const avisos = await this.advertisingRepository.find({
       where: {
         deletedAt: null,
@@ -146,7 +145,7 @@ export class AdvertisingService {
         } else if (inRange) {
           if (isDayToday) {
             if (
-              this.estaEnHorarioActual(
+              this.isActive(
                 advertisingSchedule.schedule?.startHour,
                 advertisingSchedule.schedule?.endHour,
               )
@@ -164,24 +163,19 @@ export class AdvertisingService {
     return status;
   }
 
-  private estaEnHorarioActual(horaInicio, horaFin) {
-    const ahora = new Date();
-    const horaActual = ahora.getHours();
-    const minutosActuales = ahora.getMinutes();
-
-    const horaInicioHoras = horaInicio.getHours();
-    const minutosInicio = horaInicio.getMinutes();
-    const horaFinHoras = horaFin.getHours();
-    const minutosFin = horaFin.getMinutes();
-
-    const horaActualEnMinutos = horaActual * 60 + minutosActuales;
-    const horaInicioEnMinutos = horaInicioHoras * 60 + minutosInicio;
-    const horaFinEnMinutos = horaFinHoras * 60 + minutosFin;
-
+  private isActive(timeStart: Date, timeEnd: Date) {
+    const dateNow = new Date();
+    const totalSecondsNow = this.getSeconds(dateNow.toLocaleTimeString());
+    const totalSecondsStart = this.getSeconds(timeStart.toLocaleTimeString());
+    const totalSecondsEnd = this.getSeconds(timeEnd.toLocaleTimeString());
     return (
-      horaActualEnMinutos >= horaInicioEnMinutos &&
-      horaActualEnMinutos <= horaFinEnMinutos
+      totalSecondsStart <= totalSecondsNow && totalSecondsNow <= totalSecondsEnd
     );
+  }
+
+  private getSeconds(stringTime: string): number {
+    const [hour, minutes, seconds] = stringTime.split(':').map(Number);
+    return hour * 3600 + minutes * 60 + seconds;
   }
 
   public async findOne(id: number): Promise<Advertising> {
