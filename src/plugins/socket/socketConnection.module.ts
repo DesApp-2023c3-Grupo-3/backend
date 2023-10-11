@@ -44,9 +44,7 @@ export class SocketConnectionModule {
       try {
         let screenFound = await this.screenService.findOne(data.screenId);
         if (!screenFound) {
-          screenFound = await this.screenService.create({
-            sector: await this.sectorService.findOne(1),
-          });
+          screenFound = await this.screenService.create(null);
         }
         const sectorFound = await this.sectorService.findOne(
           screenFound.sector?.id,

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
 import * as fs from 'fs';
 import * as path from 'path';
+import { ImageService } from '../image/image.service';
 
 @Injectable()
 export class CourseService {
@@ -15,6 +16,8 @@ export class CourseService {
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
     private readonly socketService: SocketService,
+    @Inject(ImageService)
+    private readonly serviceImage: ImageService,
   ) {}
 
   public async create(createCourseDto: CreateCourseDto) {
@@ -83,5 +86,38 @@ export class CourseService {
     });
 
     return excelBuffer;
+  }
+
+  async uploadCommission(file: Express.Multer.File) {
+    try {
+      const jsonCommisionPromise = this.serviceImage.createJson(file);
+      const jsonCommision = await jsonCommisionPromise;
+
+      const createdCourses = [];
+
+      for (const rowData of jsonCommision) {
+        const name = rowData['Nombre'];
+        const startHour = rowData['Hora inicio'];
+        const endHour = rowData['Hora fin'];
+
+        const createCourseDto: CreateCourseDto = {
+          name,
+        };
+
+        const newCourse = this.courseRepository.create(createCourseDto);
+        const createdCourse = await this.courseRepository.save(newCourse);
+        createdCourses.push(createdCourse);
+      }
+
+      return {
+        message: 'Cursos creados exitosamente desde el archivo Excel',
+        createdCourses,
+      };
+    } catch (error) {
+      throw new HttpException(
+        'Error en el proceso de carga',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

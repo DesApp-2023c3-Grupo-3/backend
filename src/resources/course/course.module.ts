@@ -4,9 +4,10 @@ import { CourseController } from './course.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SocketModule } from 'src/plugins/socket/socket.module';
 import { Course } from 'src/entities/course.entity';
+import { ImageModule } from '../image/image.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Course]), SocketModule],
+  imports: [TypeOrmModule.forFeature([Course]), SocketModule, ImageModule],
   controllers: [CourseController],
   providers: [CourseService],
 })
