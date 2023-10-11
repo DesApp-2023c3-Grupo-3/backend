@@ -83,6 +83,7 @@ export class AdvertisingService {
         },
       },
       relations: {
+        advertisingType: true,
         advertisingSectors: {
           sector: {
             screens: true,
