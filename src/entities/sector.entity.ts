@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Screen } from './screen.entity';
+import { AdvertisingSector } from './advertising-sector.entity';
 
 @Entity({ name: 'Sector' })
 export class Sector {
@@ -28,6 +29,16 @@ export class Sector {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
+
+  @OneToMany(
+    () => AdvertisingSector,
+    (advertisingSector) => advertisingSector.advertising,
+    {
+      nullable: true,
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSectors: AdvertisingSector[];
 
   @OneToMany(() => Screen, (screen) => screen.sector, {
     nullable: true,

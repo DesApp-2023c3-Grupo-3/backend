@@ -6,6 +6,7 @@ import { IsNull, Repository } from 'typeorm';
 import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
+import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
 
 @Injectable()
 export class AdvertisingService {
@@ -17,6 +18,8 @@ export class AdvertisingService {
     private readonly scheduleService: ScheduleService,
     @Inject(AdvertisingScheduleService)
     private readonly advertisingScheduleService: AdvertisingScheduleService,
+    @Inject(AdvertisingSectorService)
+    private readonly advertisingSectorService: AdvertisingSectorService,
   ) {}
 
   public async create(createAdvertisingDto: CreateAdvertisingDto) {
@@ -25,7 +28,14 @@ export class AdvertisingService {
     const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
-
+    await Promise.all(
+      createAdvertisingDto.sectors.map(async (sector) => {
+        return await this.advertisingSectorService.create({
+          sector,
+          advertising: newAdvertising,
+        });
+      }),
+    );
     const schedulesCreated = await Promise.all(
       createAdvertisingDto.schedules.map(async (shceduleToCreate) => {
         return await this.scheduleService.create({
@@ -33,11 +43,10 @@ export class AdvertisingService {
           endDate: shceduleToCreate.endDate,
           startHour: shceduleToCreate.startHour,
           endHour: shceduleToCreate.endHour,
-          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)), // TODO: Hacer que esto ande
+          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
         });
       }),
     );
-
     const advertisingSchedulesCreated = await Promise.all(
       schedulesCreated.map(async (scheduleCreated) => {
         return await this.advertisingScheduleService.create({
@@ -47,12 +56,13 @@ export class AdvertisingService {
       }),
     );
 
-    this.socketService.sendMessage('advertising', {
-      id: 1,
-      advertisingTypeId: 1,
-      title: 'aviso default',
-      payload: 'url default',
-    });
+    // TODO: Implementar envio de mensajes por sector si se ve hoy
+    // this.socketService.sendMessage('advertising', {
+    //   id: 1,
+    //   advertisingTypeId: 1,
+    //   title: 'aviso default',
+    //   payload: 'url default',
+    // });
     return advertisingCreated;
   }
 
@@ -64,18 +74,24 @@ export class AdvertisingService {
     const avisos = await this.advertisingRepository.find({
       where: {
         deletedAt: null,
-        sector: {
-          screens: {
-            id: screenId,
+        advertisingSectors: {
+          sector: {
+            screens: {
+              id: screenId,
+            },
           },
         },
       },
-      relations: [
-        'sector',
-        'sector.screens',
-        'advertisingSchedules',
-        'advertisingSchedules.schedule',
-      ],
+      relations: {
+        advertisingSectors: {
+          sector: {
+            screens: true,
+          },
+        },
+        advertisingSchedules: {
+          schedule: true,
+        },
+      },
     });
     const advertisingsWithStatus = avisos.map((aviso) => ({
       ...aviso,
@@ -98,14 +114,18 @@ export class AdvertisingService {
           },
         },
       },
-      relations: [
-        'user',
-        'user.role',
-        'advertisingType',
-        'sector',
-        'advertisingSchedules',
-        'advertisingSchedules.schedule',
-      ],
+      relations: {
+        user: {
+          role: true,
+        },
+        advertisingType: true,
+        advertisingSectors: {
+          sector: true,
+        },
+        advertisingSchedules: {
+          schedule: true,
+        },
+      },
     });
     return avisos.map((aviso) => ({
       ...aviso,
@@ -190,12 +210,20 @@ export class AdvertisingService {
               deletedAt: IsNull(),
             },
           },
+          advertisingSectors: {
+            deletedAt: IsNull(),
+            sector: {
+              deletedAt: IsNull(),
+            },
+          },
         },
         relations: {
           user: {
             role: true,
           },
-          sector: true,
+          advertisingSectors: {
+            sector: true,
+          },
           advertisingType: true,
           advertisingSchedules: {
             schedule: true,
@@ -277,20 +305,48 @@ export class AdvertisingService {
           })),
         );
       }
-
       await this.advertisingRepository.update(
         { id },
         {
           name: updateAdvertisingDto.name,
           advertisingType: updateAdvertisingDto.advertisingType,
           user: updateAdvertisingDto.user,
-          sector: updateAdvertisingDto.sector,
-          // payload: updateAdvertisingDto.payload // TODO: Agregar al DTO
+          payload: updateAdvertisingDto.payload,
         },
       );
-
+      const { advertisingSectorsToDelete } =
+        advertisingFound.advertisingSectors.reduce(
+          (reducer, advertisingSector) => {
+            const sectorIndex = updateAdvertisingDto.sectors.findIndex(
+              (sector) => advertisingSector.sector.id === sector.id,
+            );
+            if (sectorIndex + 1) {
+              updateAdvertisingDto.sectors.splice(sectorIndex, 1);
+            } else {
+              reducer.advertisingSectorsToDelete.push(advertisingSector);
+            }
+            return reducer;
+          },
+          { advertisingSectorsToDelete: [] },
+        );
+      const advertisingSectorsToCreate = updateAdvertisingDto.sectors;
+      await this.advertisingSectorService.removeMultiple(
+        advertisingSectorsToDelete.map(
+          (advertisingSectorToDelete) => advertisingSectorToDelete.id,
+        ),
+      );
+      if (advertisingSectorsToCreate.length) {
+        await Promise.all(
+          advertisingSectorsToCreate.map(async (advertisingSectorToCreate) => {
+            return this.advertisingSectorService.create({
+              advertising: advertisingFound,
+              sector: advertisingSectorToCreate,
+            });
+          }),
+        );
+      }
       return {
-        message: 'Advertising update successfully',
+        data: await this.findOne(id), // TODO: Evaluar si quitar esto
       };
     } catch (error) {
       console.error('ADVERTISING_UPDATE_ERROR: ', error);
