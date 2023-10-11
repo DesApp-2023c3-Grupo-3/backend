@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import {
@@ -15,6 +17,8 @@ import {
   ResponseCourseDto,
 } from 'cartelera-unahur';
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { Res } from '@nestjs/common';
+import { Response } from 'express';
 
 @ApiTags('Course')
 @Controller('course')
@@ -55,5 +59,28 @@ export class CourseController {
   @ApiResponse({ type: CourseDto })
   remove(@Param('id') id: string) {
     return this.courseService.remove(+id);
+  }
+
+  @Post('download-template')
+  async commissionTemplate(@Res() res: Response) {
+    try {
+      const excelBuffer = await this.courseService.createCommissionTemplate();
+
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=commission-template.xlsx`,
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+
+      res.send(excelBuffer);
+    } catch (error) {
+      throw new HttpException(
+        'Commission template not found',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
