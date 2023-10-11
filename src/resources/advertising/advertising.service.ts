@@ -70,12 +70,14 @@ export class AdvertisingService {
           },
         },
       },
-      relations: [
-        'sector',
-        'sector.screens',
-        'advertisingSchedules',
-        'advertisingSchedules.schedule',
-      ],
+      relations: {
+        sector: {
+          screens: true,
+        },
+        advertisingSchedules: {
+          schedule: true,
+        },
+      },
     });
     const advertisingsWithStatus = avisos.map((aviso) => ({
       ...aviso,
