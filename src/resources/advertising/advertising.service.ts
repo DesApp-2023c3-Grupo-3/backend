@@ -6,6 +6,11 @@ import { IsNull, Repository } from 'typeorm';
 import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
+import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
+
+class Asd extends CreateAdvertisingDto {
+  public sectors: { id: number }[];
+}
 
 @Injectable()
 export class AdvertisingService {
@@ -17,21 +22,28 @@ export class AdvertisingService {
     private readonly scheduleService: ScheduleService,
     @Inject(AdvertisingScheduleService)
     private readonly advertisingScheduleService: AdvertisingScheduleService,
+    @Inject(AdvertisingSectorService)
+    private readonly advertisingSectorService: AdvertisingSectorService,
   ) {}
 
-  public async create(createAdvertisingDto: any) {
+  public async create(createAdvertisingDto: CreateAdvertisingDto) {
     // TODO: Modificar el DTO
     const newAdvertising =
       this.advertisingRepository.create(createAdvertisingDto);
-    const [advertisingCreated] = await this.advertisingRepository.save(
+    const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
 
     // TODO: Agregar creacion de AdvertisingSector
 
-    // createAdvertisingDto.sectors.map((sector) => {
-
-    // }) // TODO: fixear y descomentar
+    // await Promise.all( // TODO: ACA IMPORTANT!!! Fixear esto, es la creacion de avisos
+    //   createAdvertisingDto.sectors.map(async (sector) => {
+    //     return await this.advertisingSectorService.create({
+    //       sector,
+    //       advertising: newAdvertising
+    //     })
+    //   })
+    // );
 
     const schedulesCreated = await Promise.all(
       createAdvertisingDto.schedules.map(async (shceduleToCreate) => {
@@ -71,16 +83,16 @@ export class AdvertisingService {
     const avisos = await this.advertisingRepository.find({
       where: {
         deletedAt: null,
-        sector: {
-          screens: {
-            id: screenId,
-          },
-        },
+        // sector: { // TODO: Fixear esto
+        //   screens: {
+        //     id: screenId,
+        //   },
+        // },
       },
       relations: {
-        sector: {
-          screens: true,
-        },
+        // sector: { // TODO: Fixear esto
+        //   screens: true,
+        // },
         advertisingSchedules: {
           schedule: true,
         },
@@ -204,7 +216,7 @@ export class AdvertisingService {
           user: {
             role: true,
           },
-          sector: true,
+          // sector: true, // TODO: Fixear esto
           advertisingType: true,
           advertisingSchedules: {
             schedule: true,
@@ -293,7 +305,7 @@ export class AdvertisingService {
           name: updateAdvertisingDto.name,
           advertisingType: updateAdvertisingDto.advertisingType,
           user: updateAdvertisingDto.user,
-          sector: updateAdvertisingDto.sector,
+          // sector: updateAdvertisingDto.sector, // TODO: Fixear esto
           // payload: updateAdvertisingDto.payload // TODO: Agregar al DTO
         },
       );

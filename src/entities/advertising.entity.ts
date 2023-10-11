@@ -46,12 +46,6 @@ export class Advertising {
   })
   user: User;
 
-  @ManyToOne(() => Sector, (sector) => sector.id, {
-    nullable: true,
-    createForeignKeyConstraints: true,
-  })
-  sector: Sector;
-
   @OneToMany(
     () => AdvertisingSector,
     (advertisingSector) => advertisingSector.advertising,
