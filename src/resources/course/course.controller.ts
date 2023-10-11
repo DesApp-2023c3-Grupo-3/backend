@@ -69,7 +69,7 @@ export class CourseController {
     return this.courseService.remove(+id);
   }
 
-  @Post('commissionTemplate')
+  @Post('download-template')
   async commissionTemplate(@Res() res: Response) {
     try {
       const excelBuffer = await this.courseService.createCommissionTemplate();
