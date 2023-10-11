@@ -21,6 +21,9 @@ export class Advertising {
   @Column({ type: 'varchar' })
   name: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  payload: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

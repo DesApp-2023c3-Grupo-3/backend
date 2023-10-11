@@ -6,8 +6,6 @@ import { Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
-import * as fs from 'fs';
-import * as path from 'path';
 import { ImageService } from '../image/image.service';
 
 @Injectable()

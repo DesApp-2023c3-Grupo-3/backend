@@ -44,7 +44,13 @@ export class SocketConnectionModule {
       try {
         let screenFound = await this.screenService.findOne(data.screenId);
         if (!screenFound) {
-          screenFound = await this.screenService.create(null);
+          screenFound = await this.screenService.create({
+            subscription: 'default',
+            templeteId: '1',
+            courseIntervalTime: 15,
+            advertisingIntervalTime: 15,
+            sector: await this.sectorService.findOne(1),
+          });
         }
         const sectorFound = await this.sectorService.findOne(
           screenFound.sector?.id,
@@ -74,7 +80,10 @@ export class SocketConnectionModule {
           JSON.stringify({
             id: -1,
             topic: 'connection',
-            data: 'Hello! This is the server',
+            data: {
+              sector: sectorFound,
+              screen: screenFound,
+            },
           }),
         );
       } catch (error) {

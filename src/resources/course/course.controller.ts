@@ -8,6 +8,8 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import {
@@ -25,7 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
-import * as fs from 'fs';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Course')
@@ -85,10 +86,10 @@ export class CourseController {
 
       res.send(excelBuffer);
     } catch (error) {
-      return res.status(500).json({
-        message: 'Error al crear el archivo Excel.',
-        error: error.message,
-      });
+      throw new HttpException(
+        'Commission template not found',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 

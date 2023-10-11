@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Screen } from './screen.entity';
 
 @Entity({ name: 'Sector' })
 export class Sector {
@@ -26,4 +28,10 @@ export class Sector {
 
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
+
+  @OneToMany(() => Screen, (screen) => screen.sector, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  screens: Screen[];
 }
