@@ -17,7 +17,7 @@ import {
   UpdateCourseDto,
   ResponseCourseDto,
 } from 'cartelera-unahur';
-import { ApiTags, ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
 
