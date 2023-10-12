@@ -50,4 +50,21 @@ export class SubjectService {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
   }
+
+  public async createMateria(subject: string[]) {
+    const materiasCojunto = new Set(subject);
+    const materias = Array.from(materiasCojunto);
+    const materiasActuales = await this.findAll();
+    const nuevosMaterias = materias.filter((materia) => {
+      return !materiasActuales.some(
+        (materiaVieja) => materia === materiaVieja.name,
+      );
+    });
+    nuevosMaterias.forEach((sector) => {
+      this.create({
+        name: sector,
+      });
+    });
+    console.log('Nuevas materias: ', nuevosMaterias);
+  }
 }

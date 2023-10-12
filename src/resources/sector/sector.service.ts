@@ -50,4 +50,22 @@ export class SectorService {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
   }
+
+  public async createSectores(sectors: string[]) {
+    const sectoresCojunto = new Set(sectors);
+    const sectores = Array.from(sectoresCojunto);
+    const sectoresActuales = await this.findAll();
+    const nuevosSectores = sectores.filter((sector) => {
+      return !sectoresActuales.some(
+        (sectorViejo) => sector === sectorViejo.name,
+      );
+    });
+    nuevosSectores.forEach((sector) => {
+      this.create({
+        name: sector,
+        topic: null,
+      });
+    });
+    console.log('Nuevos: ', nuevosSectores);
+  }
 }

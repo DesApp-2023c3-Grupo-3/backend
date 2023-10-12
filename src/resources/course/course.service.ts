@@ -126,58 +126,69 @@ export class CourseService {
       const jsonCommisionPromise = this.serviceImage.createJson(file);
       const jsonCommision = await jsonCommisionPromise;
 
-      const createdCourses = [];
+      // Creo nuevos sectores si hace falta.
+      const sectores = jsonCommision.map((sector) => sector['Sector']);
+      console.log('Soy sectores', sectores);
+      this.sectorService.createSectores(sectores);
 
-      for (const rowData of jsonCommision) {
-        const nombre = rowData['Nombre'];
-        const sector = rowData['Sector'];
-        const subject = rowData['Subject'];
-        const classroom = rowData['Nombre materia'];
-        const rangoDias = rowData['Cuatrimestre'];
-        const rangoHoras = rowData['Turno'];
-        const diaMostrar = rowData['Dia'];
+      // Creo nuevas materias se hace falta.
+      const materias = jsonCommision.map(
+        (materia) => materia['Nombre materia'],
+      );
+      console.log('Soy materias', materias);
+      this.subjectService.createMateria(materias);
 
-        const newSector = await this.sectorService.create({
-          name: sector,
-          topic: 'Quemado',
-        });
+      // Creo nuevas aulas si hace falta.
 
-        const newSubject = await this.subjectService.create({
-          name: subject,
-        });
+      // for (const rowData of jsonCommision) {
+      //   const nombre = rowData['Nombre'];
+      //   const sector = rowData['Sector'];
+      //   const subject = rowData['Subject'];
+      //   const classroom = rowData['Nombre materia'];
+      //   const rangoDias = rowData['Cuatrimestre'];
+      //   const rangoHoras = rowData['Turno'];
+      //   const diaMostrar = rowData['Dia'];
 
-        const newclassroom = await this.classroomService.create({
-          name: classroom,
-        });
+      //   const newSector = await this.sectorService.create({
+      //     name: sector,
+      //     topic: 'Quemado',
+      //   });
 
-        const rangeCuatrimiestre = rangeDate.find(
-          (turnos) => turnos.cuatrimestre === rangoDias,
-        );
-        const rangeHour = rangeHours.find(
-          (horas) => horas.turno === rangoHoras,
-        );
+      //   const newSubject = await this.subjectService.create({
+      //     name: subject,
+      //   });
 
-        const newSchedules = await this.scheduleService.create({
-          startDate: rangeCuatrimiestre.startDate,
-          endDate: rangeCuatrimiestre.endDate,
-          startHour: rangeHour.startHour,
-          endHour: rangeHour.endHour,
-          dayCode: diaMostrar,
-        });
+      //   const newclassroom = await this.classroomService.create({
+      //     name: classroom,
+      //   });
 
-        this.create({
-          name: nombre,
-          classroom: { id: newclassroom.id },
-          schedule: { id: newSchedules.id },
-          sector: { id: newSector.id },
-          subject: { id: newSubject.id },
-          user: { id: 1 },
-        });
-      }
+      //   const rangeCuatrimiestre = rangeDate.find(
+      //     (turnos) => turnos.cuatrimestre === rangoDias,
+      //   );
+      //   const rangeHour = rangeHours.find(
+      //     (horas) => horas.turno === rangoHoras,
+      //   );
+
+      //   const newSchedules = await this.scheduleService.create({
+      //     startDate: rangeCuatrimiestre.startDate,
+      //     endDate: rangeCuatrimiestre.endDate,
+      //     startHour: rangeHour.startHour,
+      //     endHour: rangeHour.endHour,
+      //     dayCode: diaMostrar,
+      //   });
+
+      //   this.create({
+      //     name: nombre,
+      //     classroom: { id: newclassroom.id },
+      //     schedule: { id: newSchedules.id },
+      //     sector: { id: newSector.id },
+      //     subject: { id: newSubject.id },
+      //     user: { id: 1 }, //QUEMADO
+      //   });
+      // }
 
       return {
         message: 'Cursos creados exitosamente desde el archivo Excel',
-        createdCourses,
       };
     } catch (error) {
       throw new HttpException(
@@ -187,3 +198,5 @@ export class CourseService {
     }
   }
 }
+// TODO: Al descargar template tiene que traer datos si ya hay?
+// TODO: Hacer validaciones
