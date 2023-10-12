@@ -1,5 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
+import {
+  CreateCourseDto,
+  CreateSectorDto,
+  UpdateCourseDto,
+} from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +11,11 @@ import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
 import { ImageService } from '../image/image.service';
+import { SectorService } from '../sector/sector.service';
+import { ScheduleService } from '../schedule/schedule.service';
+import { SubjectService } from '../subject/subject.service';
+import { ClassroomService } from '../classroom/classroom.service';
+import { rangeDate, rangeHours } from './stubs/rangeDate.Stub';
 
 @Injectable()
 export class CourseService {
@@ -16,6 +25,14 @@ export class CourseService {
     private readonly socketService: SocketService,
     @Inject(ImageService)
     private readonly serviceImage: ImageService,
+    @Inject(ScheduleService)
+    private readonly scheduleService: ScheduleService,
+    @Inject(SectorService)
+    private readonly sectorService: SectorService,
+    @Inject(SubjectService)
+    private readonly subjectService: SubjectService,
+    @Inject(ClassroomService)
+    private readonly classroomService: ClassroomService,
   ) {}
 
   public async create(createCourseDto: CreateCourseDto) {
@@ -70,11 +87,29 @@ export class CourseService {
   }
 
   async createCommissionTemplate() {
-    const data = [['Nombre', 'Hora inicio', 'Hora fin']];
+    const data = [
+      [
+        'Nombre',
+        'Sector',
+        'Subject',
+        'Nombre materia',
+        'Cuatrimestre',
+        'Turno',
+        'Dia',
+      ],
+    ];
 
     const worksheet = xlsx.utils.aoa_to_sheet(data);
 
-    worksheet['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 15 }];
+    worksheet['!cols'] = [
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+    ];
 
     const workbook = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Comisiones');
@@ -94,17 +129,50 @@ export class CourseService {
       const createdCourses = [];
 
       for (const rowData of jsonCommision) {
-        const name = rowData['Nombre'];
-        const startHour = rowData['Hora inicio'];
-        const endHour = rowData['Hora fin'];
+        const nombre = rowData['Nombre'];
+        const sector = rowData['Sector'];
+        const subject = rowData['Subject'];
+        const classroom = rowData['Nombre materia'];
+        const rangoDias = rowData['Cuatrimestre'];
+        const rangoHoras = rowData['Turno'];
+        const diaMostrar = rowData['Dia'];
 
-        const createCourseDto: CreateCourseDto = {
-          name,
-        };
+        const newSector = await this.sectorService.create({
+          name: sector,
+          topic: 'Quemado',
+        });
 
-        const newCourse = this.courseRepository.create(createCourseDto);
-        const createdCourse = await this.courseRepository.save(newCourse);
-        createdCourses.push(createdCourse);
+        const newSubject = await this.subjectService.create({
+          name: subject,
+        });
+
+        const newclassroom = await this.classroomService.create({
+          name: classroom,
+        });
+
+        const rangeCuatrimiestre = rangeDate.find(
+          (turnos) => turnos.cuatrimestre === rangoDias,
+        );
+        const rangeHour = rangeHours.find(
+          (horas) => horas.turno === rangoHoras,
+        );
+
+        const newSchedules = await this.scheduleService.create({
+          startDate: rangeCuatrimiestre.startDate,
+          endDate: rangeCuatrimiestre.endDate,
+          startHour: rangeHour.startHour,
+          endHour: rangeHour.endHour,
+          dayCode: diaMostrar,
+        });
+
+        this.create({
+          name: nombre,
+          classroom: { id: newclassroom.id },
+          schedule: { id: newSchedules.id },
+          sector: { id: newSector.id },
+          subject: { id: newSubject.id },
+          user: { id: 1 },
+        });
       }
 
       return {
