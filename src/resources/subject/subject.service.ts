@@ -36,7 +36,7 @@ export class SubjectService {
     }
   }
 
-  public async findMateriasNotInArray(subjectNames: string[]) {
+  public async findSubjectsNotInArray(subjectNames: string[]) {
     return await this.subjectRepository.find({
       where: {
         name: In(subjectNames),

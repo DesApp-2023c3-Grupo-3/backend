@@ -36,7 +36,7 @@ export class ClassroomService {
     }
   }
 
-  public async findAulasNotInArray(sectorNames: string[]) {
+  public async findClassroomsNotInArray(sectorNames: string[]) {
     return await this.classroomRepository.find({
       where: {
         name: In(sectorNames),

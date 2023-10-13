@@ -108,11 +108,9 @@ export class CourseService {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
   }
-
   public async findBySector(sectorId: number) {
     return coursesStub;
   }
-
   async createCommissionTemplate() {
     const data = [['Nombre', 'Nombre materia', 'Aula', 'Turno', 'Dia']];
 
@@ -135,7 +133,6 @@ export class CourseService {
 
     return excelBuffer;
   }
-
   async uploadCommission(
     file: Express.Multer.File,
     startDate: Date,
@@ -145,31 +142,23 @@ export class CourseService {
     try {
       const jsonCommisionPromise = this.serviceImage.createJson(file);
       const jsonCommision = await jsonCommisionPromise;
-
-      // Creo nuevos sectores si hace falta.
-      const sectores = await this.crearSectores(sector);
-
-      // Creo nuevas materias se hace falta.
-      const materias = await this.crearMaterias(
+      const sectores = await this.createSectors(sector);
+      const materias = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
-      // console.log(materias)
 
-      //Creo aulas si hace falta.
-      const classroom = await this.crearAulas(
+      const classroom = await this.createClassrooms(
         jsonCommision.map((aula) => aula['Aula']),
       );
-      //console.log(classroom)
-
       const createCursos = await jsonCommision.map(async (curso) => ({
         name: curso['Nombre'],
         classroom: {
-          id: this.buscaPorNombre(classroom, curso['Aula'].toString()),
+          id: this.searchByName(classroom, curso['Aula'].toString()),
         },
-        sector: { id: this.buscaPorNombre(sectores, sector) },
-        subject: { id: this.buscaPorNombre(materias, curso['Nombre materia']) },
+        sector: { id: this.searchByName(sectores, sector) },
+        subject: { id: this.searchByName(materias, curso['Nombre materia']) },
         schedule: {
-          id: await this.crearSchedule(
+          id: await this.createSchedule(
             startDate,
             endDate,
             curso['Turno'],
@@ -179,10 +168,7 @@ export class CourseService {
         },
       }));
       const courses = await Promise.all(createCursos);
-      //console.log('cursos', courses);
-
       const cursosCreados = await this.createMultiple(courses);
-
       return {
         message: 'Cursos creados exitosamente desde el archivo Excel',
         cursosCreados,
@@ -195,13 +181,19 @@ export class CourseService {
     }
   }
 
-  private buscaPorNombre(array: any[], name: string) {
+  private searchByName(array: any[], name: string) {
     const objetoEncontrado = array.find((obj) => {
       return obj['name'] === name;
     });
     return objetoEncontrado.id;
   }
-  private async crearSchedule(startDate, endDate, startHour, endHour, dayCode) {
+  private async createSchedule(
+    startDate,
+    endDate,
+    startHour,
+    endHour,
+    dayCode,
+  ) {
     const schedule: CreateScheduleDto = {
       startDate: startDate,
       endDate: endDate,
@@ -213,7 +205,7 @@ export class CourseService {
     return scheduleCreate.id;
   }
 
-  private async crearSectores(sector: string) {
+  private async createSectors(sector: string) {
     const nombreSectores = [sector];
     const sectoresActuales = await this.sectorService.findSectorsNotInArray(
       nombreSectores,
@@ -238,9 +230,9 @@ export class CourseService {
     return sectoresActuales;
   }
 
-  private async crearMaterias(materias: string[]) {
-    const nombreMaterias = this.sacarDuplicados(materias);
-    const materiasActuales = await this.subjectService.findMateriasNotInArray(
+  private async createSubjects(materias: string[]) {
+    const nombreMaterias = this.removeDuplicates(materias);
+    const materiasActuales = await this.subjectService.findSubjectsNotInArray(
       nombreMaterias,
     );
     const materiaAValidar = await materiasActuales.map(
@@ -261,10 +253,10 @@ export class CourseService {
     return materiasActuales;
   }
 
-  private async crearAulas(aulas: number[]) {
+  private async createClassrooms(aulas: number[]) {
     const numeroAString = aulas.map((aula) => aula.toString());
-    const nombreAulas = this.sacarDuplicados(numeroAString);
-    const aulasActuales = await this.classroomService.findAulasNotInArray(
+    const nombreAulas = this.removeDuplicates(numeroAString);
+    const aulasActuales = await this.classroomService.findClassroomsNotInArray(
       nombreAulas,
     );
     const aulaAValidar = await aulasActuales.map((aula) => aula.name);
@@ -276,8 +268,6 @@ export class CourseService {
         name: aula,
       }),
     );
-
-    console.log('Aula creada: ', nuevasAulas);
     const aulasCreadas = await this.classroomService.createMultiple(
       nuevasAulas,
     );
@@ -285,12 +275,9 @@ export class CourseService {
     return aulasActuales;
   }
 
-  private sacarDuplicados(array: any[]) {
+  private removeDuplicates(array: any[]) {
     const sinDuplicar = new Set(array);
     const nuevoArray = Array.from(sinDuplicar);
     return nuevoArray;
   }
 }
-
-// TODO: Al descargar template tiene que traer datos si ya hay?
-// TODO: Hacer validaciones
