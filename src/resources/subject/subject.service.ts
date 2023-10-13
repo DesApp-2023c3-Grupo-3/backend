@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSubjectDto, UpdateSubjectDto } from 'cartelera-unahur';
 import { Subject } from 'src/entities/subject.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class SubjectService {
@@ -17,6 +17,13 @@ export class SubjectService {
     return created;
   }
 
+  public async createMultiple(createSubjectDtos: CreateSubjectDto[]) {
+    const subjectsToCreate = createSubjectDtos.map((createSubjectDto) =>
+      this.subjectRepository.create(createSubjectDto),
+    );
+    return this.subjectRepository.save(subjectsToCreate);
+  }
+
   public async findAll() {
     return this.subjectRepository.find();
   }
@@ -27,6 +34,14 @@ export class SubjectService {
     } catch (error) {
       throw new HttpException('Subject not found', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async findMateriasNotInArray(subjectNames: string[]) {
+    return await this.subjectRepository.find({
+      where: {
+        name: In(subjectNames),
+      },
+    });
   }
 
   public async update(id: number, updateSubjectDto: UpdateSubjectDto) {
@@ -49,22 +64,5 @@ export class SubjectService {
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
-  }
-
-  public async createMateria(subject: string[]) {
-    const materiasCojunto = new Set(subject);
-    const materias = Array.from(materiasCojunto);
-    const materiasActuales = await this.findAll();
-    const nuevosMaterias = materias.filter((materia) => {
-      return !materiasActuales.some(
-        (materiaVieja) => materia === materiaVieja.name,
-      );
-    });
-    nuevosMaterias.forEach((sector) => {
-      this.create({
-        name: sector,
-      });
-    });
-    console.log('Nuevas materias: ', nuevosMaterias);
   }
 }

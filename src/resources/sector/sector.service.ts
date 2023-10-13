@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSectorDto, UpdateSectorDto } from 'cartelera-unahur';
 import { Sector } from 'src/entities/sector.entity';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class SectorService {
@@ -17,6 +17,13 @@ export class SectorService {
     return created;
   }
 
+  public async createMultiple(createSectorDto: CreateSectorDto[]) {
+    const sectorToCreate = createSectorDto.map((createSectorDto) =>
+      this.sectorRepository.create(createSectorDto),
+    );
+    return this.sectorRepository.save(sectorToCreate);
+  }
+
   public async findAll() {
     return this.sectorRepository.find();
   }
@@ -27,6 +34,14 @@ export class SectorService {
     } catch (error) {
       throw new HttpException('Sector not found', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async findSectorsNotInArray(sectorNames: string[]) {
+    return await this.sectorRepository.find({
+      where: {
+        name: In(sectorNames),
+      },
+    });
   }
 
   public async update(id: number, updateSectorDto: UpdateSectorDto) {
@@ -49,23 +64,5 @@ export class SectorService {
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
-  }
-
-  public async createSectores(sectors: string[]) {
-    const sectoresCojunto = new Set(sectors);
-    const sectores = Array.from(sectoresCojunto);
-    const sectoresActuales = await this.findAll();
-    const nuevosSectores = sectores.filter((sector) => {
-      return !sectoresActuales.some(
-        (sectorViejo) => sector === sectorViejo.name,
-      );
-    });
-    nuevosSectores.forEach((sector) => {
-      this.create({
-        name: sector,
-        topic: null,
-      });
-    });
-    console.log('Nuevos: ', nuevosSectores);
   }
 }

@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   HttpException,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import {
@@ -17,6 +18,7 @@ import {
   CreateCourseDto,
   UpdateCourseDto,
   ResponseCourseDto,
+  SectorDto,
 } from 'cartelera-unahur';
 import {
   ApiTags,
@@ -105,6 +107,22 @@ export class CourseController {
           type: 'string',
           format: 'binary',
         },
+        startDate: {
+          type: 'string',
+          format: 'date-time',
+          example: new Date(),
+        },
+        endDate: {
+          type: 'string',
+          format: 'date-time',
+          example: new Date(),
+        },
+        sector: {
+          type: 'array',
+          items: {
+            $ref: 'SectorDto', // Referencia al modelo SectorDto
+          },
+        },
       },
     },
   })
@@ -115,7 +133,15 @@ export class CourseController {
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file'))
   @Post('excel-to-json')
-  async createExcel(@UploadedFile() file: Express.Multer.File) {
-    return this.courseService.uploadCommission(file);
+  async createExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { startDate: Date; endDate: Date; sector: SectorDto[] },
+  ) {
+    return this.courseService.uploadCommission(
+      file,
+      data.startDate,
+      data.endDate,
+      data.sector,
+    );
   }
 }

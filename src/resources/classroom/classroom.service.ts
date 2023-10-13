@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateClassroomDto, UpdateClassroomDto } from 'cartelera-unahur';
 import { Classroom } from 'src/entities/classroom.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class ClassroomService {
@@ -17,6 +17,13 @@ export class ClassroomService {
     return created;
   }
 
+  public async createMultiple(createClassroomDto: CreateClassroomDto[]) {
+    const classroomToCreate = createClassroomDto.map((createClassrromDto) =>
+      this.classroomRepository.create(createClassrromDto),
+    );
+    return this.classroomRepository.save(classroomToCreate);
+  }
+
   public async findAll() {
     return this.classroomRepository.find();
   }
@@ -27,6 +34,14 @@ export class ClassroomService {
     } catch (error) {
       throw new HttpException('Classroom not found', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async findAulasNotInArray(sectorNames: string[]) {
+    return await this.classroomRepository.find({
+      where: {
+        name: In(sectorNames),
+      },
+    });
   }
 
   public async update(id: number, updateClassroomDto: UpdateClassroomDto) {

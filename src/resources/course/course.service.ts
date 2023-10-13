@@ -1,7 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
+  CreateClassroomDto,
   CreateCourseDto,
+  CreateScheduleDto,
   CreateSectorDto,
+  CreateSubjectDto,
+  ScheduleDto,
+  SectorDto,
   UpdateCourseDto,
 } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
@@ -48,6 +53,13 @@ export class CourseService {
     return created;
   }
 
+  public async createMultiple(createCourseDto: CreateCourseDto[]) {
+    const courseToCreate = createCourseDto.map((createCourseDto) =>
+      this.courseRepository.create(createCourseDto),
+    );
+    return this.courseRepository.save(courseToCreate);
+  }
+
   public async findAll() {
     return this.courseRepository.find();
   }
@@ -91,8 +103,8 @@ export class CourseService {
       [
         'Nombre',
         'Sector',
-        'Subject',
         'Nombre materia',
+        'Aula',
         'Cuatrimestre',
         'Turno',
         'Dia',
@@ -121,71 +133,55 @@ export class CourseService {
     return excelBuffer;
   }
 
-  async uploadCommission(file: Express.Multer.File) {
+  async uploadCommission(
+    file: Express.Multer.File,
+    startDate: Date,
+    endDate: Date,
+    sector: SectorDto[],
+  ) {
     try {
       const jsonCommisionPromise = this.serviceImage.createJson(file);
       const jsonCommision = await jsonCommisionPromise;
 
       // Creo nuevos sectores si hace falta.
-      const sectores = jsonCommision.map((sector) => sector['Sector']);
-      console.log('Soy sectores', sectores);
-      this.sectorService.createSectores(sectores);
+      const sectores = await this.crearSectores(
+        jsonCommision.map((sector) => sector['Sector']),
+      );
+      //console.log(sectores)
 
       // Creo nuevas materias se hace falta.
-      const materias = jsonCommision.map(
-        (materia) => materia['Nombre materia'],
+      const materias = await this.crearMaterias(
+        jsonCommision.map((subject) => subject['Nombre materia']),
       );
-      console.log('Soy materias', materias);
-      this.subjectService.createMateria(materias);
+      // console.log(materias)
 
-      // Creo nuevas aulas si hace falta.
+      //Creo aulas si hace falta.
+      const classroom = await this.crearAulas(
+        jsonCommision.map((aula) => aula['Aula']),
+      );
+      //console.log(classroom)
 
-      // for (const rowData of jsonCommision) {
-      //   const nombre = rowData['Nombre'];
-      //   const sector = rowData['Sector'];
-      //   const subject = rowData['Subject'];
-      //   const classroom = rowData['Nombre materia'];
-      //   const rangoDias = rowData['Cuatrimestre'];
-      //   const rangoHoras = rowData['Turno'];
-      //   const diaMostrar = rowData['Dia'];
+      const createCursos = await jsonCommision.map(async (curso) => ({
+        name: curso['Nombre'],
+        classroom: {
+          id: this.buscaPorNombre(classroom, curso['Aula'].toString()),
+        },
+        sector: { id: this.buscaPorNombre(sectores, curso['Sector']) },
+        subject: { id: this.buscaPorNombre(materias, curso['Nombre materia']) },
+        schedule: {
+          id: await this.crearSchedule(
+            startDate,
+            endDate,
+            curso['Turno'],
+            curso['Turno'],
+            curso['Dia'],
+          ),
+        },
+      }));
+      const courses = await Promise.all(createCursos);
+      //console.log('cursos', courses);
 
-      //   const newSector = await this.sectorService.create({
-      //     name: sector,
-      //     topic: 'Quemado',
-      //   });
-
-      //   const newSubject = await this.subjectService.create({
-      //     name: subject,
-      //   });
-
-      //   const newclassroom = await this.classroomService.create({
-      //     name: classroom,
-      //   });
-
-      //   const rangeCuatrimiestre = rangeDate.find(
-      //     (turnos) => turnos.cuatrimestre === rangoDias,
-      //   );
-      //   const rangeHour = rangeHours.find(
-      //     (horas) => horas.turno === rangoHoras,
-      //   );
-
-      //   const newSchedules = await this.scheduleService.create({
-      //     startDate: rangeCuatrimiestre.startDate,
-      //     endDate: rangeCuatrimiestre.endDate,
-      //     startHour: rangeHour.startHour,
-      //     endHour: rangeHour.endHour,
-      //     dayCode: diaMostrar,
-      //   });
-
-      //   this.create({
-      //     name: nombre,
-      //     classroom: { id: newclassroom.id },
-      //     schedule: { id: newSchedules.id },
-      //     sector: { id: newSector.id },
-      //     subject: { id: newSubject.id },
-      //     user: { id: 1 }, //QUEMADO
-      //   });
-      // }
+      this.createMultiple(courses);
 
       return {
         message: 'Cursos creados exitosamente desde el archivo Excel',
@@ -197,6 +193,103 @@ export class CourseService {
       );
     }
   }
+
+  private buscaPorNombre(array: any[], name: string) {
+    const objetoEncontrado = array.find((obj) => {
+      return obj['name'] === name;
+    });
+    return objetoEncontrado.id;
+  }
+  private async crearSchedule(startDate, endDate, startHour, endHour, dayCode) {
+    const schedule: CreateScheduleDto = {
+      startDate: startDate,
+      endDate: endDate,
+      startHour: rangeHours.find((hora) => hora.turno === startHour).startHour,
+      endHour: rangeHours.find((hora) => hora.turno === endHour).endHour,
+      dayCode: dayCode,
+    };
+    const scheduleCreate = await this.scheduleService.create(schedule);
+    return scheduleCreate.id;
+  }
+
+  private async crearSectores(sectores: string[]) {
+    const nombreSectores = this.sacarDuplicados(sectores);
+    const sectoresActuales = await this.sectorService.findSectorsNotInArray(
+      nombreSectores,
+    );
+
+    const sectoresAValidar = await sectoresActuales.map(
+      (sector) => sector.name,
+    );
+    const sectoresFiltrados = nombreSectores.filter(
+      (sector) => !sectoresAValidar.includes(sector),
+    );
+    const nuevosSectores: CreateSectorDto[] = sectoresFiltrados.map(
+      (sector) => ({
+        name: sector,
+        topic: sector,
+      }),
+    );
+    const sectoresCreados = await this.sectorService.createMultiple(
+      nuevosSectores,
+    );
+    sectoresCreados.forEach((sector) => sectoresActuales.push(sector));
+    return sectoresActuales;
+  }
+
+  private async crearMaterias(materias: string[]) {
+    const nombreMaterias = this.sacarDuplicados(materias);
+    const materiasActuales = await this.subjectService.findMateriasNotInArray(
+      nombreMaterias,
+    );
+    const materiaAValidar = await materiasActuales.map(
+      (materia) => materia.name,
+    );
+    const materiasFiltradas = nombreMaterias.filter(
+      (materia) => !materiaAValidar.includes(materia),
+    );
+    const nuevasMaterias: CreateSubjectDto[] = materiasFiltradas.map(
+      (materia) => ({
+        name: materia,
+      }),
+    );
+    const materiasCreadas = await this.subjectService.createMultiple(
+      nuevasMaterias,
+    );
+    materiasCreadas.forEach((materia) => materiasActuales.push(materia));
+    return materiasActuales;
+  }
+
+  private async crearAulas(aulas: number[]) {
+    const numeroAString = aulas.map((aula) => aula.toString());
+    const nombreAulas = this.sacarDuplicados(numeroAString);
+    const aulasActuales = await this.classroomService.findAulasNotInArray(
+      nombreAulas,
+    );
+    const aulaAValidar = await aulasActuales.map((aula) => aula.name);
+    const aulasFiltradas = nombreAulas.filter(
+      (aula) => !aulaAValidar.includes(aula),
+    );
+    const nuevasAulas: CreateClassroomDto[] = await aulasFiltradas.map(
+      (aula) => ({
+        name: aula,
+      }),
+    );
+
+    console.log('Aula creada: ', nuevasAulas);
+    const aulasCreadas = await this.classroomService.createMultiple(
+      nuevasAulas,
+    );
+    aulasCreadas.forEach((aula) => aulasActuales.push(aula));
+    return aulasActuales;
+  }
+
+  private sacarDuplicados(array: any[]) {
+    const sinDuplicar = new Set(array);
+    const nuevoArray = Array.from(sinDuplicar);
+    return nuevoArray;
+  }
 }
+
 // TODO: Al descargar template tiene que traer datos si ya hay?
 // TODO: Hacer validaciones
