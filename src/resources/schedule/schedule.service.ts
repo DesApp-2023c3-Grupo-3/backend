@@ -17,6 +17,13 @@ export class ScheduleService {
     return created;
   }
 
+  public async createMultiple(createSubjectDtos: CreateScheduleDto[]) {
+    const subjectsToCreate = createSubjectDtos.map((createSubjectDto) =>
+      this.scheduleRepository.create(createSubjectDto),
+    );
+    return this.scheduleRepository.save(subjectsToCreate);
+  }
+
   public async findAll() {
     return this.scheduleRepository.find();
   }

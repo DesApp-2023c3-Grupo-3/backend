@@ -150,7 +150,21 @@ export class CourseService {
       const classroom = await this.createClassrooms(
         jsonCommision.map((aula) => aula['Aula']),
       );
-      const createCursos = await jsonCommision.map(async (curso) => ({
+
+      const createSchedules = await jsonCommision.map((schedule) =>
+        this.createSchedule(
+          startDate,
+          endDate,
+          schedule['Turno'],
+          schedule['Turno'],
+          schedule['Dia'],
+        ),
+      );
+      const schedules = await this.scheduleService.createMultiple(
+        await Promise.all(createSchedules),
+      );
+
+      const createCursos = await jsonCommision.map(async (curso, index) => ({
         name: curso['Nombre'],
         classroom: {
           id: this.searchByName(classroom, curso['Aula'].toString()),
@@ -158,13 +172,7 @@ export class CourseService {
         sector: { id: this.searchByName(sectores, sector) },
         subject: { id: this.searchByName(materias, curso['Nombre materia']) },
         schedule: {
-          id: await this.createSchedule(
-            startDate,
-            endDate,
-            curso['Turno'],
-            curso['Turno'],
-            curso['Dia'],
-          ),
+          id: schedules[index].id,
         },
       }));
       const courses = await Promise.all(createCursos);
@@ -201,8 +209,7 @@ export class CourseService {
       endHour: rangeHours.find((hora) => hora.turno === endHour).endHour,
       dayCode: dayCode,
     };
-    const scheduleCreate = await this.scheduleService.create(schedule);
-    return scheduleCreate.id;
+    return schedule;
   }
 
   private async createSectors(sector: string) {
