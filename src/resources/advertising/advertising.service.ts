@@ -46,7 +46,9 @@ export class AdvertisingService {
           endDate: shceduleToCreate.endDate,
           startHour: shceduleToCreate.startHour,
           endHour: shceduleToCreate.endHour,
-          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
+          dayCode: this.scheduleService.getDayCode(
+            parseInt(shceduleToCreate.dayCode),
+          ),
         });
       }),
     );
@@ -59,9 +61,9 @@ export class AdvertisingService {
       }),
     );
     const schedulesStatus = schedulesCreated.map((scheduleCreated) =>
-      this.getScheduleStatus(scheduleCreated),
+      this.scheduleService.getScheduleStatus(scheduleCreated),
     );
-    const status = this.reduceStatus(schedulesStatus);
+    const status = this.scheduleService.reduceStatus(schedulesStatus);
     if (['today', 'active'].includes(status)) {
       const sectorIds = advertisingSectorsCreated.map(
         (advertisingSector) => advertisingSector.sector.id,
@@ -150,84 +152,14 @@ export class AdvertisingService {
     }));
   }
 
-  private getDayCode(code: number) {
-    const defaultDay = 'LU';
-    const dayCodes = {
-      0: 'LU',
-      1: 'MA',
-      2: 'MI',
-      3: 'JU',
-      4: 'VI',
-      5: 'SA',
-      6: 'DO',
-    };
-    return dayCodes[String(code)] || defaultDay;
-  }
-
   private getAdvertisingStatus(
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
     const statusArray = advertising.advertisingSchedules.map(
       (advertisingSchedule) =>
-        this.getScheduleStatus(advertisingSchedule.schedule),
+        this.scheduleService.getScheduleStatus(advertisingSchedule.schedule),
     );
-    return this.reduceStatus(statusArray);
-  }
-
-  private reduceStatus(
-    statusArray: Array<'active' | 'today' | 'pending' | 'deprecated'>,
-  ): 'active' | 'today' | 'pending' | 'deprecated' {
-    return statusArray.reduce((status, statusElement) => {
-      return !(status === 'active' || status === 'today')
-        ? statusElement
-        : status;
-    }, 'deprecated');
-  }
-
-  private getScheduleStatus(
-    schedule,
-  ): 'active' | 'today' | 'pending' | 'deprecated' {
-    const currentDate = new Date();
-    let status: 'active' | 'today' | 'pending' | 'deprecated';
-    const startDate = new Date(schedule.startDate);
-    const endDate = new Date(schedule.endDate);
-    const inRange = startDate <= currentDate && endDate >= currentDate;
-    const isToday =
-      schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
-    if (endDate < currentDate) {
-      status = 'deprecated';
-    } else if (inRange) {
-      if (isToday) {
-        if (
-          this.isActive(
-            new Date(schedule.startHour),
-            new Date(schedule.endHour),
-          )
-        ) {
-          status = 'active';
-        } else {
-          status = 'today';
-        }
-      } else {
-        status = 'pending';
-      }
-    }
-    return status;
-  }
-
-  private isActive(timeStart: Date, timeEnd: Date) {
-    const dateNow = new Date();
-    const totalSecondsNow = this.getSeconds(dateNow.toLocaleTimeString());
-    const totalSecondsStart = this.getSeconds(timeStart.toLocaleTimeString());
-    const totalSecondsEnd = this.getSeconds(timeEnd.toLocaleTimeString());
-    return (
-      totalSecondsStart <= totalSecondsNow && totalSecondsNow <= totalSecondsEnd
-    );
-  }
-
-  private getSeconds(stringTime: string): number {
-    const [hour, minutes, seconds] = stringTime.split(':').map(Number);
-    return hour * 3600 + minutes * 60 + seconds;
+    return this.scheduleService.reduceStatus(statusArray);
   }
 
   public async findOne(id: number): Promise<Advertising> {
@@ -316,7 +248,9 @@ export class AdvertisingService {
               endDate: shceduleToCreate.endDate,
               startHour: shceduleToCreate.startHour,
               endHour: shceduleToCreate.endHour,
-              dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
+              dayCode: this.scheduleService.getDayCode(
+                parseInt(shceduleToCreate.dayCode),
+              ),
             });
           }),
         );
@@ -333,7 +267,9 @@ export class AdvertisingService {
         await this.scheduleService.updateMultiple(
           schedulesToUpdate.map((scheduleToUpdate) => ({
             ...scheduleToUpdate,
-            dayCode: this.getDayCode(parseInt(scheduleToUpdate.dayCode)),
+            dayCode: this.scheduleService.getDayCode(
+              parseInt(scheduleToUpdate.dayCode),
+            ),
           })),
         );
       }

@@ -68,4 +68,74 @@ export class ScheduleService {
       );
     } catch (error) {}
   }
+
+  public reduceStatus(
+    statusArray: Array<'active' | 'today' | 'pending' | 'deprecated'>,
+  ): 'active' | 'today' | 'pending' | 'deprecated' {
+    return statusArray.reduce((status, statusElement) => {
+      return !(status === 'active' || status === 'today')
+        ? statusElement
+        : status;
+    }, 'deprecated');
+  }
+
+  public getScheduleStatus(
+    schedule: any,
+  ): 'active' | 'today' | 'pending' | 'deprecated' {
+    const currentDate = new Date();
+    let status: 'active' | 'today' | 'pending' | 'deprecated';
+    const startDate = new Date(schedule.startDate);
+    const endDate = new Date(schedule.endDate);
+    const inRange = startDate <= currentDate && endDate >= currentDate;
+    const isToday =
+      schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
+    if (endDate < currentDate) {
+      status = 'deprecated';
+    } else if (inRange) {
+      if (isToday) {
+        if (
+          this.isActive(
+            new Date(schedule.startHour),
+            new Date(schedule.endHour),
+          )
+        ) {
+          status = 'active';
+        } else {
+          status = 'today';
+        }
+      } else {
+        status = 'pending';
+      }
+    }
+    return status;
+  }
+
+  private isActive(timeStart: Date, timeEnd: Date) {
+    const dateNow = new Date();
+    const totalSecondsNow = this.getSeconds(dateNow.toLocaleTimeString());
+    const totalSecondsStart = this.getSeconds(timeStart.toLocaleTimeString());
+    const totalSecondsEnd = this.getSeconds(timeEnd.toLocaleTimeString());
+    return (
+      totalSecondsStart <= totalSecondsNow && totalSecondsNow <= totalSecondsEnd
+    );
+  }
+
+  public getDayCode(code: number) {
+    const defaultDay = 'LU';
+    const dayCodes = {
+      0: 'LU',
+      1: 'MA',
+      2: 'MI',
+      3: 'JU',
+      4: 'VI',
+      5: 'SA',
+      6: 'DO',
+    };
+    return dayCodes[String(code)] || defaultDay;
+  }
+
+  private getSeconds(stringTime: string): number {
+    const [hour, minutes, seconds] = stringTime.split(':').map(Number);
+    return hour * 3600 + minutes * 60 + seconds;
+  }
 }
