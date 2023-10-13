@@ -29,6 +29,9 @@ export class ScreenService {
     try {
       const [response] = await this.screenRepository.find({
         where: { id, deletedAt: null },
+        relations: {
+          sector: true,
+        },
       });
       return response;
     } catch (error) {

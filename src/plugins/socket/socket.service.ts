@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { SocketConnectionModule } from './socketConnection.module';
-import { advertisingMessageDto } from './dto/advertisingMessage.dto';
-import { courseMessageDto } from './dto/courseMessage.dto';
+import { MessageDto } from './dto/Message.dto';
 
 @Injectable()
 export class SocketService {
@@ -10,16 +9,16 @@ export class SocketService {
     private readonly socketConnectionModule: SocketConnectionModule,
   ) {}
 
-  public async sendMessage(
-    topic: string,
-    data: advertisingMessageDto | courseMessageDto,
-  ): Promise<any> {
+  public async sendMessage(topic: string, data: MessageDto): Promise<void> {
     try {
-      const sector =
-        this.socketConnectionModule.sectors.find((sectorSubject) => {
-          sectorSubject.data.topic === topic; // TODO: Revisar si esto anda
-        }) || this.socketConnectionModule.sectors[0];
-      sector.notify(topic, data);
+      const sectorsFound = this.socketConnectionModule.sectors.filter(
+        (sectorSubject) => {
+          return sectorSubject.data.topic === topic;
+        },
+      ) || [this.socketConnectionModule.sectors[0]];
+      sectorsFound.map((sector) => {
+        sector.notify(data);
+      });
     } catch (error) {
       console.error('SEND_MESSAGE ERROR: ', error);
     }

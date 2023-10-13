@@ -1,5 +1,6 @@
 import { Sector } from 'src/entities/sector.entity';
 import { Observer } from './Observer';
+import { MessageDto } from '../dto/Message.dto';
 
 export interface Subject {
   attach(observer: Observer): void;
@@ -8,7 +9,7 @@ export interface Subject {
 
   contains(id: number): boolean;
 
-  notify(topic: string, data: any): void;
+  notify(data: any): void;
 }
 
 export class SectorSubject implements Subject {
@@ -32,7 +33,7 @@ export class SectorSubject implements Subject {
 
   public detach(id: number): void {
     const observerIndex = this.observers.findIndex(
-      (observer) => observer.id === id,
+      (observer) => observer.data.id === id,
     );
     if (observerIndex === -1) {
       return console.info('Subject: Nonexistent observer.');
@@ -43,13 +44,13 @@ export class SectorSubject implements Subject {
   }
 
   public contains(id: number): boolean {
-    return !!this.observers.find((observer) => observer.id === id);
+    return !!this.observers.find((observer) => observer.data.id === id);
   }
 
-  public notify(topic: string, data: any): void {
+  public notify(data: MessageDto): void {
     console.info('Subject: Notifying observers...');
     for (const observer of this.observers) {
-      observer.update(topic, data);
+      observer.update(data);
     }
   }
 }

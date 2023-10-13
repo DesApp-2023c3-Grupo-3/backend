@@ -10,7 +10,7 @@ import {
   UseInterceptors,
   HttpException,
   HttpStatus,
-  Query,
+  StreamableFile,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import {
@@ -18,7 +18,6 @@ import {
   CreateCourseDto,
   UpdateCourseDto,
   ResponseCourseDto,
-  SectorDto,
 } from 'cartelera-unahur';
 import {
   ApiTags,
@@ -40,6 +39,32 @@ export class CourseController {
   @ApiResponse({ type: CourseDto })
   create(@Body() createCourseDto: CreateCourseDto) {
     return this.courseService.create(createCourseDto);
+  }
+
+  @Get('/download-template')
+  async downloadTemplete(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    try {
+      const excelBuffer = await this.courseService.createCommissionTemplate();
+      const excelBufferStream = new StreamableFile(excelBuffer);
+
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=commission-template.xlsx`,
+      );
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
+
+      return excelBufferStream;
+    } catch (error) {
+      throw new HttpException(
+        'Commission template not found',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Get()
@@ -70,29 +95,6 @@ export class CourseController {
   @ApiResponse({ type: CourseDto })
   remove(@Param('id') id: string) {
     return this.courseService.remove(+id);
-  }
-
-  @Post('download-template')
-  async commissionTemplate(@Res() res: Response) {
-    try {
-      const excelBuffer = await this.courseService.createCommissionTemplate();
-
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename=commission-template.xlsx`,
-      );
-      res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      );
-
-      res.send(excelBuffer);
-    } catch (error) {
-      throw new HttpException(
-        'Commission template not found',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
   }
 
   @ApiOperation({

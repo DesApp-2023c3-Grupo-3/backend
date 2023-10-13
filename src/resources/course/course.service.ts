@@ -43,12 +43,14 @@ export class CourseService {
   public async create(createCourseDto: CreateCourseDto) {
     const newCourse = this.courseRepository.create(createCourseDto);
     const created = await this.courseRepository.save(newCourse);
-    this.socketService.sendMessage('course', {
+    this.socketService.sendMessage(created.sector.topic, {
       id: 1,
-      title: 'comision default',
-      subject: 'materia default',
-      classroom: 'aula default',
-      schedule: 'horario default',
+      action: 'CREATE_COURSE',
+      data: {
+        subject: created.subject.name,
+        classroom: created.classroom.name,
+        schedule: `${created.schedule.startHour} - ${created.schedule.endHour}`,
+      },
     });
     return created;
   }
@@ -89,7 +91,7 @@ export class CourseService {
 
   public async update(id: number, updateCourseDto: UpdateCourseDto) {
     try {
-      return this.courseRepository.update({ id }, updateCourseDto); // TODO: Revisar el output del update
+      return this.courseRepository.update({ id }, updateCourseDto);
     } catch (error) {
       throw new HttpException('Error on update', HttpStatus.BAD_REQUEST);
     }
@@ -101,7 +103,7 @@ export class CourseService {
         { id },
         {
           id,
-          deletedAt: Date.now(), // TODO: Probar el borrado logico de @DeletedAtColumn
+          deletedAt: new Date(),
         },
       );
     } catch (error) {
