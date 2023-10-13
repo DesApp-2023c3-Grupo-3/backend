@@ -5,8 +5,6 @@ import {
   CreateScheduleDto,
   CreateSectorDto,
   CreateSubjectDto,
-  ScheduleDto,
-  SectorDto,
   UpdateCourseDto,
 } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
@@ -20,7 +18,7 @@ import { SectorService } from '../sector/sector.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { SubjectService } from '../subject/subject.service';
 import { ClassroomService } from '../classroom/classroom.service';
-import { rangeDate, rangeHours } from './stubs/rangeDate.Stub';
+import { rangeHours } from './stubs/rangeDate.Stub';
 
 @Injectable()
 export class CourseService {
