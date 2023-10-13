@@ -61,12 +61,27 @@ export class CourseService {
   }
 
   public async findAll() {
-    return this.courseRepository.find();
+    return this.courseRepository.find({
+      relations: {
+        classroom: true,
+        schedule: true,
+        sector: true,
+        subject: true,
+      },
+    });
   }
 
   public async findOne(id: number) {
     try {
-      return this.courseRepository.find({ where: { id } });
+      return this.courseRepository.find({
+        where: { id },
+        relations: {
+          classroom: true,
+          schedule: true,
+          sector: true,
+          subject: true,
+        },
+      });
     } catch (error) {
       throw new HttpException('Course not found', HttpStatus.BAD_REQUEST);
     }
@@ -166,10 +181,11 @@ export class CourseService {
       const courses = await Promise.all(createCursos);
       //console.log('cursos', courses);
 
-      this.createMultiple(courses);
+      const cursosCreados = await this.createMultiple(courses);
 
       return {
         message: 'Cursos creados exitosamente desde el archivo Excel',
+        cursosCreados,
       };
     } catch (error) {
       throw new HttpException(
