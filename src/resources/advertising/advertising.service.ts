@@ -7,6 +7,7 @@ import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
 import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
+import { SectorService } from '../sector/sector.service';
 
 @Injectable()
 export class AdvertisingService {
@@ -16,6 +17,8 @@ export class AdvertisingService {
     private readonly socketService: SocketService,
     @Inject(ScheduleService)
     private readonly scheduleService: ScheduleService,
+    @Inject(SectorService)
+    private readonly sectorService: SectorService,
     @Inject(AdvertisingScheduleService)
     private readonly advertisingScheduleService: AdvertisingScheduleService,
     @Inject(AdvertisingSectorService)
@@ -28,7 +31,7 @@ export class AdvertisingService {
     const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
-    await Promise.all(
+    const advertisingSectorsCreated = await Promise.all(
       createAdvertisingDto.sectors.map(async (sector) => {
         return await this.advertisingSectorService.create({
           sector,
@@ -43,11 +46,13 @@ export class AdvertisingService {
           endDate: shceduleToCreate.endDate,
           startHour: shceduleToCreate.startHour,
           endHour: shceduleToCreate.endHour,
-          dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
+          dayCode: this.scheduleService.getDayCode(
+            parseInt(shceduleToCreate.dayCode),
+          ),
         });
       }),
     );
-    const advertisingSchedulesCreated = await Promise.all(
+    await Promise.all(
       schedulesCreated.map(async (scheduleCreated) => {
         return await this.advertisingScheduleService.create({
           advertising: { id: advertisingCreated.id },
@@ -55,14 +60,27 @@ export class AdvertisingService {
         });
       }),
     );
-
-    // TODO: Implementar envio de mensajes por sector si se ve hoy
-    // this.socketService.sendMessage('advertising', {
-    //   id: 1,
-    //   advertisingTypeId: 1,
-    //   title: 'aviso default',
-    //   payload: 'url default',
-    // });
+    const schedulesStatus = schedulesCreated.map((scheduleCreated) =>
+      this.scheduleService.getScheduleStatus(scheduleCreated),
+    );
+    const status = this.scheduleService.reduceStatus(schedulesStatus);
+    if (['today', 'active'].includes(status)) {
+      const sectorIds = advertisingSectorsCreated.map(
+        (advertisingSector) => advertisingSector.sector.id,
+      );
+      const sectorsFound = await this.sectorService.findByIds(sectorIds);
+      const sectorTopics = sectorsFound.map((sectorFound) => sectorFound.topic);
+      sectorTopics.map((sectorTopic) => {
+        this.socketService.sendMessage(sectorTopic, {
+          id: 1,
+          action: 'CREATE_ADVERTISING',
+          data: {
+            advertisingTypeId: newAdvertising.advertisingType.id,
+            payload: newAdvertising.payload,
+          },
+        });
+      });
+    }
     return advertisingCreated;
   }
 
@@ -96,7 +114,7 @@ export class AdvertisingService {
     });
     const advertisingsWithStatus = avisos.map((aviso) => ({
       ...aviso,
-      status: this.getStatus(aviso),
+      status: this.getAdvertisingStatus(aviso),
     }));
     const filteredAdvertisings = advertisingsWithStatus.filter(
       (advertisingWithStatus) =>
@@ -130,73 +148,18 @@ export class AdvertisingService {
     });
     return avisos.map((aviso) => ({
       ...aviso,
-      status: this.getStatus(aviso),
+      status: this.getAdvertisingStatus(aviso),
     }));
   }
 
-  private getDayCode(code: number) {
-    const defaultDay = 'LU';
-    const dayCodes = {
-      0: 'LU',
-      1: 'MA',
-      2: 'MI',
-      3: 'JU',
-      4: 'VI',
-      5: 'SA',
-      6: 'DO',
-    };
-    return dayCodes[String(code)] || defaultDay;
-  }
-
-  private getStatus(
+  private getAdvertisingStatus(
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
-    const currentDate = new Date();
-    let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
-    advertising.advertisingSchedules.map((advertisingSchedule) => {
-      const inRange =
-        advertisingSchedule.schedule?.startDate <= currentDate &&
-        advertisingSchedule.schedule?.endDate >= currentDate;
-      const isDayToday =
-        advertisingSchedule.schedule?.dayCode ===
-        this.getDayCode(currentDate.getDay() - 1);
-      if (status !== 'active') {
-        if (advertisingSchedule.schedule?.endDate < currentDate) {
-          status = 'deprecated';
-        } else if (inRange) {
-          if (isDayToday) {
-            if (
-              this.isActive(
-                advertisingSchedule.schedule?.startHour,
-                advertisingSchedule.schedule?.endHour,
-              )
-            ) {
-              status = 'active';
-            } else {
-              status = 'today';
-            }
-          } else {
-            status = 'pending';
-          }
-        }
-      }
-    });
-    return status;
-  }
-
-  private isActive(timeStart: Date, timeEnd: Date) {
-    const dateNow = new Date();
-    const totalSecondsNow = this.getSeconds(dateNow.toLocaleTimeString());
-    const totalSecondsStart = this.getSeconds(timeStart.toLocaleTimeString());
-    const totalSecondsEnd = this.getSeconds(timeEnd.toLocaleTimeString());
-    return (
-      totalSecondsStart <= totalSecondsNow && totalSecondsNow <= totalSecondsEnd
+    const statusArray = advertising.advertisingSchedules.map(
+      (advertisingSchedule) =>
+        this.scheduleService.getScheduleStatus(advertisingSchedule.schedule),
     );
-  }
-
-  private getSeconds(stringTime: string): number {
-    const [hour, minutes, seconds] = stringTime.split(':').map(Number);
-    return hour * 3600 + minutes * 60 + seconds;
+    return this.scheduleService.reduceStatus(statusArray);
   }
 
   public async findOne(id: number): Promise<Advertising> {
@@ -285,7 +248,9 @@ export class AdvertisingService {
               endDate: shceduleToCreate.endDate,
               startHour: shceduleToCreate.startHour,
               endHour: shceduleToCreate.endHour,
-              dayCode: this.getDayCode(parseInt(shceduleToCreate.dayCode)),
+              dayCode: this.scheduleService.getDayCode(
+                parseInt(shceduleToCreate.dayCode),
+              ),
             });
           }),
         );
@@ -302,7 +267,9 @@ export class AdvertisingService {
         await this.scheduleService.updateMultiple(
           schedulesToUpdate.map((scheduleToUpdate) => ({
             ...scheduleToUpdate,
-            dayCode: this.getDayCode(parseInt(scheduleToUpdate.dayCode)),
+            dayCode: this.scheduleService.getDayCode(
+              parseInt(scheduleToUpdate.dayCode),
+            ),
           })),
         );
       }
