@@ -99,23 +99,11 @@ export class CourseService {
   }
 
   async createCommissionTemplate() {
-    const data = [
-      [
-        'Nombre',
-        'Sector',
-        'Nombre materia',
-        'Aula',
-        'Cuatrimestre',
-        'Turno',
-        'Dia',
-      ],
-    ];
+    const data = [['Nombre', 'Nombre materia', 'Aula', 'Turno', 'Dia']];
 
     const worksheet = xlsx.utils.aoa_to_sheet(data);
 
     worksheet['!cols'] = [
-      { wch: 15 },
-      { wch: 15 },
       { wch: 15 },
       { wch: 15 },
       { wch: 15 },
@@ -137,17 +125,14 @@ export class CourseService {
     file: Express.Multer.File,
     startDate: Date,
     endDate: Date,
-    sector: SectorDto[],
+    sector: string,
   ) {
     try {
       const jsonCommisionPromise = this.serviceImage.createJson(file);
       const jsonCommision = await jsonCommisionPromise;
 
       // Creo nuevos sectores si hace falta.
-      const sectores = await this.crearSectores(
-        jsonCommision.map((sector) => sector['Sector']),
-      );
-      //console.log(sectores)
+      const sectores = await this.crearSectores(sector);
 
       // Creo nuevas materias se hace falta.
       const materias = await this.crearMaterias(
@@ -166,7 +151,7 @@ export class CourseService {
         classroom: {
           id: this.buscaPorNombre(classroom, curso['Aula'].toString()),
         },
-        sector: { id: this.buscaPorNombre(sectores, curso['Sector']) },
+        sector: { id: this.buscaPorNombre(sectores, sector) },
         subject: { id: this.buscaPorNombre(materias, curso['Nombre materia']) },
         schedule: {
           id: await this.crearSchedule(
@@ -212,8 +197,8 @@ export class CourseService {
     return scheduleCreate.id;
   }
 
-  private async crearSectores(sectores: string[]) {
-    const nombreSectores = this.sacarDuplicados(sectores);
+  private async crearSectores(sector: string) {
+    const nombreSectores = [sector];
     const sectoresActuales = await this.sectorService.findSectorsNotInArray(
       nombreSectores,
     );

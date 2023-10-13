@@ -118,10 +118,7 @@ export class CourseController {
           example: new Date(),
         },
         sector: {
-          type: 'array',
-          items: {
-            $ref: 'SectorDto', // Referencia al modelo SectorDto
-          },
+          $ref: 'string', // Referencia al modelo SectorDto
         },
       },
     },
@@ -135,7 +132,7 @@ export class CourseController {
   @Post('excel-to-json')
   async createExcel(
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: { startDate: Date; endDate: Date; sector: SectorDto[] },
+    @Body() data: { startDate: Date; endDate: Date; sector: string },
   ) {
     return this.courseService.uploadCommission(
       file,
