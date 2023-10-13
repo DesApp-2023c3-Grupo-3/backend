@@ -32,19 +32,19 @@ export class CourseController {
     return this.courseService.create(createCourseDto);
   }
 
-  @Get('download-template')
+  @Get('/download-template')
   async downloadTemplete(
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     try {
       const excelBuffer = await this.courseService.createCommissionTemplate();
       const excelBufferStream = new StreamableFile(excelBuffer);
 
-      response.setHeader(
+      res.setHeader(
         'Content-Disposition',
         `attachment; filename=commission-template.xlsx`,
       );
-      response.setHeader(
+      res.setHeader(
         'Content-Type',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       );
