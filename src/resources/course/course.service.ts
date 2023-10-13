@@ -18,12 +18,14 @@ export class CourseService {
   public async create(createCourseDto: CreateCourseDto) {
     const newCourse = this.courseRepository.create(createCourseDto);
     const created = await this.courseRepository.save(newCourse);
-    this.socketService.sendMessage('course', {
+    this.socketService.sendMessage(created.sector.topic, {
       id: 1,
-      title: 'comision default',
-      subject: 'materia default',
-      classroom: 'aula default',
-      schedule: 'horario default',
+      action: 'CREATE_COURSE',
+      data: {
+        subject: created.subject.name,
+        classroom: created.classroom.name,
+        schedule: `${created.schedule.startHour} - ${created.schedule.endHour}`,
+      },
     });
     return created;
   }

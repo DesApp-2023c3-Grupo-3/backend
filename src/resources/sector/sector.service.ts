@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateSectorDto, UpdateSectorDto } from 'cartelera-unahur';
 import { Sector } from 'src/entities/sector.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class SectorService {
@@ -24,6 +24,14 @@ export class SectorService {
   public async findOne(id: number): Promise<Sector> {
     try {
       return this.sectorRepository.findOne({ where: { id } });
+    } catch (error) {
+      throw new HttpException('Sector not found', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public async findByIds(ids: number[]): Promise<Sector[]> {
+    try {
+      return this.sectorRepository.find({ where: { id: In(ids) } });
     } catch (error) {
       throw new HttpException('Sector not found', HttpStatus.BAD_REQUEST);
     }

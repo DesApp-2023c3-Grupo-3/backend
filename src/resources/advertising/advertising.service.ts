@@ -7,6 +7,7 @@ import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
 import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
+import { SectorService } from '../sector/sector.service';
 
 @Injectable()
 export class AdvertisingService {
@@ -16,6 +17,8 @@ export class AdvertisingService {
     private readonly socketService: SocketService,
     @Inject(ScheduleService)
     private readonly scheduleService: ScheduleService,
+    @Inject(SectorService)
+    private readonly sectorService: SectorService,
     @Inject(AdvertisingScheduleService)
     private readonly advertisingScheduleService: AdvertisingScheduleService,
     @Inject(AdvertisingSectorService)
@@ -28,7 +31,7 @@ export class AdvertisingService {
     const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
-    await Promise.all(
+    const advertisingSectorsCreated = await Promise.all(
       createAdvertisingDto.sectors.map(async (sector) => {
         return await this.advertisingSectorService.create({
           sector,
@@ -47,7 +50,7 @@ export class AdvertisingService {
         });
       }),
     );
-    const advertisingSchedulesCreated = await Promise.all(
+    await Promise.all(
       schedulesCreated.map(async (scheduleCreated) => {
         return await this.advertisingScheduleService.create({
           advertising: { id: advertisingCreated.id },
@@ -55,14 +58,27 @@ export class AdvertisingService {
         });
       }),
     );
-
-    // TODO: Implementar envio de mensajes por sector si se ve hoy
-    // this.socketService.sendMessage('advertising', {
-    //   id: 1,
-    //   advertisingTypeId: 1,
-    //   title: 'aviso default',
-    //   payload: 'url default',
-    // });
+    const schedulesStatus = schedulesCreated.map((scheduleCreated) =>
+      this.getScheduleStatus(scheduleCreated),
+    );
+    const status = this.reduceStatus(schedulesStatus);
+    if (['today', 'active'].includes(status)) {
+      const sectorIds = advertisingSectorsCreated.map(
+        (advertisingSector) => advertisingSector.sector.id,
+      );
+      const sectorsFound = await this.sectorService.findByIds(sectorIds);
+      const sectorTopics = sectorsFound.map((sectorFound) => sectorFound.topic);
+      sectorTopics.map((sectorTopic) => {
+        this.socketService.sendMessage(sectorTopic, {
+          id: 1,
+          action: 'CREATE_ADVERTISING',
+          data: {
+            advertisingTypeId: newAdvertising.advertisingType.id,
+            payload: newAdvertising.payload,
+          },
+        });
+      });
+    }
     return advertisingCreated;
   }
 
@@ -96,7 +112,7 @@ export class AdvertisingService {
     });
     const advertisingsWithStatus = avisos.map((aviso) => ({
       ...aviso,
-      status: this.getStatus(aviso),
+      status: this.getAdvertisingStatus(aviso),
     }));
     const filteredAdvertisings = advertisingsWithStatus.filter(
       (advertisingWithStatus) =>
@@ -130,7 +146,7 @@ export class AdvertisingService {
     });
     return avisos.map((aviso) => ({
       ...aviso,
-      status: this.getStatus(aviso),
+      status: this.getAdvertisingStatus(aviso),
     }));
   }
 
@@ -148,39 +164,54 @@ export class AdvertisingService {
     return dayCodes[String(code)] || defaultDay;
   }
 
-  private getStatus(
+  private getAdvertisingStatus(
     advertising: Advertising,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
+    const statusArray = advertising.advertisingSchedules.map(
+      (advertisingSchedule) =>
+        this.getScheduleStatus(advertisingSchedule.schedule),
+    );
+    return this.reduceStatus(statusArray);
+  }
+
+  private reduceStatus(
+    statusArray: Array<'active' | 'today' | 'pending' | 'deprecated'>,
+  ): 'active' | 'today' | 'pending' | 'deprecated' {
+    return statusArray.reduce((status, statusElement) => {
+      return !(status === 'active' || status === 'today')
+        ? statusElement
+        : status;
+    }, 'deprecated');
+  }
+
+  private getScheduleStatus(
+    schedule,
+  ): 'active' | 'today' | 'pending' | 'deprecated' {
     const currentDate = new Date();
-    let status: 'active' | 'today' | 'pending' | 'deprecated' = null;
-    advertising.advertisingSchedules.map((advertisingSchedule) => {
-      const inRange =
-        advertisingSchedule.schedule?.startDate <= currentDate &&
-        advertisingSchedule.schedule?.endDate >= currentDate;
-      const isDayToday =
-        advertisingSchedule.schedule?.dayCode ===
-        this.getDayCode(currentDate.getDay() - 1);
-      if (status !== 'active') {
-        if (advertisingSchedule.schedule?.endDate < currentDate) {
-          status = 'deprecated';
-        } else if (inRange) {
-          if (isDayToday) {
-            if (
-              this.isActive(
-                advertisingSchedule.schedule?.startHour,
-                advertisingSchedule.schedule?.endHour,
-              )
-            ) {
-              status = 'active';
-            } else {
-              status = 'today';
-            }
-          } else {
-            status = 'pending';
-          }
+    let status: 'active' | 'today' | 'pending' | 'deprecated';
+    const startDate = new Date(schedule.startDate);
+    const endDate = new Date(schedule.endDate);
+    const inRange = startDate <= currentDate && endDate >= currentDate;
+    const isToday =
+      schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
+    if (endDate < currentDate) {
+      status = 'deprecated';
+    } else if (inRange) {
+      if (isToday) {
+        if (
+          this.isActive(
+            new Date(schedule.startHour),
+            new Date(schedule.endHour),
+          )
+        ) {
+          status = 'active';
+        } else {
+          status = 'today';
         }
+      } else {
+        status = 'pending';
       }
-    });
+    }
     return status;
   }
 

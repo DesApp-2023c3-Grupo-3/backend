@@ -45,7 +45,7 @@ export class SocketConnectionModule {
         let screenFound = await this.screenService.findOne(data.screenId);
         if (!screenFound) {
           screenFound = await this.screenService.create({
-            subscription: 'default',
+            subscription: data.screenId,
             templeteId: '1',
             courseIntervalTime: 15,
             advertisingIntervalTime: 15,
@@ -54,7 +54,7 @@ export class SocketConnectionModule {
         }
         const sectorFound = await this.sectorService.findOne(
           screenFound.sector.id,
-        );
+        ); // TODO: Revisar si esto es necesario
         if (!sectorFound) {
           console.error('ERROR ON CONNECTION');
         }
@@ -71,21 +71,19 @@ export class SocketConnectionModule {
           sectorSubject.detach(screenFound.id);
         }
         const screenObserver = new ScreenObserver({
-          id: screenFound.id,
+          data: screenFound,
           ws,
         });
         sectorSubject.attach(screenObserver);
 
-        ws.send(
-          JSON.stringify({
-            id: -1,
-            topic: 'connection',
-            data: {
-              sector: sectorFound,
-              screen: screenFound,
-            },
-          }),
-        );
+        screenObserver.update({
+          id: -1,
+          action: 'START_CONNECTION',
+          data: {
+            sector: sectorFound,
+            screen: screenFound,
+          },
+        });
       } catch (error) {
         console.error('SCREEN CONNECTION FAILED: ', error);
       }

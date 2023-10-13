@@ -1,26 +1,28 @@
-export interface Observer {
-  id: number;
+import { Screen } from 'src/entities/screen.entity';
+import { MessageDto } from '../dto/Message.dto';
 
-  update(topic: string, data: any): void;
+export interface Observer {
+  data: any;
+
+  update(data: any): void;
 }
 
 export class ScreenObserver implements Observer {
-  id: number;
-  ws: WebSocket;
+  public data: Screen;
+  private ws: WebSocket;
 
-  constructor({ id, ws }) {
-    this.id = id;
+  constructor({ data, ws }) {
+    this.data = data;
     this.ws = ws;
   }
 
-  public update(topic: string, data: any): void {
+  public update(data: MessageDto): void {
     this.ws.send(
       JSON.stringify({
-        id: -1,
-        topic,
+        id: data.id,
         data,
       }),
     );
-    console.info(`Screen ${this.id} Notificated`);
+    console.info(`Screen ${this.data.id} Notificated`);
   }
 }
