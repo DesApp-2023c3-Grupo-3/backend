@@ -141,15 +141,7 @@ export class CourseService {
         jsonCommision.map((aula) => aula['Aula']),
       );
       const schedulesToCreate = jsonCommision.map((schedule) =>
-        this.scheduleService.createEntity({
-          startDate: startDate,
-          endDate: endDate,
-          startHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
-            .startHour,
-          endHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
-            .endHour,
-          dayCode: schedule['Dia'],
-        }),
+        this.createSchedules(startDate, endDate, schedule),
       );
       const schedulesCreated = await this.scheduleService.createMultiple(
         schedulesToCreate,
@@ -183,6 +175,19 @@ export class CourseService {
       return obj['name'] === name;
     });
     return foundObject.id;
+  }
+
+  private createSchedules(startDate, endDate, schedule) {
+    const scheduleToCreate = this.scheduleService.createEntity({
+      startDate: startDate,
+      endDate: endDate,
+      startHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
+        .startHour,
+      endHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
+        .endHour,
+      dayCode: schedule['Dia'],
+    });
+    return scheduleToCreate;
   }
 
   private async createSectors(sector: string) {
