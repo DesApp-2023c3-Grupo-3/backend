@@ -1,15 +1,8 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import {
-  CreateClassroomDto,
-  CreateCourseDto,
-  CreateScheduleDto,
-  CreateSectorDto,
-  CreateSubjectDto,
-  UpdateCourseDto,
-} from 'cartelera-unahur';
+import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Transaction } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
