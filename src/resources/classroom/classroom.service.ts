@@ -11,16 +11,19 @@ export class ClassroomService {
     private readonly classroomRepository: Repository<Classroom>,
   ) {}
 
+  public createEntity(createClassroomDto: CreateClassroomDto): Classroom {
+    return this.classroomRepository.create(createClassroomDto);
+  }
+
   public async create(createClassroomDto: CreateClassroomDto) {
     const newClassroom = this.classroomRepository.create(createClassroomDto);
     const created = await this.classroomRepository.save(newClassroom);
     return created;
   }
 
-  public async createMultiple(createClassroomDto: CreateClassroomDto[]) {
-    const classroomToCreate = createClassroomDto.map((createClassrromDto) =>
-      this.classroomRepository.create(createClassrromDto),
-    );
+  public async createMultiple(
+    classroomToCreate: Classroom[],
+  ): Promise<Classroom[]> {
     return this.classroomRepository.save(classroomToCreate);
   }
 

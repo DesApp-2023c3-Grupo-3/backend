@@ -11,6 +11,10 @@ export class SectorService {
     private readonly sectorRepository: Repository<Sector>,
   ) {}
 
+  public createEntity(createSectorDto: CreateSectorDto): Sector {
+    return this.sectorRepository.create(createSectorDto);
+  }
+
   public async create(createSectorDto: CreateSectorDto) {
     const newSector = this.sectorRepository.create(createSectorDto);
     const created = await this.sectorRepository.save(newSector);
@@ -43,6 +47,7 @@ export class SectorService {
       },
     });
   }
+
   public async findByIds(ids: number[]): Promise<Sector[]> {
     try {
       return this.sectorRepository.find({ where: { id: In(ids) } });

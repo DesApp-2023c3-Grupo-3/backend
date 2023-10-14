@@ -11,6 +11,10 @@ export class SubjectService {
     private readonly subjectRepository: Repository<Subject>,
   ) {}
 
+  public createEntity(createSubjectDto: CreateSubjectDto): Subject {
+    return this.subjectRepository.create(createSubjectDto);
+  }
+
   public async create(createSubjectDto: CreateSubjectDto) {
     const newSubject = this.subjectRepository.create(createSubjectDto);
     const created = await this.subjectRepository.save(newSubject);

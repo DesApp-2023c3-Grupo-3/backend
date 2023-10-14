@@ -76,7 +76,7 @@ export class CourseController {
   @Get('sector/:sectorId')
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findBySector(@Param('sectorId') sectorId: number) {
-    return this.courseService.findBySector(sectorId);
+    return this.courseService.findTodayCoursesBySector(sectorId);
   }
 
   @Get(':id')

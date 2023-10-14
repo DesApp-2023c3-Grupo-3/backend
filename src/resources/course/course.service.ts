@@ -9,7 +9,7 @@ import {
 } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Transaction } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
@@ -108,14 +108,14 @@ export class CourseService {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
   }
-  public async findBySector(sectorId: number) {
+
+  public async findTodayCoursesBySector(sectorId: number) {
     return coursesStub;
   }
+
   async createCommissionTemplate() {
     const data = [['Nombre', 'Nombre materia', 'Aula', 'Turno', 'Dia']];
-
     const worksheet = xlsx.utils.aoa_to_sheet(data);
-
     worksheet['!cols'] = [
       { wch: 15 },
       { wch: 15 },
@@ -123,7 +123,6 @@ export class CourseService {
       { wch: 15 },
       { wch: 15 },
     ];
-
     const workbook = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(workbook, worksheet, 'Comisiones');
     const excelBuffer = xlsx.write(workbook, {
@@ -140,31 +139,29 @@ export class CourseService {
     sector: string,
   ) {
     try {
-      const jsonCommisionPromise = this.serviceImage.createJson(file);
-      const jsonCommision = await jsonCommisionPromise;
+      const jsonCommision = this.serviceImage.createJson(file);
       const sectors = await this.createSectors(sector);
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
-
       const classroom = await this.createClassrooms(
         jsonCommision.map((aula) => aula['Aula']),
       );
-
-      const createSchedules = await jsonCommision.map((schedule) =>
-        this.createSchedule(
-          startDate,
-          endDate,
-          schedule['Turno'],
-          schedule['Turno'],
-          schedule['Dia'],
-        ),
+      const schedulesToCreate = jsonCommision.map((schedule) =>
+        this.scheduleService.createEntity({
+          startDate: startDate,
+          endDate: endDate,
+          startHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
+            .startHour,
+          endHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
+            .endHour,
+          dayCode: schedule['Dia'],
+        }),
       );
-      const schedules = await this.scheduleService.createMultiple(
-        await Promise.all(createSchedules),
+      const schedulesCreated = await this.scheduleService.createMultiple(
+        schedulesToCreate,
       );
-
-      const createCourses = jsonCommision.map(async (course, index) => ({
+      const coursesToCreate = jsonCommision.map((course, index) => ({
         name: course['Nombre'],
         classroom: {
           id: this.searchByName(classroom, course['Aula'].toString()),
@@ -172,16 +169,13 @@ export class CourseService {
         sector: { id: this.searchByName(sectors, sector) },
         subject: { id: this.searchByName(subjects, course['Nombre materia']) },
         schedule: {
-          id: schedules[index].id,
+          id: schedulesCreated[index].id,
         },
       }));
-
-      const courses = await Promise.all(createCourses);
-      const createdCourses = await this.createMultiple(courses);
-
+      const coursesCreated = await this.createMultiple(coursesToCreate);
       return {
         message: 'Courses created successfully from the Excel file',
-        createdCourses,
+        coursesCreated,
       };
     } catch (error) {
       throw new HttpException(
@@ -198,40 +192,25 @@ export class CourseService {
     return foundObject.id;
   }
 
-  private async createSchedule(
-    startDate,
-    endDate,
-    startHour,
-    endHour,
-    dayCode,
-  ) {
-    const schedule: CreateScheduleDto = {
-      startDate: startDate,
-      endDate: endDate,
-      startHour: rangeHours.find((hour) => hour.turno === startHour).startHour,
-      endHour: rangeHours.find((hour) => hour.turno === endHour).endHour,
-      dayCode: dayCode,
-    };
-    return schedule;
-  }
-
   private async createSectors(sector: string) {
     const sectorNames = [sector];
     const currentSectors = await this.sectorService.findSectorsNotInArray(
       sectorNames,
     );
-
     const sectorsToValidate = currentSectors.map((sector) => sector.name);
     const filteredSectors = sectorNames.filter(
       (sector) => !sectorsToValidate.includes(sector),
     );
-    const newSectors: CreateSectorDto[] = filteredSectors.map((sector) => ({
-      name: sector,
-      topic: sector,
-    }));
-    const createdSectors = await this.sectorService.createMultiple(newSectors);
-    createdSectors.forEach((sector) => currentSectors.push(sector));
-    return currentSectors;
+    const sectorstToCreate = filteredSectors.map((sector) =>
+      this.sectorService.createEntity({
+        name: sector,
+        topic: sector,
+      }),
+    );
+    const createdSectors = await this.sectorService.createMultiple(
+      sectorstToCreate,
+    );
+    return [...currentSectors, ...createdSectors];
   }
 
   private async createSubjects(subjects: string[]) {
@@ -243,14 +222,13 @@ export class CourseService {
     const filteredSubjects = subjectNames.filter(
       (subject) => !subjectToValidate.includes(subject),
     );
-    const newSubjects: CreateSubjectDto[] = filteredSubjects.map((subject) => ({
-      name: subject,
-    }));
-    const createdSubjects = await this.subjectService.createMultiple(
-      newSubjects,
+    const subjectToCreate = filteredSubjects.map((subject) =>
+      this.subjectService.createEntity(subject),
     );
-    createdSubjects.forEach((subject) => currentSubjects.push(subject));
-    return currentSubjects;
+    const createdSubjects = await this.subjectService.createMultiple(
+      subjectToCreate,
+    );
+    return [...currentSubjects, ...createdSubjects];
   }
 
   private async createClassrooms(classrooms: number[]) {
@@ -265,16 +243,13 @@ export class CourseService {
     const filteredClassrooms = classroomNames.filter(
       (classroom) => !classroomToValidate.includes(classroom),
     );
-    const newClassrooms: CreateClassroomDto[] = filteredClassrooms.map(
-      (classroom) => ({
-        name: classroom,
-      }),
+    const classroomToCreate = filteredClassrooms.map((classroom) =>
+      this.classroomService.createEntity(classroom),
     );
     const createdClassrooms = await this.classroomService.createMultiple(
-      newClassrooms,
+      classroomToCreate,
     );
-    createdClassrooms.forEach((classroom) => currentClassrooms.push(classroom));
-    return currentClassrooms;
+    return [...currentClassrooms, ...createdClassrooms];
   }
 
   private removeDuplicates(array: any[]) {

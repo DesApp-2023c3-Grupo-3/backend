@@ -27,7 +27,7 @@ export class ImageService {
     });
   }
 
-  public async createJson(file: Express.Multer.File) {
+  public createJson(file: Express.Multer.File) {
     if (
       file.mimetype ===
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || // XLSX
