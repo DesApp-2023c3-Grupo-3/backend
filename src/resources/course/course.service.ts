@@ -216,7 +216,7 @@ export class CourseService {
       (subject) => !subjectToValidate.includes(subject),
     );
     const subjectToCreate = filteredSubjects.map((subject) =>
-      this.subjectService.createEntity(subject),
+      this.subjectService.createEntity({ name: subject }),
     );
     const createdSubjects = await this.subjectService.createMultiple(
       subjectToCreate,
@@ -237,7 +237,7 @@ export class CourseService {
       (classroom) => !classroomToValidate.includes(classroom),
     );
     const classroomToCreate = filteredClassrooms.map((classroom) =>
-      this.classroomService.createEntity(classroom),
+      this.classroomService.createEntity({ name: classroom }),
     );
     const createdClassrooms = await this.classroomService.createMultiple(
       classroomToCreate,
