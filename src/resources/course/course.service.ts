@@ -142,8 +142,8 @@ export class CourseService {
     try {
       const jsonCommisionPromise = this.serviceImage.createJson(file);
       const jsonCommision = await jsonCommisionPromise;
-      const sectores = await this.createSectors(sector);
-      const materias = await this.createSubjects(
+      const sectors = await this.createSectors(sector);
+      const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
 
@@ -164,37 +164,40 @@ export class CourseService {
         await Promise.all(createSchedules),
       );
 
-      const createCursos = await jsonCommision.map(async (curso, index) => ({
-        name: curso['Nombre'],
+      const createCourses = jsonCommision.map(async (course, index) => ({
+        name: course['Nombre'],
         classroom: {
-          id: this.searchByName(classroom, curso['Aula'].toString()),
+          id: this.searchByName(classroom, course['Aula'].toString()),
         },
-        sector: { id: this.searchByName(sectores, sector) },
-        subject: { id: this.searchByName(materias, curso['Nombre materia']) },
+        sector: { id: this.searchByName(sectors, sector) },
+        subject: { id: this.searchByName(subjects, course['Nombre materia']) },
         schedule: {
           id: schedules[index].id,
         },
       }));
-      const courses = await Promise.all(createCursos);
-      const cursosCreados = await this.createMultiple(courses);
+
+      const courses = await Promise.all(createCourses);
+      const createdCourses = await this.createMultiple(courses);
+
       return {
-        message: 'Cursos creados exitosamente desde el archivo Excel',
-        cursosCreados,
+        message: 'Courses created successfully from the Excel file',
+        createdCourses,
       };
     } catch (error) {
       throw new HttpException(
-        'Error en el proceso de carga',
+        'Error in the loading process',
         HttpStatus.BAD_REQUEST,
       );
     }
   }
 
   private searchByName(array: any[], name: string) {
-    const objetoEncontrado = array.find((obj) => {
+    const foundObject = array.find((obj) => {
       return obj['name'] === name;
     });
-    return objetoEncontrado.id;
+    return foundObject.id;
   }
+
   private async createSchedule(
     startDate,
     endDate,
@@ -205,86 +208,78 @@ export class CourseService {
     const schedule: CreateScheduleDto = {
       startDate: startDate,
       endDate: endDate,
-      startHour: rangeHours.find((hora) => hora.turno === startHour).startHour,
-      endHour: rangeHours.find((hora) => hora.turno === endHour).endHour,
+      startHour: rangeHours.find((hour) => hour.turno === startHour).startHour,
+      endHour: rangeHours.find((hour) => hour.turno === endHour).endHour,
       dayCode: dayCode,
     };
     return schedule;
   }
 
   private async createSectors(sector: string) {
-    const nombreSectores = [sector];
-    const sectoresActuales = await this.sectorService.findSectorsNotInArray(
-      nombreSectores,
+    const sectorNames = [sector];
+    const currentSectors = await this.sectorService.findSectorsNotInArray(
+      sectorNames,
     );
 
-    const sectoresAValidar = await sectoresActuales.map(
-      (sector) => sector.name,
+    const sectorsToValidate = currentSectors.map((sector) => sector.name);
+    const filteredSectors = sectorNames.filter(
+      (sector) => !sectorsToValidate.includes(sector),
     );
-    const sectoresFiltrados = nombreSectores.filter(
-      (sector) => !sectoresAValidar.includes(sector),
-    );
-    const nuevosSectores: CreateSectorDto[] = sectoresFiltrados.map(
-      (sector) => ({
-        name: sector,
-        topic: sector,
-      }),
-    );
-    const sectoresCreados = await this.sectorService.createMultiple(
-      nuevosSectores,
-    );
-    sectoresCreados.forEach((sector) => sectoresActuales.push(sector));
-    return sectoresActuales;
+    const newSectors: CreateSectorDto[] = filteredSectors.map((sector) => ({
+      name: sector,
+      topic: sector,
+    }));
+    const createdSectors = await this.sectorService.createMultiple(newSectors);
+    createdSectors.forEach((sector) => currentSectors.push(sector));
+    return currentSectors;
   }
 
-  private async createSubjects(materias: string[]) {
-    const nombreMaterias = this.removeDuplicates(materias);
-    const materiasActuales = await this.subjectService.findSubjectsNotInArray(
-      nombreMaterias,
+  private async createSubjects(subjects: string[]) {
+    const subjectNames = this.removeDuplicates(subjects);
+    const currentSubjects = await this.subjectService.findSubjectsNotInArray(
+      subjectNames,
     );
-    const materiaAValidar = await materiasActuales.map(
-      (materia) => materia.name,
+    const subjectToValidate = currentSubjects.map((subject) => subject.name);
+    const filteredSubjects = subjectNames.filter(
+      (subject) => !subjectToValidate.includes(subject),
     );
-    const materiasFiltradas = nombreMaterias.filter(
-      (materia) => !materiaAValidar.includes(materia),
+    const newSubjects: CreateSubjectDto[] = filteredSubjects.map((subject) => ({
+      name: subject,
+    }));
+    const createdSubjects = await this.subjectService.createMultiple(
+      newSubjects,
     );
-    const nuevasMaterias: CreateSubjectDto[] = materiasFiltradas.map(
-      (materia) => ({
-        name: materia,
-      }),
-    );
-    const materiasCreadas = await this.subjectService.createMultiple(
-      nuevasMaterias,
-    );
-    materiasCreadas.forEach((materia) => materiasActuales.push(materia));
-    return materiasActuales;
+    createdSubjects.forEach((subject) => currentSubjects.push(subject));
+    return currentSubjects;
   }
 
-  private async createClassrooms(aulas: number[]) {
-    const numeroAString = aulas.map((aula) => aula.toString());
-    const nombreAulas = this.removeDuplicates(numeroAString);
-    const aulasActuales = await this.classroomService.findClassroomsNotInArray(
-      nombreAulas,
+  private async createClassrooms(classrooms: number[]) {
+    const classroomNames = this.removeDuplicates(
+      classrooms.map((classroom) => classroom.toString()),
     );
-    const aulaAValidar = await aulasActuales.map((aula) => aula.name);
-    const aulasFiltradas = nombreAulas.filter(
-      (aula) => !aulaAValidar.includes(aula),
+    const currentClassrooms =
+      await this.classroomService.findClassroomsNotInArray(classroomNames);
+    const classroomToValidate = currentClassrooms.map(
+      (classroom) => classroom.name,
     );
-    const nuevasAulas: CreateClassroomDto[] = await aulasFiltradas.map(
-      (aula) => ({
-        name: aula,
+    const filteredClassrooms = classroomNames.filter(
+      (classroom) => !classroomToValidate.includes(classroom),
+    );
+    const newClassrooms: CreateClassroomDto[] = filteredClassrooms.map(
+      (classroom) => ({
+        name: classroom,
       }),
     );
-    const aulasCreadas = await this.classroomService.createMultiple(
-      nuevasAulas,
+    const createdClassrooms = await this.classroomService.createMultiple(
+      newClassrooms,
     );
-    aulasCreadas.forEach((aula) => aulasActuales.push(aula));
-    return aulasActuales;
+    createdClassrooms.forEach((classroom) => currentClassrooms.push(classroom));
+    return currentClassrooms;
   }
 
   private removeDuplicates(array: any[]) {
-    const sinDuplicar = new Set(array);
-    const nuevoArray = Array.from(sinDuplicar);
-    return nuevoArray;
+    const uniqueSet = new Set(array);
+    const uniqueArray = Array.from(uniqueSet);
+    return uniqueArray;
   }
 }
