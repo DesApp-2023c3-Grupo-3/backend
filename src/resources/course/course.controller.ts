@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
   HttpException,
   HttpStatus,
   StreamableFile,
@@ -17,9 +19,16 @@ import {
   UpdateCourseDto,
   ResponseCourseDto,
 } from 'cartelera-unahur';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Course')
 @Controller('course')
@@ -67,7 +76,7 @@ export class CourseController {
   @Get('sector/:sectorId')
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findBySector(@Param('sectorId') sectorId: number) {
-    return this.courseService.findBySector(sectorId);
+    return this.courseService.findTodayCoursesBySector(sectorId);
   }
 
   @Get(':id')
@@ -86,5 +95,52 @@ export class CourseController {
   @ApiResponse({ type: CourseDto })
   remove(@Param('id') id: string) {
     return this.courseService.remove(+id);
+  }
+
+  @ApiOperation({
+    summary: 'Carga al servidor un archivo excel y sube las comisiones',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        startDate: {
+          type: 'string',
+          format: 'date-time',
+          example: new Date(),
+        },
+        endDate: {
+          type: 'string',
+          format: 'date-time',
+          example: new Date(),
+        },
+        sector: {
+          $ref: 'string', // Referencia al modelo SectorDto
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Created',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('excel-to-json')
+  async createExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: { startDate: Date; endDate: Date; sector: string },
+  ) {
+    return this.courseService.uploadCommission(
+      file,
+      data.startDate,
+      data.endDate,
+      data.sector,
+    );
   }
 }

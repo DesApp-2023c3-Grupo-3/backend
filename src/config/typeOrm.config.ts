@@ -21,6 +21,7 @@ const credentials = url
 
 const typeOrmConfig = {
   type: 'postgres',
+  logging: true,
   ...credentials,
 };
 

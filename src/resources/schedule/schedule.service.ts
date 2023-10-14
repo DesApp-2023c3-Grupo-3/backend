@@ -1,6 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateScheduleDto, UpdateScheduleDto } from 'cartelera-unahur';
+import {
+  CreateScheduleDto,
+  ScheduleDto,
+  UpdateScheduleDto,
+} from 'cartelera-unahur';
 import { Schedule } from 'src/entities/schedule.entity';
 import { In, Repository } from 'typeorm';
 
@@ -11,10 +15,21 @@ export class ScheduleService {
     private readonly scheduleRepository: Repository<Schedule>,
   ) {}
 
+  public createEntity(createScheduleDto: CreateScheduleDto): Schedule {
+    return this.scheduleRepository.create(createScheduleDto);
+  }
+
   public async create(createScheduleDto: CreateScheduleDto) {
     const newSchedule = this.scheduleRepository.create(createScheduleDto);
     const created = await this.scheduleRepository.save(newSchedule);
     return created;
+  }
+
+  public async createMultiple(createSubjectDtos: CreateScheduleDto[]) {
+    const subjectsToCreate = createSubjectDtos.map((createSubjectDto) =>
+      this.scheduleRepository.create(createSubjectDto),
+    );
+    return this.scheduleRepository.save(subjectsToCreate);
   }
 
   public async findAll() {

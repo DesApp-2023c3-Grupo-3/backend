@@ -11,10 +11,21 @@ export class SectorService {
     private readonly sectorRepository: Repository<Sector>,
   ) {}
 
+  public createEntity(createSectorDto: CreateSectorDto): Sector {
+    return this.sectorRepository.create(createSectorDto);
+  }
+
   public async create(createSectorDto: CreateSectorDto) {
     const newSector = this.sectorRepository.create(createSectorDto);
     const created = await this.sectorRepository.save(newSector);
     return created;
+  }
+
+  public async createMultiple(createSectorDto: CreateSectorDto[]) {
+    const sectorToCreate = createSectorDto.map((createSectorDto) =>
+      this.sectorRepository.create(createSectorDto),
+    );
+    return this.sectorRepository.save(sectorToCreate);
   }
 
   public async findAll() {
@@ -27,6 +38,14 @@ export class SectorService {
     } catch (error) {
       throw new HttpException('Sector not found', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  public async findSectorsNotInArray(sectorNames: string[]) {
+    return await this.sectorRepository.find({
+      where: {
+        name: In(sectorNames),
+      },
+    });
   }
 
   public async findByIds(ids: number[]): Promise<Sector[]> {
