@@ -1,8 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
+import {
+  CreateCourseDto,
+  ScheduleDto,
+  UpdateCourseDto,
+} from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
@@ -103,7 +107,24 @@ export class CourseService {
   }
 
   public async findTodayCoursesBySector(sectorId: number) {
-    return coursesStub;
+    const currentDayCode = this.scheduleService
+      .currentDate()
+      .getDay()
+      .toString();
+    const courses = await this.courseRepository.find({
+      where: {
+        deletedAt: IsNull(),
+        sector: { id: sectorId },
+        schedule: { dayCode: currentDayCode },
+      },
+      relations: {
+        classroom: true,
+        schedule: true,
+        sector: true,
+        subject: true,
+      },
+    });
+    return courses;
   }
 
   async createCommissionTemplate() {
@@ -185,7 +206,7 @@ export class CourseService {
         .startHour,
       endHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
         .endHour,
-      dayCode: schedule['Dia'],
+      dayCode: this.scheduleService.getDayName(schedule['Dia']),
     });
     return scheduleToCreate;
   }

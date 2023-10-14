@@ -136,21 +136,41 @@ export class ScheduleService {
   }
 
   public getDayCode(code: number) {
-    const defaultDay = 'LU';
+    const defaultDay = 'DO';
     const dayCodes = {
-      0: 'LU',
-      1: 'MA',
-      2: 'MI',
-      3: 'JU',
-      4: 'VI',
-      5: 'SA',
-      6: 'DO',
+      0: 'DO',
+      1: 'LU',
+      2: 'MA',
+      3: 'MI',
+      4: 'JU',
+      5: 'VI',
+      6: 'SA',
     };
     return dayCodes[String(code)] || defaultDay;
+  }
+
+  public getDayName(dayCode: string) {
+    const defaultDay = 0;
+    const dayNames = {
+      DO: 0,
+      LU: 1,
+      MA: 2,
+      MI: 3,
+      JU: 4,
+      VI: 5,
+      SA: 6,
+    };
+    return dayNames[dayCode] || defaultDay;
   }
 
   private getSeconds(stringTime: string): number {
     const [hour, minutes, seconds] = stringTime.split(':').map(Number);
     return hour * 3600 + minutes * 60 + seconds;
+  }
+
+  public currentDate() {
+    const fechaActual = new Date();
+    const timeZoneOffset = -3 * 60;
+    return new Date(fechaActual.getTime() + timeZoneOffset * 60 * 1000);
   }
 }
