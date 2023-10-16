@@ -45,55 +45,75 @@ export class SocketConnectionModule {
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
       try {
-        let screenFound = await this.screenRepository.findOne({
-          where: { id: data.screenId },
-          relations: { sector: true },
-        });
+        let screenFound = await this.getScreen(data.screenId);
         if (!screenFound) {
-          const newScreen = this.screenRepository.create({
-            subscription: data.screenId,
-            templeteId: '1',
-            courseIntervalTime: 15,
-            advertisingIntervalTime: 15,
-            sector: await this.sectorRepository.findOne({ where: { id: 1 } }),
-          });
-          screenFound = await this.screenRepository.save(newScreen);
+          screenFound = await this.createScreenWithDefaultConfig(data.screenId);
         }
-        const sectorFound = await this.sectorRepository.findOne({
-          where: { id: screenFound.sector.id },
-        }); // TODO: Revisar si esto es necesario
+        const sectorFound = await this.getSector(screenFound.sector.id);
         if (!sectorFound) {
-          console.error('ERROR ON CONNECTION');
-        }
-        let sectorSubject = this.sectors.find(
-          (sector) => sector.data.id === sectorFound.id,
-        );
-        if (!sectorSubject) {
-          sectorSubject = new SectorSubject({
-            data: sectorFound,
+          ws.send(
+            JSON.stringify({
+              id: -1,
+              action: 'CONNECTION_ERROR',
+              data: {
+                message: 'Sector not found',
+              },
+            }),
+          );
+        } else {
+          let sectorSubject = this.sectors.find(
+            (sector) => sector.data.id === sectorFound.id,
+          );
+          if (!sectorSubject) {
+            sectorSubject = new SectorSubject({
+              data: sectorFound,
+            });
+            this.sectors.push(sectorSubject);
+          }
+          if (sectorSubject.contains(screenFound.id)) {
+            sectorSubject.detach(screenFound.id);
+          }
+          const screenObserver = new ScreenObserver({
+            data: screenFound,
+            ws,
           });
-          this.sectors.push(sectorSubject);
+          sectorSubject.attach(screenObserver);
+          screenObserver.update({
+            id: -1,
+            action: 'START_CONNECTION',
+            data: {
+              sector: sectorFound,
+              screen: screenFound,
+            },
+          });
         }
-        if (sectorSubject.contains(screenFound.id)) {
-          sectorSubject.detach(screenFound.id);
-        }
-        const screenObserver = new ScreenObserver({
-          data: screenFound,
-          ws,
-        });
-        sectorSubject.attach(screenObserver);
-
-        screenObserver.update({
-          id: -1,
-          action: 'START_CONNECTION',
-          data: {
-            sector: sectorFound,
-            screen: screenFound,
-          },
-        });
       } catch (error) {
         console.error('SCREEN CONNECTION FAILED: ', error);
       }
+    });
+  }
+
+  private async createScreenWithDefaultConfig(subscription: string) {
+    const newScreen = this.screenRepository.create({
+      subscription,
+      templeteId: '1',
+      courseIntervalTime: 15,
+      advertisingIntervalTime: 15,
+      sector: await this.sectorRepository.findOne({ where: { id: 1 } }),
+    });
+    return this.screenRepository.save(newScreen);
+  }
+
+  private async getScreen(id: number) {
+    return this.screenRepository.findOne({
+      where: { id },
+      relations: { sector: true },
+    });
+  }
+
+  private async getSector(id: number) {
+    return this.sectorRepository.findOne({
+      where: { id },
     });
   }
 }
