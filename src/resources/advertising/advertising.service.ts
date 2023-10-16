@@ -77,6 +77,10 @@ export class AdvertisingService {
           data: {
             advertisingTypeId: newAdvertising.advertisingType.id,
             payload: newAdvertising.payload,
+            advertisingId: newAdvertising.id,
+            startHour:
+              newAdvertising.advertisingSchedules[0].schedule.startHour,
+            endHour: newAdvertising.advertisingSchedules[0].schedule.endHour,
           },
         });
       });
