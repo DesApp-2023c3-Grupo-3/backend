@@ -29,6 +29,17 @@ export class UserService {
     }
   }
 
+  public async findUserDni(dni: string) {
+    try {
+      return this.userRepository.findOne({
+        where: { dni },
+        relations: { role: true },
+      });
+    } catch (error) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   public async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       return this.userRepository.update({ id }, updateUserDto);

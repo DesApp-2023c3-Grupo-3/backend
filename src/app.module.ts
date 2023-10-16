@@ -21,6 +21,7 @@ import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
 // import { ScheduleModule } from './resources/schedule/schedule.module';
 // import { AdvertisingScheduleModule } from './resources/advertising-schedule/advertising-schedule.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,7 +31,7 @@ import { ImageModule } from './resources/image/image.module';
     DatabaseModule,
     CommonModule,
     SocketModule,
-
+    AuthModule,
     UserModule,
     AdvertisingModule,
     CourseModule,
