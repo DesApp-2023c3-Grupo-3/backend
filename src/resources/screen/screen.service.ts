@@ -1,7 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
 import { Screen } from 'src/entities/screen.entity';
+import { SocketService } from 'src/plugins/socket/socket.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -9,6 +10,8 @@ export class ScreenService {
   constructor(
     @InjectRepository(Screen)
     private readonly screenRepository: Repository<Screen>,
+    @Inject(SocketService)
+    private readonly socketService: SocketService,
   ) {}
 
   async create(createScreenDto: CreateScreenDto) {
@@ -40,7 +43,34 @@ export class ScreenService {
   }
 
   async update(id: number, updateScreenDto: UpdateScreenDto) {
-    return this.screenRepository.update({ id }, updateScreenDto);
+    const updateData = await this.screenRepository.update(
+      { id },
+      updateScreenDto,
+    );
+    let screenUpdated = {
+      message: 'Error updating',
+      data: undefined,
+    };
+    if (updateData.affected) {
+      const screenUpdatedFound = await this.findOne(id);
+      screenUpdated = {
+        message: 'Screen updated successfully',
+        data: screenUpdatedFound,
+      };
+      this.socketService.sendSubscriptionMessage(
+        screenUpdatedFound.sector.topic,
+        screenUpdatedFound.subscription,
+        {
+          id: -1,
+          action: 'UPDATE_SCREEN_CONFIGURATION',
+          data: {
+            sector: screenUpdatedFound.sector,
+            screen: screenUpdatedFound,
+          },
+        },
+      );
+    }
+    return screenUpdated;
   }
 
   public async remove(id: number) {

@@ -6,15 +6,18 @@ import { WebSocketServer, WebSocket } from 'ws';
 import serverConfig from '../../config/server.config';
 import { SectorSubject } from './observer/Subject';
 import { ScreenObserver } from './observer/Observer';
-import { ScreenModule } from 'src/resources/screen/screen.module';
-import { ScreenService } from 'src/resources/screen/screen.service';
-import { SectorModule } from 'src/resources/sector/sector.module';
-import { SectorService } from 'src/resources/sector/sector.service';
+import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
+import { Sector } from 'src/entities/sector.entity';
+import { Screen } from 'src/entities/screen.entity';
+import { Repository } from 'typeorm';
 
 @Module({
-  imports: [ConfigModule.forFeature(serverConfig), ScreenModule, SectorModule],
+  imports: [
+    ConfigModule.forFeature(serverConfig),
+    TypeOrmModule.forFeature([Screen, Sector]),
+  ],
   providers: [],
-  exports: [],
+  exports: [SocketConnectionModule],
 })
 export class SocketConnectionModule {
   public socketServer: WebSocketServer;
@@ -23,10 +26,10 @@ export class SocketConnectionModule {
   constructor(
     @Inject(serverConfig.KEY)
     private readonly serverConfiguration: ConfigType<typeof serverConfig>,
-    @Inject(ScreenService)
-    private readonly screenService: ScreenService,
-    @Inject(SectorService)
-    private readonly sectorService: SectorService,
+    @InjectRepository(Screen)
+    private readonly screenRepository: Repository<Screen>,
+    @InjectRepository(Sector)
+    private readonly sectorRepository: Repository<Sector>,
   ) {
     this.initializeSocketConnection();
   }
@@ -42,19 +45,23 @@ export class SocketConnectionModule {
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
       try {
-        let screenFound = await this.screenService.findOne(data.screenId);
+        let screenFound = await this.screenRepository.findOne({
+          where: { id: data.screenId },
+          relations: { sector: true },
+        });
         if (!screenFound) {
-          screenFound = await this.screenService.create({
+          const newScreen = this.screenRepository.create({
             subscription: data.screenId,
             templeteId: '1',
             courseIntervalTime: 15,
             advertisingIntervalTime: 15,
-            sector: await this.sectorService.findOne(1),
+            sector: await this.sectorRepository.findOne({ where: { id: 1 } }),
           });
+          screenFound = await this.screenRepository.save(newScreen);
         }
-        const sectorFound = await this.sectorService.findOne(
-          screenFound.sector.id,
-        ); // TODO: Revisar si esto es necesario
+        const sectorFound = await this.sectorRepository.findOne({
+          where: { id: screenFound.sector.id },
+        }); // TODO: Revisar si esto es necesario
         if (!sectorFound) {
           console.error('ERROR ON CONNECTION');
         }
