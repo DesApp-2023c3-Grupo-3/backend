@@ -15,7 +15,7 @@ import {
   ResponseUserDto,
   UpdateUserDto,
 } from 'cartelera-unahur';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guardias/jwt-auth.guard';
 
 @ApiBearerAuth()
 @ApiTags('User')
