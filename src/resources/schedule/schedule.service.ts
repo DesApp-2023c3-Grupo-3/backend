@@ -1,6 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateScheduleDto, UpdateScheduleDto } from 'cartelera-unahur';
+import {
+  CreateScheduleDto,
+  ScheduleDto,
+  UpdateScheduleDto,
+} from 'cartelera-unahur';
 import { Schedule } from 'src/entities/schedule.entity';
 import { In, Repository } from 'typeorm';
 
@@ -11,10 +15,21 @@ export class ScheduleService {
     private readonly scheduleRepository: Repository<Schedule>,
   ) {}
 
+  public createEntity(createScheduleDto: CreateScheduleDto): Schedule {
+    return this.scheduleRepository.create(createScheduleDto);
+  }
+
   public async create(createScheduleDto: CreateScheduleDto) {
     const newSchedule = this.scheduleRepository.create(createScheduleDto);
     const created = await this.scheduleRepository.save(newSchedule);
     return created;
+  }
+
+  public async createMultiple(createSubjectDtos: CreateScheduleDto[]) {
+    const subjectsToCreate = createSubjectDtos.map((createSubjectDto) =>
+      this.scheduleRepository.create(createSubjectDto),
+    );
+    return this.scheduleRepository.save(subjectsToCreate);
   }
 
   public async findAll() {
@@ -121,21 +136,41 @@ export class ScheduleService {
   }
 
   public getDayCode(code: number) {
-    const defaultDay = 'LU';
+    const defaultDay = 'DO';
     const dayCodes = {
-      0: 'LU',
-      1: 'MA',
-      2: 'MI',
-      3: 'JU',
-      4: 'VI',
-      5: 'SA',
-      6: 'DO',
+      0: 'DO',
+      1: 'LU',
+      2: 'MA',
+      3: 'MI',
+      4: 'JU',
+      5: 'VI',
+      6: 'SA',
     };
     return dayCodes[String(code)] || defaultDay;
+  }
+
+  public getDayName(dayCode: string) {
+    const defaultDay = 0;
+    const dayNames = {
+      DO: 0,
+      LU: 1,
+      MA: 2,
+      MI: 3,
+      JU: 4,
+      VI: 5,
+      SA: 6,
+    };
+    return dayNames[dayCode] || defaultDay;
   }
 
   private getSeconds(stringTime: string): number {
     const [hour, minutes, seconds] = stringTime.split(':').map(Number);
     return hour * 3600 + minutes * 60 + seconds;
+  }
+
+  public currentDate() {
+    const fechaActual = new Date();
+    const timeZoneOffset = -3 * 60;
+    return new Date(fechaActual.getTime() + timeZoneOffset * 60 * 1000);
   }
 }
