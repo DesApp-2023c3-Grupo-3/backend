@@ -7,8 +7,9 @@ import { EntityNotFoundExceptionFilter } from './common/filters/entity-not-found
 
 function initializeSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
-    .setTitle('Contactos')
-    .setDescription('Una API para guardar tus contactos')
+    .addBearerAuth()
+    .setTitle('Cartelera')
+    .setDescription('Una API para el manejo de carteleras de la UNAHUR')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

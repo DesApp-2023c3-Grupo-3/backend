@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -13,8 +13,12 @@ export class UserService {
 
   public async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
-    const created = await this.userRepository.save(newUser);
-    return created;
+    const { dni } = newUser;
+    if ((await this.findUserDni(dni)) == null) {
+      return await this.userRepository.save(newUser);
+    } else {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
   }
 
   public async findAll() {
@@ -32,7 +36,7 @@ export class UserService {
   public async findUserDni(dni: string) {
     try {
       return this.userRepository.findOne({
-        where: { dni },
+        where: { dni, deletedAt: IsNull() },
         relations: { role: true },
       });
     } catch (error) {

@@ -2,7 +2,6 @@ import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { CreateUserDto } from 'cartelera-unahur';
-import { find } from 'rxjs';
 import { UserService } from 'src/resources/user/user.service';
 @Injectable()
 export class AuthService {
@@ -21,15 +20,15 @@ export class AuthService {
   async loginUser(userAuthDto: CreateUserDto) {
     const { dni, password } = userAuthDto;
     const findUser = await this.userService.findUserDni(dni);
-    if (!findUser) throw new HttpException('Usuario no encontrado', 404);
+    if (!findUser) throw new HttpException('User not found', 404);
     const checkPassword = await compare(password, findUser.password);
-    if (!checkPassword) throw new HttpException('Clave incorrecta', 403);
+    if (!checkPassword) throw new HttpException('Incorrect password', 403);
     const payload = {
+      id: findUser.id,
       name: findUser.name,
       role: findUser.role,
     };
     const token = this.jwtService.sign(payload);
-
     return { token: token };
   }
 }
