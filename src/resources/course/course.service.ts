@@ -127,11 +127,13 @@ export class CourseService {
   }
   async uploadCommission(
     file: Express.Multer.File,
-    startDate: Date,
-    endDate: Date,
+    start_Date: string,
+    end_Date: string,
     sector: string,
   ) {
     try {
+      const startDate = new Date(start_Date);
+      const endDate = new Date(end_Date);
       const jsonCommision = this.serviceImage.createJson(file);
       const sectors = await this.createSectors(sector);
       const subjects = await this.createSubjects(
