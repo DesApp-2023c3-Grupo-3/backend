@@ -131,7 +131,7 @@ export class CourseController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file'))
-  @Post('excel-to-json')
+  @Post('/upload')
   async createExcel(
     @UploadedFile() file: Express.Multer.File,
     @Body() data: { startDate: string; endDate: string; sector: string },
