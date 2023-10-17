@@ -29,11 +29,7 @@ export class AuthService {
       role: findUser.role,
     };
     const token = this.jwtService.sign(payload);
-    console.log(payload);
-    const data = {
-      user: findUser,
-      token,
-    };
-    return data;
+
+    return { token: token };
   }
 }
