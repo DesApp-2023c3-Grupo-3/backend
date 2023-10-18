@@ -9,15 +9,34 @@ export class SocketService {
     private readonly socketConnectionModule: SocketConnectionModule,
   ) {}
 
+  private getSectors(topic: string) {
+    return (
+      this.socketConnectionModule.sectors.filter((sectorSubject) => {
+        return sectorSubject.data.topic === topic;
+      }) || [this.socketConnectionModule.sectors[0]]
+    );
+  }
+
   public async sendMessage(topic: string, data: MessageDto): Promise<void> {
     try {
-      const sectorsFound = this.socketConnectionModule.sectors.filter(
-        (sectorSubject) => {
-          return sectorSubject.data.topic === topic;
-        },
-      ) || [this.socketConnectionModule.sectors[0]];
+      const sectorsFound = this.getSectors(topic);
       sectorsFound.map((sector) => {
         sector.notify(data);
+      });
+    } catch (error) {
+      console.error('SEND_MESSAGE ERROR: ', error);
+    }
+  }
+
+  public async sendSubscriptionMessage(
+    topic: string,
+    subscription: string,
+    data: MessageDto,
+  ): Promise<void> {
+    try {
+      const sectorsFound = this.getSectors(topic);
+      sectorsFound.map((sector) => {
+        sector.notifySubscription(subscription, data);
       });
     } catch (error) {
       console.error('SEND_MESSAGE ERROR: ', error);

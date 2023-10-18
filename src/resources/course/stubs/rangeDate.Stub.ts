@@ -14,17 +14,17 @@ export const rangeDate = [
 export const rangeHours = [
   {
     turno: 'MA',
-    startHour: new Date('2023-01-01T08:00:00Z'),
-    endHour: new Date('2023-01-01T12:00:00Z'),
+    startHour: new Date('2023-10-06 00:00:00.000 -0300'),
+    endHour: new Date('2023-10-06 14:00:00.000 -0300'),
   },
   {
     turno: 'TA',
-    startHour: new Date('2023-01-01T14:00:00Z'),
-    endHour: new Date('2023-01-01T18:00:00Z'),
+    startHour: new Date('2023-10-06 14:00:00.000 -0300'),
+    endHour: new Date('2023-10-06 18:00:00.000 -0300'),
   },
   {
     turno: 'NO',
-    startHour: new Date('2023-01-01T18:00:00Z'),
-    endHour: new Date('2023-01-01T12:00:00Z'),
+    startHour: new Date('2023-10-06 18:00:00.000 -0300'),
+    endHour: new Date('2023-10-06 23:59:00.000 -0300'),
   },
 ];

@@ -53,4 +53,16 @@ export class SectorSubject implements Subject {
       observer.update(data);
     }
   }
+
+  public notifySubscription(subscription: string, data: MessageDto): void {
+    console.info('Subject: Notifying observers...');
+    const subscriptionFound = this.observers.find(
+      (observer) => observer.data.subscription === subscription,
+    );
+    if (subscriptionFound) {
+      subscriptionFound.update(data);
+    } else {
+      console.error('Subject: Error on Notify - Subscription not found...');
+    }
+  }
 }

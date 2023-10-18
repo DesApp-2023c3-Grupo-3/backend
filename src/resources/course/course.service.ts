@@ -1,8 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
+import {
+  CreateCourseDto,
+  ScheduleDto,
+  UpdateCourseDto,
+} from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
 import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
@@ -36,12 +40,14 @@ export class CourseService {
     const created = await this.courseRepository.save(newCourse);
     this.socketService.sendMessage(created.sector.topic, {
       id: 1,
-      action: 'CREATE_COURSE',
-      data: {
-        subject: created.subject.name,
-        classroom: created.classroom.name,
-        schedule: `${created.schedule.startHour} - ${created.schedule.endHour}`,
-      },
+      action: 'CREATE_COURSES',
+      data: [
+        {
+          subject: created.subject.name,
+          classroom: created.classroom.name,
+          schedule: this.getScheduleString(created.schedule),
+        },
+      ],
     });
     return created;
   }
@@ -103,7 +109,24 @@ export class CourseService {
   }
 
   public async findTodayCoursesBySector(sectorId: number) {
-    return coursesStub;
+    const currentDayCode = this.scheduleService
+      .currentDate()
+      .getDay()
+      .toString();
+    const courses = await this.courseRepository.find({
+      where: {
+        deletedAt: IsNull(),
+        sector: { id: sectorId },
+        schedule: { dayCode: currentDayCode },
+      },
+      relations: {
+        classroom: true,
+        schedule: true,
+        sector: true,
+        subject: true,
+      },
+    });
+    return courses;
   }
 
   async createCommissionTemplate() {
@@ -127,19 +150,19 @@ export class CourseService {
   }
   async uploadCommission(
     file: Express.Multer.File,
-    initDate: string,
-    endDate: string,
-    sector: string,
+    startDate: Date,
+    endDate: Date,
+    sectorId: number,
   ) {
     try {
-      const newStartDate = new Date(initDate);
+      const newStartDate = new Date(startDate);
       const newEndDate = new Date(endDate);
       const jsonCommision = this.serviceImage.createJson(file);
-      const sectors = await this.createSectors(sector);
+      const sector = await this.sectorService.findOne(sectorId);
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
-      const classroom = await this.createClassrooms(
+      const classrooms = await this.createClassrooms(
         jsonCommision.map((aula) => aula['Aula']),
       );
       const schedulesToCreate = jsonCommision.map((schedule) =>
@@ -151,15 +174,55 @@ export class CourseService {
       const coursesToCreate = jsonCommision.map((course, index) => ({
         name: course['Nombre'],
         classroom: {
-          id: this.searchByName(classroom, course['Aula'].toString()),
+          id: this.searchByName(classrooms, course['Aula'].toString()),
         },
-        sector: { id: this.searchByName(sectors, sector) },
+        sector,
         subject: { id: this.searchByName(subjects, course['Nombre materia']) },
         schedule: {
           id: schedulesCreated[index].id,
         },
       }));
       const coursesCreated = await this.createMultiple(coursesToCreate);
+      const { coursesToday } = coursesCreated.reduce(
+        (reducer, courseCreated) => {
+          const scheduleFound = schedulesCreated.find(
+            (scheduleCreated) =>
+              courseCreated.schedule.id === scheduleCreated.id,
+          );
+          const subjectFound = subjects.find(
+            (subject) => courseCreated.subject.id === subject.id,
+          );
+          const classroomFound = classrooms.find(
+            (classroom) => courseCreated.subject.id === classroom.id,
+          );
+          if (
+            ['active', 'today'].includes(
+              this.scheduleService.getScheduleStatus(scheduleFound),
+            )
+          ) {
+            reducer.coursesToday.push({
+              ...courseCreated,
+              schedule: scheduleFound,
+              subject: subjectFound,
+              sector,
+              classroom: classroomFound,
+            });
+          }
+          return reducer;
+        },
+        { coursesToday: [] },
+      );
+      if (coursesToday.length) {
+        this.socketService.sendMessage(coursesToday[0].sector.topic, {
+          id: 1,
+          action: 'CREATE_COURSES',
+          data: coursesToday.map((courseToday) => ({
+            subject: courseToday.subject.name,
+            classroom: courseToday.classroom.name,
+            schedule: this.getScheduleString(courseToday.schedule),
+          })),
+        });
+      }
       return {
         message: 'Courses created successfully from the Excel file',
         coursesCreated,
@@ -179,38 +242,21 @@ export class CourseService {
     return foundObject.id;
   }
 
-  private createSchedules(startDate, endDate, schedule) {
+  private createSchedules(startDate: Date, endDate: Date, schedule: any) {
     const scheduleToCreate = this.scheduleService.createEntity({
-      startDate: startDate,
-      endDate: endDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       startHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
         .startHour,
       endHour: rangeHours.find((hour) => hour.turno === schedule['Turno'])
         .endHour,
-      dayCode: schedule['Dia'],
+      dayCode: String(schedule['Dia']).toUpperCase().trim(),
     });
     return scheduleToCreate;
   }
 
-  private async createSectors(sector: string) {
-    const sectorNames = [sector];
-    const currentSectors = await this.sectorService.findSectorsNotInArray(
-      sectorNames,
-    );
-    const sectorsToValidate = currentSectors.map((sector) => sector.name);
-    const filteredSectors = sectorNames.filter(
-      (sector) => !sectorsToValidate.includes(sector),
-    );
-    const sectorstToCreate = filteredSectors.map((sector) =>
-      this.sectorService.createEntity({
-        name: sector,
-        topic: sector,
-      }),
-    );
-    const createdSectors = await this.sectorService.createMultiple(
-      sectorstToCreate,
-    );
-    return [...currentSectors, ...createdSectors];
+  private getScheduleString(schedule): string {
+    return `${schedule.startHour.toLocaleTimeString()} - ${schedule.endHour.toLocaleTimeString()}`;
   }
 
   private async createSubjects(subjects: string[]) {

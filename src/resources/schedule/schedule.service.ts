@@ -97,13 +97,12 @@ export class ScheduleService {
   public getScheduleStatus(
     schedule: any,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
-    const currentDate = new Date();
+    const currentDate = this.currentDate();
     let status: 'active' | 'today' | 'pending' | 'deprecated';
     const startDate = new Date(schedule.startDate);
     const endDate = new Date(schedule.endDate);
     const inRange = startDate <= currentDate && endDate >= currentDate;
-    const isToday =
-      schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
+    const isToday = schedule.dayCode === this.getDayCode(currentDate.getDay());
     if (endDate < currentDate) {
       status = 'deprecated';
     } else if (inRange) {
@@ -136,21 +135,41 @@ export class ScheduleService {
   }
 
   public getDayCode(code: number) {
-    const defaultDay = 'LU';
+    const defaultDay = 'DO';
     const dayCodes = {
-      0: 'LU',
-      1: 'MA',
-      2: 'MI',
-      3: 'JU',
-      4: 'VI',
-      5: 'SA',
-      6: 'DO',
+      0: 'DO',
+      1: 'LU',
+      2: 'MA',
+      3: 'MI',
+      4: 'JU',
+      5: 'VI',
+      6: 'SA',
     };
     return dayCodes[String(code)] || defaultDay;
+  }
+
+  public getDayName(dayCode: string) {
+    const defaultDay = 0;
+    const dayNames = {
+      DO: 0,
+      LU: 1,
+      MA: 2,
+      MI: 3,
+      JU: 4,
+      VI: 5,
+      SA: 6,
+    };
+    return dayNames[dayCode] || defaultDay;
   }
 
   private getSeconds(stringTime: string): number {
     const [hour, minutes, seconds] = stringTime.split(':').map(Number);
     return hour * 3600 + minutes * 60 + seconds;
+  }
+
+  public currentDate() {
+    const fechaActual = new Date();
+    fechaActual.setHours(fechaActual.getHours() - 3);
+    return fechaActual;
   }
 }
