@@ -16,7 +16,7 @@ export class UserService {
     const { dni } = newUser;
     const userFound = await this.getUserByDni(dni);
     if (!userFound) {
-      return await this.userRepository.save(newUser);
+      return this.userRepository.save(newUser);
     } else {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }

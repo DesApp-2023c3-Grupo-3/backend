@@ -15,7 +15,7 @@ export class AuthService {
     const { password } = createAuthDto;
     const plainToHash = await hash(password, 12);
     createAuthDto = { ...createAuthDto, password: plainToHash };
-    return await this.userService.create(createAuthDto);
+    return this.userService.create(createAuthDto);
   }
 
   async loginUser(userAuthDto: LoginUserDto) {
