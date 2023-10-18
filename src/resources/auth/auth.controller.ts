@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'cartelera-unahur';
+import { CreateUserDto, LoginUserDto } from 'cartelera-unahur';
 import { Public } from 'src/common/guardias/SetMetadata';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -17,7 +17,7 @@ export class AuthController {
 
   @Public()
   @Post('/login')
-  loginUser(@Body() loginUser: CreateUserDto) {
+  loginUser(@Body() loginUser: LoginUserDto) {
     return this.authService.loginUser(loginUser);
   }
 }
