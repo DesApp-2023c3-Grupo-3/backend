@@ -5,11 +5,12 @@ import { CreateUserDto, LoginUserDto } from 'cartelera-unahur';
 import { UserService } from 'src/resources/user/user.service';
 @Injectable()
 export class AuthService {
-  @Inject(UserService)
-  private readonly userService: UserService;
-  @Inject(JwtService)
-  private readonly jwtService: JwtService;
-
+  constructor(
+    @Inject(UserService)
+    private readonly userService: UserService,
+    @Inject(JwtService)
+    private readonly jwtService: JwtService,
+  ) {}
   async registerUser(createAuthDto: CreateUserDto) {
     const { password } = createAuthDto;
     const plainToHash = await hash(password, 12);
@@ -19,14 +20,14 @@ export class AuthService {
 
   async loginUser(userAuthDto: LoginUserDto) {
     const { dni, password } = userAuthDto;
-    const findUser = await this.userService.findUserDni(dni);
-    if (!findUser) throw new HttpException('User not found', 400);
-    const checkPassword = await compare(password, findUser.password);
-    if (!checkPassword) throw new HttpException('Incorrect password', 400);
+    const userFound = await this.userService.getUserByDni(dni);
+    if (!userFound) throw new HttpException('User not found', 400);
+    const passwordChecker = await compare(password, userFound.password);
+    if (!passwordChecker) throw new HttpException('Incorrect password', 400);
     const payload = {
-      id: findUser.id,
-      name: findUser.name,
-      role: findUser.role,
+      id: userFound.id,
+      name: userFound.name,
+      role: userFound.role,
     };
     const token = this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET || 'a1b2c3d4',

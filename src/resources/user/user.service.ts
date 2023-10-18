@@ -14,7 +14,8 @@ export class UserService {
   public async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     const { dni } = newUser;
-    if ((await this.findUserDni(dni)) == null) {
+    const userFound = await this.getUserByDni(dni);
+    if (!userFound) {
       return await this.userRepository.save(newUser);
     } else {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
@@ -33,7 +34,7 @@ export class UserService {
     }
   }
 
-  public async findUserDni(dni: string) {
+  public async getUserByDni(dni: string) {
     try {
       return this.userRepository.findOne({
         where: { dni, deletedAt: IsNull() },
