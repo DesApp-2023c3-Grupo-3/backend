@@ -150,8 +150,8 @@ export class CourseService {
   }
   async uploadCommission(
     file: Express.Multer.File,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     sectorId: number,
   ) {
     try {
