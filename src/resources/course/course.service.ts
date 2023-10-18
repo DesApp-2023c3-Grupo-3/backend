@@ -43,6 +43,7 @@ export class CourseService {
       action: 'CREATE_COURSES',
       data: [
         {
+          name: created.name,
           subject: created.subject.name,
           classroom: created.classroom.name,
           schedule: this.getScheduleString(created.schedule),
@@ -217,6 +218,7 @@ export class CourseService {
           id: 1,
           action: 'CREATE_COURSES',
           data: coursesToday.map((courseToday) => ({
+            name: courseToday.name,
             subject: courseToday.subject.name,
             classroom: courseToday.classroom.name,
             schedule: this.getScheduleString(courseToday.schedule),
