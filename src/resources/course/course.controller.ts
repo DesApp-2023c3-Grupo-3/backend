@@ -140,7 +140,7 @@ export class CourseController {
       file,
       data.startDate,
       data.endDate,
-      data.sector,
+      Number(data.sector),
     );
   }
 }
