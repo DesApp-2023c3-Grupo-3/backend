@@ -97,13 +97,12 @@ export class ScheduleService {
   public getScheduleStatus(
     schedule: any,
   ): 'active' | 'today' | 'pending' | 'deprecated' {
-    const currentDate = new Date();
+    const currentDate = this.currentDate();
     let status: 'active' | 'today' | 'pending' | 'deprecated';
     const startDate = new Date(schedule.startDate);
     const endDate = new Date(schedule.endDate);
     const inRange = startDate <= currentDate && endDate >= currentDate;
-    const isToday =
-      schedule.dayCode === this.getDayCode(currentDate.getDay() - 1);
+    const isToday = schedule.dayCode === this.getDayCode(currentDate.getDay());
     if (endDate < currentDate) {
       status = 'deprecated';
     } else if (inRange) {
@@ -170,7 +169,7 @@ export class ScheduleService {
 
   public currentDate() {
     const fechaActual = new Date();
-    const timeZoneOffset = -3 * 60;
-    return new Date(fechaActual.getTime() + timeZoneOffset * 60 * 1000);
+    fechaActual.setHours(fechaActual.getHours() - 3);
+    return fechaActual;
   }
 }
