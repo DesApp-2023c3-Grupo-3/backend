@@ -4,15 +4,16 @@ import { ConfigModule } from '@nestjs/config';
 import serverConfig from '../config/server.config';
 
 import { LoggingMiddleware } from './middlewares/logging-middleware';
-import { AuthGuard } from '@nestjs/passport';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guardias/jwt-auth.guard';
 
 @Module({
   imports: [ConfigModule.forFeature(serverConfig)],
   providers: [
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class CommonModule implements NestModule {

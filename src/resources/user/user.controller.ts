@@ -16,6 +16,7 @@ import {
   UpdateUserDto,
 } from 'cartelera-unahur';
 import { JwtAuthGuard } from '../../common/guardias/jwt-auth.guard';
+import { Public } from 'src/common/guardias/SetMetadata';
 
 @ApiBearerAuth()
 @ApiTags('User')
@@ -23,14 +24,13 @@ import { JwtAuthGuard } from '../../common/guardias/jwt-auth.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   @ApiResponse({ type: ResponseUserDto })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get()
   @ApiResponse({ type: ResponseUserDto, isArray: true })
   findAll() {
