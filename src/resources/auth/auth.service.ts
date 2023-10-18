@@ -21,9 +21,13 @@ export class AuthService {
   async loginUser(userAuthDto: LoginUserDto) {
     const { dni, password } = userAuthDto;
     const userFound = await this.userService.getUserByDni(dni);
-    if (!userFound) throw new HttpException('User not found', 400);
+    if (!userFound) {
+      throw new HttpException('User not found', 400);
+    }
     const passwordChecker = await compare(password, userFound.password);
-    if (!passwordChecker) throw new HttpException('Incorrect password', 400);
+    if (!passwordChecker) {
+      throw new HttpException('Incorrect password', 400);
+    }
     const payload = {
       id: userFound.id,
       name: userFound.name,

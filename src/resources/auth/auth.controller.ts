@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from 'cartelera-unahur';
-import { Public } from 'src/common/guardias/SetMetadata';
+import { Public } from 'src/common/guards/SetMetadata';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
