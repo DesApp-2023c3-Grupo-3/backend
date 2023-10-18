@@ -28,7 +28,9 @@ export class AuthService {
       name: findUser.name,
       role: findUser.role,
     };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET || 'a1b2c3d4',
+    });
     return { token: token };
   }
 }

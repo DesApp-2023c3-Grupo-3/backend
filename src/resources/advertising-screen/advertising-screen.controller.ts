@@ -12,7 +12,9 @@ import {
   CreateAdvertisingScreenDto,
   UpdateAdvertisingScreenDto,
 } from 'cartelera-unahur';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('advertising-screen')
 export class AdvertisingScreenController {
   constructor(
