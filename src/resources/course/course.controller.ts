@@ -120,7 +120,7 @@ export class CourseController {
           example: new Date(),
         },
         sector: {
-          $ref: 'string', // Referencia al modelo SectorDto
+          $ref: 'string',
         },
       },
     },
@@ -131,10 +131,10 @@ export class CourseController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file'))
-  @Post('excel-to-json')
+  @Post('/upload')
   async createExcel(
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: { startDate: Date; endDate: Date; sector: string },
+    @Body() data: { startDate: string; endDate: string; sector: string },
   ) {
     return this.courseService.uploadCommission(
       file,

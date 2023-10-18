@@ -150,11 +150,13 @@ export class CourseService {
   }
   async uploadCommission(
     file: Express.Multer.File,
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
     sectorId: number,
   ) {
     try {
+      const newStartDate = new Date(startDate);
+      const newEndDate = new Date(endDate);
       const jsonCommision = this.serviceImage.createJson(file);
       const sector = await this.sectorService.findOne(sectorId);
       const subjects = await this.createSubjects(
@@ -164,7 +166,7 @@ export class CourseService {
         jsonCommision.map((aula) => aula['Aula']),
       );
       const schedulesToCreate = jsonCommision.map((schedule) =>
-        this.createSchedules(startDate, endDate, schedule),
+        this.createSchedules(newStartDate, newEndDate, schedule),
       );
       const schedulesCreated = await this.scheduleService.createMultiple(
         schedulesToCreate,
