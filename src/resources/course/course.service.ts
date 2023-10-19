@@ -159,9 +159,6 @@ export class CourseService {
     try {
       const newStartDate = new Date(startDate);
       const newEndDate = new Date(endDate);
-      console.log(startDate);
-      console.log(endDate);
-      console.log(sectorId);
       const jsonCommision = this.serviceImage.createJson(file);
       const sector = await this.sectorService.findOne(sectorId);
       const subjects = await this.createSubjects(
