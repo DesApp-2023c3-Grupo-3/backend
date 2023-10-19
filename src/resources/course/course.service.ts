@@ -46,7 +46,8 @@ export class CourseService {
           name: created.name,
           subject: created.subject.name,
           classroom: created.classroom.name,
-          schedule: this.getScheduleString(created.schedule),
+          startHour: created.schedule.startHour.toLocaleTimeString(),
+          endHour: created.schedule.startHour.toLocaleTimeString(),
         },
       ],
     });
@@ -221,7 +222,8 @@ export class CourseService {
             name: courseToday.name,
             subject: courseToday.subject.name,
             classroom: courseToday.classroom.name,
-            schedule: this.getScheduleString(courseToday.schedule),
+            startHour: courseToday.schedule.startHour.toLocaleTimeString(),
+            endHour: courseToday.schedule.startHour.toLocaleTimeString(),
           })),
         });
       }
@@ -255,10 +257,6 @@ export class CourseService {
       dayCode: String(schedule['Dia']).toUpperCase().trim(),
     });
     return scheduleToCreate;
-  }
-
-  private getScheduleString(schedule): string {
-    return `${schedule.startHour.toLocaleTimeString()} - ${schedule.endHour.toLocaleTimeString()}`;
   }
 
   private async createSubjects(subjects: string[]) {
