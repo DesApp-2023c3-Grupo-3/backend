@@ -157,13 +157,13 @@ export class CourseService {
     sectorId: number,
   ) {
     try {
-      // const newStartDate = new Date(startDate); // TODO: Descomentar cuando se fixee
-      // const newEndDate = new Date(endDate); // TODO: Descomentar cuando se fixee
-      const newStartDate = rangeDate[1].startDate;
-      const newEndDate = rangeDate[1].endDate;
+      const newStartDate = new Date(startDate);
+      const newEndDate = new Date(endDate);
+      console.log(startDate);
+      console.log(endDate);
+      console.log(sectorId);
       const jsonCommision = this.serviceImage.createJson(file);
-      // const sector = await this.sectorService.findOne(sectorId); // TODO: Descomentar cuando se fixee
-      const sector = await this.sectorService.findOne(1);
+      const sector = await this.sectorService.findOne(sectorId);
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
