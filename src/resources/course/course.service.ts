@@ -15,7 +15,8 @@ import { SectorService } from '../sector/sector.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { SubjectService } from '../subject/subject.service';
 import { ClassroomService } from '../classroom/classroom.service';
-import { rangeHours } from './stubs/rangeDate.Stub';
+import { rangeHours, rangeDate } from './stubs/rangeDate.Stub';
+import * as DateUtils from 'src/utils/dateUtils';
 
 @Injectable()
 export class CourseService {
@@ -111,10 +112,7 @@ export class CourseService {
   }
 
   public async findTodayCoursesBySector(sectorId: number) {
-    const currentDayCode = this.scheduleService
-      .currentDate()
-      .getDay()
-      .toString();
+    const currentDayCode = DateUtils.getNewUtcDate().getDay().toString();
     const courses = await this.courseRepository.find({
       where: {
         deletedAt: IsNull(),
@@ -150,6 +148,7 @@ export class CourseService {
 
     return excelBuffer;
   }
+
   async uploadCommission(
     file: Express.Multer.File,
     startDate: string,
@@ -157,8 +156,10 @@ export class CourseService {
     sectorId: number,
   ) {
     try {
-      const newStartDate = new Date(startDate);
-      const newEndDate = new Date(endDate);
+      // const newStartDate = new Date(startDate); // TODO: Descomentar cuando se fixee
+      // const newEndDate = new Date(endDate); // TODO: Descomentar cuando se fixee
+      const newStartDate = rangeDate[1].startDate;
+      const newEndDate = rangeDate[1].endDate;
       const jsonCommision = this.serviceImage.createJson(file);
       const sector = await this.sectorService.findOne(sectorId);
       const subjects = await this.createSubjects(
@@ -195,7 +196,7 @@ export class CourseService {
             (subject) => courseCreated.subject.id === subject.id,
           );
           const classroomFound = classrooms.find(
-            (classroom) => courseCreated.subject.id === classroom.id,
+            (classroom) => courseCreated.classroom.id === classroom.id,
           );
           if (
             ['active', 'today'].includes(
@@ -215,7 +216,7 @@ export class CourseService {
         { coursesToday: [] },
       );
       if (coursesToday.length) {
-        this.socketService.sendMessage(coursesToday[0].sector.topic, {
+        this.socketService.sendMessage(sector.topic, {
           id: 1,
           action: 'CREATE_COURSES',
           data: coursesToday.map((courseToday) => ({
