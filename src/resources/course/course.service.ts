@@ -112,8 +112,10 @@ export class CourseService {
   }
 
   public async findTodayCoursesBySector(sectorId: number) {
-    const currentDayCode = DateUtils.getNewUtcDate().getDay().toString();
-    const courses = await this.courseRepository.find({
+    const currentDayCode = this.scheduleService.getDayCode(
+      DateUtils.getNewLocalDate().getDay(),
+    );
+    return this.courseRepository.find({
       where: {
         deletedAt: IsNull(),
         sector: { id: sectorId },
@@ -126,7 +128,6 @@ export class CourseService {
         subject: true,
       },
     });
-    return courses;
   }
 
   async createCommissionTemplate() {
@@ -161,7 +162,8 @@ export class CourseService {
       const newStartDate = rangeDate[1].startDate;
       const newEndDate = rangeDate[1].endDate;
       const jsonCommision = this.serviceImage.createJson(file);
-      const sector = await this.sectorService.findOne(sectorId);
+      // const sector = await this.sectorService.findOne(sectorId); // TODO: Descomentar cuando se fixee
+      const sector = await this.sectorService.findOne(1);
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
@@ -223,8 +225,8 @@ export class CourseService {
             name: courseToday.name,
             subject: courseToday.subject.name,
             classroom: courseToday.classroom.name,
-            startHour: courseToday.schedule.startHour.toLocaleTimeString(),
-            endHour: courseToday.schedule.startHour.toLocaleTimeString(),
+            startHour: courseToday.schedule.startHour,
+            endHour: courseToday.schedule.endHour,
           })),
         });
       }

@@ -73,7 +73,7 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
-  @Get('sector/:sectorId')
+  @Get('/sector/:sectorId')
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findBySector(@Param('sectorId') sectorId: number) {
     return this.courseService.findTodayCoursesBySector(sectorId);
