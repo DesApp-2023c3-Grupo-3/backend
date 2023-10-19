@@ -6,7 +6,10 @@ import {
   UpdateScheduleDto,
 } from 'cartelera-unahur';
 import { Schedule } from 'src/entities/schedule.entity';
+import * as DateUtils from 'src/utils/dateUtils';
 import { In, Repository } from 'typeorm';
+
+type Status = 'active' | 'today' | 'pending' | 'deprecated';
 
 @Injectable()
 export class ScheduleService {
@@ -84,9 +87,7 @@ export class ScheduleService {
     } catch (error) {}
   }
 
-  public reduceStatus(
-    statusArray: Array<'active' | 'today' | 'pending' | 'deprecated'>,
-  ): 'active' | 'today' | 'pending' | 'deprecated' {
+  public reduceStatus(statusArray: Status[]): Status {
     return statusArray.reduce((status, statusElement) => {
       return !(status === 'active' || status === 'today')
         ? statusElement
@@ -94,41 +95,44 @@ export class ScheduleService {
     }, 'deprecated');
   }
 
-  public getScheduleStatus(
-    schedule: any,
-  ): 'active' | 'today' | 'pending' | 'deprecated' {
-    const currentDate = this.currentDate();
-    let status: 'active' | 'today' | 'pending' | 'deprecated';
-    const startDate = new Date(schedule.startDate);
-    const endDate = new Date(schedule.endDate);
+  public getScheduleStatus(schedule: any): Status {
+    const currentDate = DateUtils.getNewLocalDate();
+    const startDate = DateUtils.getLocalDate(schedule.startDate);
+    const endDate = DateUtils.getLocalDate(schedule.endDate);
     const inRange = startDate <= currentDate && endDate >= currentDate;
     const isToday = schedule.dayCode === this.getDayCode(currentDate.getDay());
-    if (endDate < currentDate) {
-      status = 'deprecated';
-    } else if (inRange) {
-      if (isToday) {
-        if (
-          this.isActive(
-            new Date(schedule.startHour),
-            new Date(schedule.endHour),
-          )
-        ) {
-          status = 'active';
-        } else {
-          status = 'today';
-        }
-      } else {
-        status = 'pending';
-      }
-    }
+    const isActive = this.isInHourRange(
+      currentDate,
+      DateUtils.getLocalDate(schedule.startHour),
+      DateUtils.getLocalDate(schedule.endHour),
+    );
+    const status =
+      endDate < currentDate
+        ? 'deprecated'
+        : inRange
+        ? isToday
+          ? isActive
+            ? 'active'
+            : 'today'
+          : 'pending'
+        : 'pending';
     return status;
   }
 
-  private isActive(timeStart: Date, timeEnd: Date) {
-    const dateNow = new Date();
-    const totalSecondsNow = this.getSeconds(dateNow.toLocaleTimeString());
-    const totalSecondsStart = this.getSeconds(timeStart.toLocaleTimeString());
-    const totalSecondsEnd = this.getSeconds(timeEnd.toLocaleTimeString());
+  private isInHourRange(
+    timeToValidate: Date,
+    timeStart: Date,
+    timeEnd: Date,
+  ): boolean {
+    const totalSecondsNow = this.getSeconds(
+      DateUtils.getDateTimeString(timeToValidate),
+    );
+    const totalSecondsStart = this.getSeconds(
+      DateUtils.getDateTimeString(timeStart),
+    );
+    const totalSecondsEnd = this.getSeconds(
+      DateUtils.getDateTimeString(timeEnd),
+    );
     return (
       totalSecondsStart <= totalSecondsNow && totalSecondsNow <= totalSecondsEnd
     );
@@ -165,11 +169,5 @@ export class ScheduleService {
   private getSeconds(stringTime: string): number {
     const [hour, minutes, seconds] = stringTime.split(':').map(Number);
     return hour * 3600 + minutes * 60 + seconds;
-  }
-
-  public currentDate() {
-    const fechaActual = new Date();
-    fechaActual.setHours(fechaActual.getHours() - 3);
-    return fechaActual;
   }
 }
