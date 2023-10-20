@@ -1,30 +1,18 @@
 import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Advertising } from './advertising.entity';
 import { Sector } from './sector.entity';
 
-@Entity({ name: 'Screen' })
-export class Screen {
+@Entity({ name: 'AdvertisingSector' })
+export class AdvertisingSector {
   @PrimaryGeneratedColumn('identity')
   id: number;
-
-  @Column({ type: 'varchar', length: 100 })
-  subscription: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  templeteId: string;
-
-  @Column({ type: 'int' })
-  courseIntervalTime: number;
-
-  @Column({ type: 'int' })
-  advertisingIntervalTime: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
@@ -35,7 +23,13 @@ export class Screen {
   @DeleteDateColumn({ type: 'timestamptz' })
   deletedAt: Date;
 
-  @ManyToOne(() => Sector, (sector) => sector.id, {
+  @ManyToOne(() => Advertising, (advertising) => advertising.id, {
+    nullable: true,
+    createForeignKeyConstraints: true,
+  })
+  advertising: Advertising;
+
+  @ManyToOne(() => Sector, (sector) => sector.advertisingSectors, {
     nullable: true,
     createForeignKeyConstraints: true,
   })

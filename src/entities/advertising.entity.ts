@@ -12,6 +12,7 @@ import { AdvertisingType } from './advertising-type.entity';
 import { Sector } from './sector.entity';
 import { User } from './user.entity';
 import { AdvertisingSchedule } from './advertising-schedule.entity';
+import { AdvertisingSector } from './advertising-sector.entity';
 
 @Entity({ name: 'Advertising' })
 export class Advertising {
@@ -20,6 +21,9 @@ export class Advertising {
 
   @Column({ type: 'varchar' })
   name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  payload: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
@@ -42,11 +46,15 @@ export class Advertising {
   })
   user: User;
 
-  @ManyToOne(() => Sector, (sector) => sector.id, {
-    nullable: true,
-    createForeignKeyConstraints: true,
-  })
-  sector: Sector;
+  @OneToMany(
+    () => AdvertisingSector,
+    (advertisingSector) => advertisingSector.advertising,
+    {
+      nullable: true,
+      createForeignKeyConstraints: true,
+    },
+  )
+  advertisingSectors: AdvertisingSector[];
 
   @OneToMany(
     () => AdvertisingSchedule,

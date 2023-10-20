@@ -1,7 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
 import { Screen } from 'src/entities/screen.entity';
+import { SocketService } from 'src/plugins/socket/socket.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -9,21 +10,32 @@ export class ScreenService {
   constructor(
     @InjectRepository(Screen)
     private readonly screenRepository: Repository<Screen>,
+    @Inject(SocketService)
+    private readonly socketService: SocketService,
   ) {}
 
-  async create(createScreenDto: CreateScreenDto): Promise<Screen> {
-    const newScreen = this.screenRepository.create({ subscription: 'asd' });
+  async create(createScreenDto: CreateScreenDto) {
+    const newScreen = this.screenRepository.create(createScreenDto);
     const created = await this.screenRepository.save(newScreen);
     return created;
   }
 
-  async findAll() {
-    return `This action returns all screen`;
+  async findAll(): Promise<Screen[]> {
+    return this.screenRepository.find({
+      where: {
+        deletedAt: null,
+      },
+    });
   }
 
   async findOne(id: number): Promise<Screen> {
     try {
-      const [response] = await this.screenRepository.find({ where: { id } });
+      const [response] = await this.screenRepository.find({
+        where: { id, deletedAt: null },
+        relations: {
+          sector: true,
+        },
+      });
       return response;
     } catch (error) {
       throw new HttpException('Image not found', HttpStatus.BAD_REQUEST);
@@ -31,10 +43,47 @@ export class ScreenService {
   }
 
   async update(id: number, updateScreenDto: UpdateScreenDto) {
-    return `This action updates a #${id} screen`;
+    const updateData = await this.screenRepository.update(
+      { id },
+      updateScreenDto,
+    );
+    let screenUpdated = {
+      message: 'Error updating',
+      data: undefined,
+    };
+    if (updateData.affected) {
+      const screenUpdatedFound = await this.findOne(id);
+      screenUpdated = {
+        message: 'Screen updated successfully',
+        data: screenUpdatedFound,
+      };
+      this.socketService.sendSubscriptionMessage(
+        screenUpdatedFound.sector.topic,
+        screenUpdatedFound.subscription,
+        {
+          id: -1,
+          action: 'UPDATE_SCREEN_CONFIGURATION',
+          data: {
+            sector: screenUpdatedFound.sector,
+            screen: screenUpdatedFound,
+          },
+        },
+      );
+    }
+    return screenUpdated;
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} screen`;
+  public async remove(id: number) {
+    try {
+      return this.screenRepository.update(
+        { id },
+        {
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      );
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
   }
 }
