@@ -149,4 +149,18 @@ export class ImageController {
       );
     }
   }
+
+  @Get('qr/plane/view')
+  async qrPlane(@Res() res: Response) {
+    try {
+      const qr = await this.imageService.qrPlane();
+      res.setHeader('Content-Type', 'image/png');
+      res.send(Buffer.from(qr.split(',')[1], 'base64'));
+    } catch (error) {
+      throw new HttpException(
+        'Error generating qr code',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }

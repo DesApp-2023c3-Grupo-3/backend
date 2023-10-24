@@ -78,4 +78,8 @@ export class ImageService {
       );
     }
   }
+
+  public qrPlane(): Promise<string> {
+    return this.createQr('src/assets/plano.png');
+  }
 }
