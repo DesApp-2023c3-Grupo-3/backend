@@ -8,6 +8,8 @@ import {
   Res,
   StreamableFile,
   Body,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -131,6 +133,20 @@ export class ImageController {
         message: 'Error al crear el archivo Excel.',
         error: error.message,
       });
+    }
+  }
+
+  @Get('/qr/:url')
+  async createQr(@Res() res: Response, @Param('url') url: string) {
+    try {
+      const qr = await this.imageService.createQr(url);
+      res.setHeader('Content-Type', 'image/png');
+      res.send(Buffer.from(qr.split(',')[1], 'base64'));
+    } catch (error) {
+      throw new HttpException(
+        'Error generating qr code',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

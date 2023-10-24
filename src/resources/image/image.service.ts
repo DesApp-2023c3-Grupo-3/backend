@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
+import * as QRCode from 'qrcode';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class ImageService {
@@ -56,5 +58,24 @@ export class ImageService {
       buffer: excelBuffer,
       fileName: `${fileName}.xlsx`,
     };
+  }
+
+  async createQr(url: string): Promise<string> {
+    try {
+      const qr = await QRCode.toDataURL(url, {
+        width: 300,
+        type: 'image/jpeg',
+        quality: 0.3,
+        color: {
+          light: '#0000',
+        },
+      });
+      return qr;
+    } catch (error) {
+      throw new HttpException(
+        'Error generating qr code',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }
