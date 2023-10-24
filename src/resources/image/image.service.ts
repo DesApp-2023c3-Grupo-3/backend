@@ -4,10 +4,12 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
 import * as QRCode from 'qrcode';
-import { NotFoundError } from 'rxjs';
+import * as fs from 'fs';
+import { Response } from 'express';
 
 @Injectable()
 export class ImageService {
+  private generatedPlaneQr: string = null;
   constructor(
     @InjectRepository(Image)
     public readonly imageRepository: Repository<Image>,
@@ -79,7 +81,25 @@ export class ImageService {
     }
   }
 
-  public qrPlane(): Promise<string> {
-    return this.createQr('src/assets/plano.png');
+  public async qrPlane(): Promise<string> {
+    const HOST = process.env.HOST || 'localhost';
+    const PORT = process.env.PORT || '3001';
+    if (!this.generatedPlaneQr) {
+      this.generatedPlaneQr = await this.createQr(
+        `${HOST}:${PORT}/image/plane`,
+      );
+    }
+    return this.generatedPlaneQr;
+  }
+
+  public getImagePlane(response: Response) {
+    const image = 'src/assets/plano.png';
+    if (fs.existsSync(image)) {
+      response.setHeader('Content-Type', 'image/png');
+      const imageStream = fs.createReadStream(image);
+      imageStream.pipe(response);
+    } else {
+      response.status(404).send('Imagen no encontrada');
+    }
   }
 }

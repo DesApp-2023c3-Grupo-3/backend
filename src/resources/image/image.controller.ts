@@ -136,6 +136,7 @@ export class ImageController {
     }
   }
 
+  @ApiOperation({ summary: 'Te permite crear un qr de una URL' })
   @Get('/qr/:url')
   async createQr(@Res() res: Response, @Param('url') url: string) {
     try {
@@ -150,6 +151,7 @@ export class ImageController {
     }
   }
 
+  @ApiOperation({ summary: 'Crear el qr del plano' })
   @Get('qr/plane/view')
   async qrPlane(@Res() res: Response) {
     try {
@@ -162,5 +164,11 @@ export class ImageController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  @ApiOperation({ summary: 'Muestra la imagen del plano' })
+  @Get('/plane')
+  async getImagePlane(@Res() response: Response) {
+    this.imageService.getImagePlane(response);
   }
 }
