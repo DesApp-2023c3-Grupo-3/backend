@@ -169,6 +169,9 @@ export class ImageController {
   @ApiOperation({ summary: 'Muestra la imagen del plano' })
   @Get('/plane')
   async getImagePlane(@Res() response: Response) {
-    this.imageService.getImagePlane(response);
+    const image = 'src/assets/plano.png';
+    response.setHeader('Content-Type', ['image/jpeg']);
+    const imagePath = createReadStream(image);
+    imagePath.pipe(response);
   }
 }

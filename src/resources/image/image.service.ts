@@ -4,8 +4,6 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
 import * as QRCode from 'qrcode';
-import * as fs from 'fs';
-import { Response } from 'express';
 
 @Injectable()
 export class ImageService {
@@ -90,16 +88,5 @@ export class ImageService {
       );
     }
     return this.generatedPlaneQr;
-  }
-
-  public getImagePlane(response: Response) {
-    const image = 'src/assets/plano.png';
-    if (fs.existsSync(image)) {
-      response.setHeader('Content-Type', 'image/png');
-      const imageStream = fs.createReadStream(image);
-      imageStream.pipe(response);
-    } else {
-      response.status(404).send('Imagen no encontrada');
-    }
   }
 }
