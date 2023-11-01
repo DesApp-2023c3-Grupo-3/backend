@@ -9,7 +9,7 @@ import { JwtStrategy } from '../../common/guards/jwt.strategy';
   imports: [
     UserModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'a1b2c3d4',
+      secret: process.env.JWT_ACCESS_SECRET || 'a1b2c3d4',
       signOptions: { expiresIn: '24h' },
     }),
     JwtModule,
