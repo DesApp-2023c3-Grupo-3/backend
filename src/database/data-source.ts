@@ -9,7 +9,7 @@ const dataSource = new DataSource({
     'dist/**/entities/*.entity{.ts,.js}',
     join(__dirname, '..', '**/entities/*.entity{.ts,.js}'),
   ],
-  migrations: ['src/database/migrations/*{.ts,.js}'],
+  migrations: ['dist/database/migrations/*{.ts,.js}'],
 });
 
 export default dataSource;
