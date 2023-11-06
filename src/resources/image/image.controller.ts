@@ -8,6 +8,8 @@ import {
   Res,
   StreamableFile,
   Body,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -132,5 +134,44 @@ export class ImageController {
         error: error.message,
       });
     }
+  }
+
+  @ApiOperation({ summary: 'Te permite crear un qr de una URL' })
+  @Get('/qr/:url')
+  async createQr(@Res() res: Response, @Param('url') url: string) {
+    try {
+      const qr = await this.imageService.createQr(url);
+      res.setHeader('Content-Type', 'image/png');
+      res.send(Buffer.from(qr.split(',')[1], 'base64'));
+    } catch (error) {
+      throw new HttpException(
+        'Error generating qr code',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @ApiOperation({ summary: 'Crear el qr del plano' })
+  @Get('qr/plane/view')
+  async qrPlane(@Res() res: Response) {
+    try {
+      const qr = await this.imageService.qrPlane();
+      res.setHeader('Content-Type', 'image/png');
+      res.send(Buffer.from(qr.split(',')[1], 'base64'));
+    } catch (error) {
+      throw new HttpException(
+        'Error generating qr code',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @ApiOperation({ summary: 'Muestra la imagen del plano' })
+  @Get('/plane')
+  async getImagePlane(@Res() response: Response) {
+    const image = 'src/assets/plano.png';
+    response.setHeader('Content-Type', ['image/jpeg']);
+    const imagePath = createReadStream(image);
+    imagePath.pipe(response);
   }
 }
