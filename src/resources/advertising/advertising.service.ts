@@ -71,12 +71,16 @@ export class AdvertisingService {
       const sectorsFound = await this.sectorService.findByIds(sectorIds);
       const sectorTopics = sectorsFound.map((sectorFound) => sectorFound.topic);
       sectorTopics.map((sectorTopic) => {
+        const scheduleFound = schedulesCreated[0];
         this.socketService.sendMessage(sectorTopic, {
           id: 1,
           action: 'CREATE_ADVERTISING',
           data: {
             advertisingTypeId: newAdvertising.advertisingType.id,
             payload: newAdvertising.payload,
+            advertisingId: newAdvertising.id,
+            startHour: scheduleFound.startHour,
+            endHour: scheduleFound.endHour,
           },
         });
       });

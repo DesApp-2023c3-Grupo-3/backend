@@ -23,7 +23,7 @@ export class UserService {
   }
 
   public async findAll() {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: { role: true } });
   }
 
   public async findOne(id: number) {

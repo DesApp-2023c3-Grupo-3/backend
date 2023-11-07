@@ -75,7 +75,7 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
-  @Get('sector/:sectorId')
+  @Get('/sector/:sectorId')
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findBySector(@Param('sectorId') sectorId: number) {
     return this.courseService.findTodayCoursesBySector(sectorId);
@@ -122,7 +122,7 @@ export class CourseController {
           example: new Date(),
         },
         sector: {
-          $ref: 'string', // Referencia al modelo SectorDto
+          $ref: 'number',
         },
       },
     },
@@ -133,10 +133,10 @@ export class CourseController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @UseInterceptors(FileInterceptor('file'))
-  @Post('excel-to-json')
+  @Post('/upload')
   async createExcel(
     @UploadedFile() file: Express.Multer.File,
-    @Body() data: { startDate: Date; endDate: Date; sector: string },
+    @Body() data: { startDate: string; endDate: string; sector: number },
   ) {
     return this.courseService.uploadCommission(
       file,
