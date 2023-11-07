@@ -19,6 +19,7 @@ import { AdvertisingScreenModule } from './resources/advertising-screen/advertis
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
+import { AuthModule } from './resources/auth/auth.module';
 // import { ScheduleModule } from './resources/schedule/schedule.module';
 // import { AdvertisingScheduleModule } from './resources/advertising-schedule/advertising-schedule.module';
 @Module({
@@ -30,7 +31,7 @@ import { ImageModule } from './resources/image/image.module';
     DatabaseModule,
     CommonModule,
     SocketModule,
-
+    AuthModule,
     UserModule,
     AdvertisingModule,
     CourseModule,

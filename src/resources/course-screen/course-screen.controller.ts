@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { CourseScreenService } from './course-screen.service';
 import { CreateCourseScreenDto, UpdateCourseScreenDto } from 'cartelera-unahur';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('course-screen')
 export class CourseScreenController {
   constructor(private readonly courseScreenService: CourseScreenService) {}

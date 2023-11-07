@@ -25,11 +25,13 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+@ApiBearerAuth()
 @ApiTags('Course')
 @Controller('course')
 export class CourseController {

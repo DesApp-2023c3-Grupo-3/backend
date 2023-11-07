@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { AdvertisingScheduleService } from './advertising-schedule.service';
 
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateAdvertisingScheduleDto,
   ResponseAdvertisingScheduleDto,
   UpdateAdvertisingScheduleDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('advertising-schedule')
 @Controller('advertising-schedule')
 export class AdvertisingScheduleController {

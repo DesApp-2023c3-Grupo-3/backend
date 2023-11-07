@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -29,6 +30,7 @@ import { UploadImageDTO } from 'cartelera-unahur';
 import type { Response } from 'express';
 import { createReadStream } from 'fs';
 
+@ApiBearerAuth()
 @ApiTags('Image')
 @Controller('image')
 export class ImageController {

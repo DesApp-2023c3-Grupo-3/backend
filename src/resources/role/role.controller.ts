@@ -9,8 +9,9 @@ import {
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto, RoleDto, UpdateRoleDto } from 'cartelera-unahur';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('Role')
 @Controller('role')
 export class RoleController {

@@ -13,8 +13,9 @@ import {
   ResponseScreenDto,
   UpdateScreenDto,
 } from 'cartelera-unahur';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('Screen')
 @Controller('screen')
 export class ScreenController {

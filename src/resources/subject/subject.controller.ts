@@ -8,13 +8,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { SubjectService } from './subject.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateSubjectDto,
   SubjectDto,
   UpdateSubjectDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('Subject')
 @Controller('subject')
 export class SubjectController {
