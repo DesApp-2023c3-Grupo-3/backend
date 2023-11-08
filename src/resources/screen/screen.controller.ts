@@ -50,7 +50,6 @@ export class ScreenController {
     return this.screenService.remove(+id);
   }
 
-  // @ApiResponse({ type: UpdateScreenDto })
   @Post('disconnect/:id')
   remoteDisconnect(@Param('id') id: string) {
     return this.screenService.remoteDisconnect(+id);

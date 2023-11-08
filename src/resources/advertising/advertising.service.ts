@@ -374,7 +374,6 @@ export class AdvertisingService {
     advertising: Advertising,
     data: MessageDto,
   ) {
-    // TODO: Tipar esto
     const schedulesFound = advertising.advertisingSchedules.map(
       (advertisingSchedule) => advertisingSchedule.schedule,
     );
