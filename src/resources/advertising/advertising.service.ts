@@ -8,6 +8,7 @@ import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
 import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
 import { SectorService } from '../sector/sector.service';
+import { MessageDto } from 'src/plugins/socket/dto/Message.dto';
 
 @Injectable()
 export class AdvertisingService {
@@ -31,7 +32,7 @@ export class AdvertisingService {
     const advertisingCreated = await this.advertisingRepository.save(
       newAdvertising,
     );
-    const advertisingSectorsCreated = await Promise.all(
+    await Promise.all(
       createAdvertisingDto.sectors.map(async (sector) => {
         return await this.advertisingSectorService.create({
           sector,
@@ -60,31 +61,20 @@ export class AdvertisingService {
         });
       }),
     );
-    const schedulesStatus = schedulesCreated.map((scheduleCreated) =>
-      this.scheduleService.getScheduleStatus(scheduleCreated),
-    );
-    const status = this.scheduleService.reduceStatus(schedulesStatus);
-    if (['today', 'active'].includes(status)) {
-      const sectorIds = advertisingSectorsCreated.map(
-        (advertisingSector) => advertisingSector.sector.id,
-      );
-      const sectorsFound = await this.sectorService.findByIds(sectorIds);
-      const sectorTopics = sectorsFound.map((sectorFound) => sectorFound.topic);
-      sectorTopics.map((sectorTopic) => {
-        const scheduleFound = schedulesCreated[0];
-        this.socketService.sendMessage(sectorTopic, {
-          id: 1,
-          action: 'CREATE_ADVERTISING',
-          data: {
-            advertisingTypeId: newAdvertising.advertisingType.id,
-            payload: newAdvertising.payload,
-            advertisingId: newAdvertising.id,
-            startHour: scheduleFound.startHour,
-            endHour: scheduleFound.endHour,
-          },
-        });
-      });
-    }
+
+    const advertisingFound = await this.findOne(newAdvertising.id);
+    const anySchedule = advertisingFound.advertisingSchedules[0].schedule;
+    this.sendAdvertisingMessage(advertisingFound, {
+      id: 1,
+      action: 'CREATE_ADVERTISING',
+      data: {
+        advertisingTypeId: advertisingFound.advertisingType.id,
+        payload: advertisingFound.payload,
+        advertisingId: advertisingFound.id,
+        startHour: anySchedule.startHour,
+        endHour: anySchedule.endHour,
+      },
+    });
     return advertisingCreated;
   }
 
@@ -317,8 +307,22 @@ export class AdvertisingService {
           }),
         );
       }
+      const advertisingUpdatedFound = await this.findOne(id);
+      const anySchedule =
+        advertisingUpdatedFound.advertisingSchedules[0].schedule;
+      this.sendAdvertisingMessage(advertisingUpdatedFound, {
+        id: 1,
+        action: 'UPDATE_ADVERTISING',
+        data: {
+          advertisingTypeId: advertisingUpdatedFound.advertisingType.id,
+          payload: advertisingUpdatedFound.payload,
+          advertisingId: advertisingUpdatedFound.id,
+          startHour: anySchedule.startHour,
+          endHour: anySchedule.endHour,
+        },
+      });
       return {
-        data: await this.findOne(id), // TODO: Evaluar si quitar esto
+        data: advertisingUpdatedFound,
       };
     } catch (error) {
       console.error('ADVERTISING_UPDATE_ERROR: ', error);
@@ -328,6 +332,13 @@ export class AdvertisingService {
 
   public async remove(id: number) {
     try {
+      const advertisingFound = await this.findOne(id);
+      if (!advertisingFound) {
+        throw new HttpException(
+          'Advertising not found',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const { affected } = await this.advertisingRepository.update(
         {
           id,
@@ -337,12 +348,49 @@ export class AdvertisingService {
           updatedAt: new Date(),
         },
       );
-      const message = affected
-        ? 'Advertising deleted successfully'
-        : 'Advertising not deleted';
+      let message = 'Advertising not deleted';
+      if (affected) {
+        message = 'Advertising deleted successfully';
+        const anySchedule = advertisingFound.advertisingSchedules[0].schedule;
+        this.sendAdvertisingMessage(advertisingFound, {
+          id: 1,
+          action: 'DELETE_ADVERTISING',
+          data: {
+            advertisingTypeId: advertisingFound.advertisingType.id,
+            payload: advertisingFound.payload,
+            advertisingId: advertisingFound.id,
+            startHour: anySchedule.startHour,
+            endHour: anySchedule.endHour,
+          },
+        });
+      }
       return { message };
     } catch (error) {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private async sendAdvertisingMessage(
+    advertising: Advertising,
+    data: MessageDto,
+  ) {
+    // TODO: Tipar esto
+    const schedulesFound = advertising.advertisingSchedules.map(
+      (advertisingSchedule) => advertisingSchedule.schedule,
+    );
+    const schedulesStatus = schedulesFound.map((scheduleCreated) =>
+      this.scheduleService.getScheduleStatus(scheduleCreated),
+    );
+    const status = this.scheduleService.reduceStatus(schedulesStatus);
+    if (['today', 'active'].includes(status)) {
+      const sectorIds = advertising.advertisingSectors.map(
+        (advertisingSector) => advertisingSector.sector.id,
+      );
+      const sectorsFound = await this.sectorService.findByIds(sectorIds);
+      const sectorTopics = sectorsFound.map((sectorFound) => sectorFound.topic);
+      sectorTopics.map((sectorTopic) => {
+        this.socketService.sendMessage(sectorTopic, data);
+      });
     }
   }
 }
