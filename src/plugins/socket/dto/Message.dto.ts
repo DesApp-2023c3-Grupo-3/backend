@@ -8,7 +8,8 @@ type Actions =
   | 'UPDATE_ADVERTISING'
   | 'DELETE_ADVERTISING'
   | 'CREATE_COURSES'
-  | 'UPDATE_SCREEN_CONFIGURATION';
+  | 'UPDATE_SCREEN_CONFIGURATION'
+  | 'SCREEN_REMOTE_DISCONNECT';
 
 export class MessageDto {
   id: number;
