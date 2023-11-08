@@ -49,4 +49,9 @@ export class ScreenController {
   remove(@Param('id') id: string) {
     return this.screenService.remove(+id);
   }
+
+  @Post('disconnect/:id')
+  remoteDisconnect(@Param('id') id: string) {
+    return this.screenService.remoteDisconnect(+id);
+  }
 }

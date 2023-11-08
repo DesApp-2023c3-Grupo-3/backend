@@ -86,4 +86,21 @@ export class ScreenService {
       throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
     }
   }
+
+  public async remoteDisconnect(id: number) {
+    try {
+      const screenFound = await this.findOne(id);
+      await this.socketService.sendMessage(screenFound.sector.topic, {
+        id: -1,
+        action: 'SCREEN_REMOTE_DISCONNECT',
+        data: {
+          sector: screenFound.sector,
+          screen: screenFound,
+        },
+      });
+      return { message: `Screen ${id} disconnected` };
+    } catch (error) {
+      throw new HttpException('Error on delete', HttpStatus.BAD_REQUEST);
+    }
+  }
 }
