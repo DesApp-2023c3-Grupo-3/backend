@@ -13,8 +13,9 @@ import {
   CreateClassroomDto,
   UpdateClassroomDto,
 } from 'cartelera-unahur';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('Classroom')
 @Controller('classroom')
 export class ClassroomController {

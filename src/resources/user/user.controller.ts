@@ -8,13 +8,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateUserDto,
   ResponseUserDto,
   UpdateUserDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
 export class UserController {
@@ -29,6 +30,7 @@ export class UserController {
   @Get()
   @ApiResponse({ type: ResponseUserDto, isArray: true })
   findAll() {
+    console.log('asdasdasdasd');
     return this.userService.findAll();
   }
 

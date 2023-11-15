@@ -8,13 +8,14 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingTypeService } from './advertising-type.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   AdvertisingTypeDto,
   CreateAdvertisingTypeDto,
   UpdateAdvertisingTypeDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('AdvertisingType')
 @Controller('advertising-type')
 export class AdvertisingTypeController {

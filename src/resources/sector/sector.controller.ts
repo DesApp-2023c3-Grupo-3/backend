@@ -8,9 +8,10 @@ import {
   Delete,
 } from '@nestjs/common';
 import { SectorService } from './sector.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateSectorDto, SectorDto, UpdateSectorDto } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('Sector')
 @Controller('sector')
 export class SectorController {

@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   AdvertisingDto,
   CreateAdvertisingDto,
@@ -16,6 +16,7 @@ import {
   UpdateAdvertisingDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('Advertising')
 @Controller('advertising')
 export class AdvertisingController {

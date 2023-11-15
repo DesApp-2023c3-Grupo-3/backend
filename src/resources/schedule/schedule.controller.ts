@@ -13,8 +13,9 @@ import {
   ScheduleDto,
   UpdateScheduleDto,
 } from 'cartelera-unahur';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @ApiTags('Schedule')
 @Controller('schedule')
 export class ScheduleController {

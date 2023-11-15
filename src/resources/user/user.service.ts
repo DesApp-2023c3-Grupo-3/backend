@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
 import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -13,17 +13,33 @@ export class UserService {
 
   public async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
-    const created = await this.userRepository.save(newUser);
-    return created;
+    const { dni } = newUser;
+    const userFound = await this.getUserByDni(dni);
+    if (!userFound) {
+      return this.userRepository.save(newUser);
+    } else {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
   }
 
   public async findAll() {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: { role: true } });
   }
 
   public async findOne(id: number) {
     try {
       return this.userRepository.find({ where: { id } });
+    } catch (error) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  public async getUserByDni(dni: string) {
+    try {
+      return this.userRepository.findOne({
+        where: { dni, deletedAt: IsNull() },
+        relations: { role: true },
+      });
     } catch (error) {
       throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }

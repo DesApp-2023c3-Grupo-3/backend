@@ -9,13 +9,14 @@ import {
 } from '@nestjs/common';
 import { AdvertisingSectorService } from './advertising-sector.service';
 
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreateAdvertisingSectorDto,
   ResponseAdvertisingSectorDto,
   UpdateAdvertisingSectorDto,
 } from 'cartelera-unahur';
 
+@ApiBearerAuth()
 @ApiTags('advertising-sector')
 @Controller('advertising-sector')
 export class AdvertisingSectorController {
