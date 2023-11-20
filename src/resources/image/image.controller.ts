@@ -6,7 +6,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-  StreamableFile,
   Body,
   HttpStatus,
   HttpException,
@@ -21,11 +20,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ImageService } from './image.service';
-import {
-  filesConfigImage,
-  multerOptions,
-  parseFilePipeBuilder,
-} from 'src/config/uploads.config';
 import { UploadImageDTO } from 'cartelera-unahur';
 import type { Response } from 'express';
 import { createReadStream } from 'fs';
@@ -55,9 +49,9 @@ export class ImageController {
     type: UploadImageDTO,
   })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  @UseInterceptors(FileInterceptor('file', multerOptions()))
+  @UseInterceptors(FileInterceptor('file'))
   @Post()
-  create(@UploadedFile(parseFilePipeBuilder) file: Express.Multer.File) {
+  create(@UploadedFile() file: Express.Multer.File) {
     return this.imageService.create(file);
   }
 
@@ -67,12 +61,19 @@ export class ImageController {
   @Get(':id/download')
   async download(
     @Param('id') id: string,
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<StreamableFile> {
-    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
-    const imagePath = createReadStream(image.path);
-    response.set(filesConfigImage.responseHeaders(image.path));
-    return new StreamableFile(imagePath);
+    @Res() response: Response,
+  ): Promise<void> {
+    try {
+      const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+      response.setHeader('Content-Type', ['image/jpeg']);
+      response.setHeader(
+        'Content-Disposition',
+        `attachment; filename=${image.originalName}`,
+      );
+      response.send(Buffer.from(image.base64Data, 'base64'));
+    } catch (error) {
+      response.status(404).send('Not Found');
+    }
   }
 
   @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
@@ -83,10 +84,13 @@ export class ImageController {
     @Param('id') id: string,
     @Res() response: Response,
   ): Promise<void> {
-    const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
-    response.setHeader('Content-Type', ['image/jpeg']);
-    const imagePath = createReadStream(image.path);
-    imagePath.pipe(response);
+    try {
+      const image = await this.imageService.findByIdAndArchivoNotIsNull(+id);
+      response.setHeader('Content-Type', ['image/jpeg']);
+      response.send(Buffer.from(image.base64Data, 'base64'));
+    } catch (error) {
+      response.status(404).send('Not Found');
+    }
   }
 
   @ApiOperation({ summary: 'Carga al servidor un archivo excel' })

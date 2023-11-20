@@ -8,6 +8,6 @@ export class Image {
   @Column()
   originalName: string;
 
-  @Column()
-  path: string;
+  @Column({ type: 'text' })
+  base64Data: string;
 }

@@ -13,18 +13,18 @@ export class ImageService {
     public readonly imageRepository: Repository<Image>,
   ) {}
 
-  public async create(file: Express.Multer.File) {
-    const newImage = this.imageRepository.create({
-      originalName: file.originalname,
-      path: file.path,
-    });
-    const created = await this.imageRepository.save(newImage);
-    return created;
+  async create(file: Express.Multer.File): Promise<Image> {
+    const image = new Image();
+    const fileContent = file.buffer.toString('base64');
+    image.originalName = file.originalname;
+    image.base64Data = fileContent;
+    const newImage = this.imageRepository.create(image);
+    return this.imageRepository.save(newImage);
   }
 
-  findByIdAndArchivoNotIsNull(id: number) {
+  async findByIdAndArchivoNotIsNull(id: number): Promise<Image> {
     return this.imageRepository.findOneOrFail({
-      select: ['originalName', 'path'],
+      select: ['originalName', 'base64Data'],
       where: { id, originalName: Not(IsNull()) },
     });
   }
