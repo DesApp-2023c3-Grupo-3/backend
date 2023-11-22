@@ -39,7 +39,7 @@ export class SocketService {
         sector.notifySubscription(subscription, data);
       });
     } catch (error) {
-      console.error('SEND_MESSAGE ERROR: ', error);
+      console.error('SEND_SUBSCRIPTION_MESSAGE ERROR: ', error);
     }
   }
 }
