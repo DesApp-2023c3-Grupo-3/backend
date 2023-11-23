@@ -15,6 +15,7 @@ import {
   ResponseAdvertisingDto,
   UpdateAdvertisingDto,
 } from 'cartelera-unahur';
+import { Public } from 'src/common/guards/SetMetadata';
 
 @ApiBearerAuth()
 @ApiTags('Advertising')
@@ -34,6 +35,7 @@ export class AdvertisingController {
     return this.advertisingService.findAll();
   }
 
+  @Public()
   @Get('/screen/:screenId')
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   findTodayScreenAdvertising(@Param('screenId') screenId: number) {
