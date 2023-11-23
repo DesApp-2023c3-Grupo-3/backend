@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateScreenDto, UpdateScreenDto } from 'cartelera-unahur';
 import { Screen } from 'src/entities/screen.entity';
 import { SocketService } from 'src/plugins/socket/socket.service';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class ScreenService {
@@ -42,35 +42,55 @@ export class ScreenService {
     }
   }
 
-  async update(id: number, updateScreenDto: UpdateScreenDto) {
-    const updateData = await this.screenRepository.update(
-      { id },
-      updateScreenDto,
-    );
-    let screenUpdated = {
-      message: 'Error updating',
-      data: undefined,
-    };
-    if (updateData.affected) {
-      const screenUpdatedFound = await this.findOne(id);
-      screenUpdated = {
-        message: 'Screen updated successfully',
-        data: screenUpdatedFound,
-      };
-      this.socketService.sendSubscriptionMessage(
-        screenUpdatedFound.sector.topic,
-        screenUpdatedFound.subscription,
-        {
-          id: -1,
-          action: 'UPDATE_SCREEN_CONFIGURATION',
-          data: {
-            sector: screenUpdatedFound.sector,
-            screen: screenUpdatedFound,
-          },
+  async update(updateScreenDtos: UpdateScreenDto[]) {
+    try {
+      const ids = updateScreenDtos.map((updateScreenDto) => updateScreenDto.id);
+      const screenFounds = await this.screenRepository.find({
+        where: { id: In(ids) },
+        relations: {
+          sector: true,
         },
-      );
+      });
+      if (screenFounds.length !== updateScreenDtos.length) {
+        throw new HttpException('Screen Not Found', HttpStatus.BAD_REQUEST);
+      }
+      const screensToUpdate = screenFounds.map((screenFound) => {
+        const updateScreenDtoToUpdate = updateScreenDtos.find(
+          (updateScreenDto) => {
+            return updateScreenDto.id === screenFound.id;
+          },
+        );
+        return this.screenRepository.create({
+          ...screenFound,
+          ...updateScreenDtoToUpdate,
+        });
+      });
+      const screensUpdated = await this.screenRepository.save(screensToUpdate);
+      if (screensUpdated.length) {
+        screensUpdated.map((screenUpdated) => {
+          this.socketService.sendSubscriptionMessage(
+            screenUpdated.sector.topic,
+            screenUpdated.subscription,
+            {
+              id: -1,
+              action: 'UPDATE_SCREEN_CONFIGURATION',
+              data: {
+                sector: screenUpdated.sector,
+                screen: screenUpdated,
+              },
+            },
+          );
+        });
+      }
+      return {
+        message: 'Screens updated successfully',
+        totalUpdated: screensUpdated.length,
+        data: screensUpdated,
+      };
+    } catch (error) {
+      console.error('UPDATE_SCREEN ERROR: ', error);
+      throw error;
     }
-    return screenUpdated;
   }
 
   public async remove(id: number) {

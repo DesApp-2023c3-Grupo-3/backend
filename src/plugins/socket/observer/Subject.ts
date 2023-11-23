@@ -55,7 +55,7 @@ export class SectorSubject implements Subject {
   }
 
   public notifySubscription(subscription: string, data: MessageDto): void {
-    console.info('Subject: Notifying observers...');
+    console.info('Subject: Notifying observer...');
     const subscriptionFound = this.observers.find(
       (observer) => observer.data.subscription === subscription,
     );
