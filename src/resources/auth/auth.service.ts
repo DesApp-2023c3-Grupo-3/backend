@@ -57,7 +57,6 @@ export class AuthService {
       const payload = this.jwtService.decode(refreshToken);
       const originPayload = payload['payload'];
       if (payload) {
-        console.log(payload);
         const accessToken = this.jwtService.sign(
           { payload: originPayload },
           {

@@ -30,7 +30,6 @@ export class UserController {
   @Get()
   @ApiResponse({ type: ResponseUserDto, isArray: true })
   findAll() {
-    console.log('asdasdasdasd');
     return this.userService.findAll();
   }
 
