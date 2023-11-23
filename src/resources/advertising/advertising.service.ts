@@ -79,7 +79,27 @@ export class AdvertisingService {
   }
 
   public async findAll() {
-    return this.advertisingRepository.find();
+    const avisos = await this.advertisingRepository.find({
+      where: {
+        deletedAt: null,
+      },
+      relations: {
+        user: {
+          role: true,
+        },
+        advertisingType: true,
+        advertisingSectors: {
+          sector: true,
+        },
+        advertisingSchedules: {
+          schedule: true,
+        },
+      },
+    });
+    return avisos.map((aviso) => ({
+      ...aviso,
+      status: this.getAdvertisingStatus(aviso),
+    }));
   }
 
   public async findTodayScreenAdvertising(screenId: number) {
