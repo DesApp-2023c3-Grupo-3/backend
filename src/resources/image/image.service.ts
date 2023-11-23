@@ -4,6 +4,8 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
 import * as QRCode from 'qrcode';
+import { ImageDto } from './dto/image.dto';
+import { promises } from 'dns';
 
 @Injectable()
 export class ImageService {
@@ -13,13 +15,11 @@ export class ImageService {
     public readonly imageRepository: Repository<Image>,
   ) {}
 
-  async create(file: Express.Multer.File): Promise<Image> {
-    const image = new Image();
-    const fileContent = file.buffer.toString('base64');
-    image.originalName = file.originalname;
-    image.base64Data = fileContent;
-    const newImage = this.imageRepository.create(image);
-    return this.imageRepository.save(newImage);
+  async create(imageDto: ImageDto) {
+    const newImage = this.imageRepository.create(imageDto);
+    const createImage = await this.imageRepository.save(newImage);
+    const { id, originalName } = createImage;
+    return { id, originalName };
   }
 
   async findByIdAndArchivoNotIsNull(id: number): Promise<Image> {
