@@ -23,6 +23,7 @@ import { ImageService } from './image.service';
 import { UploadImageDTO } from 'cartelera-unahur';
 import type { Response } from 'express';
 import { createReadStream } from 'fs';
+import { ImageDto } from './dto/image.dto';
 
 @ApiBearerAuth()
 @ApiTags('Image')
@@ -52,7 +53,10 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   create(@UploadedFile() file: Express.Multer.File) {
-    return this.imageService.create(file);
+    const newImage = new ImageDto();
+    newImage.base64Data = file.buffer.toString('base64');
+    newImage.originalName = file.originalname;
+    return this.imageService.create(newImage);
   }
 
   @ApiOperation({ summary: 'Descargar una imagen asociada al ID' })
