@@ -44,9 +44,7 @@ export class ScreenService {
 
   async update(updateScreenDtos: UpdateScreenDto[]) {
     try {
-      const ids = updateScreenDtos.map(
-        (updateScreenDto) => updateScreenDto['id'],
-      ); // TODO: Solucionar tipos de la libreria aca (['id'])
+      const ids = updateScreenDtos.map((updateScreenDto) => updateScreenDto.id);
       const screenFounds = await this.screenRepository.find({
         where: { id: In(ids) },
         relations: {
@@ -59,7 +57,7 @@ export class ScreenService {
       const screensToUpdate = screenFounds.map((screenFound) => {
         const updateScreenDtoToUpdate = updateScreenDtos.find(
           (updateScreenDto) => {
-            return updateScreenDto['id'] === screenFound.id; // TODO: Solucionar tipos de la libreria aca (['id'])
+            return updateScreenDto.id === screenFound.id;
           },
         );
         return this.screenRepository.create({
