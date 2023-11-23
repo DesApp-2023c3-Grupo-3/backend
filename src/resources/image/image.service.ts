@@ -4,6 +4,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
 import * as QRCode from 'qrcode';
+import * as sharp from 'sharp';
 
 @Injectable()
 export class ImageService {
@@ -14,9 +15,13 @@ export class ImageService {
   ) {}
 
   async create(file: Express.Multer.File) {
+    const compressedBuffer = await sharp(file.buffer)
+      .resize({ width: 1000, withoutEnlargement: true })
+      .jpeg({ quality: 70 })
+      .toBuffer();
     const newImage = this.imageRepository.create({
       originalName: file.originalname,
-      base64Data: file.buffer.toString('base64'),
+      base64Data: compressedBuffer.toString('base64'),
     });
     const createImage = await this.imageRepository.save(newImage);
     const { id, originalName } = createImage;
