@@ -4,8 +4,6 @@ import { IsNull, Not, Repository } from 'typeorm';
 import { Image } from 'src/entities/image.entity';
 import * as xlsx from 'xlsx';
 import * as QRCode from 'qrcode';
-import { ImageDto } from './dto/image.dto';
-import { promises } from 'dns';
 
 @Injectable()
 export class ImageService {
