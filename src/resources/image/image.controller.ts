@@ -174,7 +174,7 @@ export class ImageController {
       );
     }
   }
-
+  @Public()
   @ApiOperation({ summary: 'Muestra la imagen del plano' })
   @Get('/plane')
   async getImagePlane(@Res() response: Response) {
