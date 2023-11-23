@@ -39,10 +39,10 @@ export class ScreenController {
     return this.screenService.findOne(+id);
   }
 
-  @ApiResponse({ type: UpdateScreenDto })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateScreenDto: UpdateScreenDto) {
-    return this.screenService.update(+id, updateScreenDto);
+  @ApiResponse({ type: Array<UpdateScreenDto> })
+  @Patch('/multiple')
+  update(@Body() updateScreenDtos: UpdateScreenDto[]) {
+    return this.screenService.update(updateScreenDtos);
   }
 
   @Delete(':id')
