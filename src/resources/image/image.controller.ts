@@ -53,10 +53,7 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   create(@UploadedFile() file: Express.Multer.File) {
-    const newImage = new ImageDto();
-    newImage.base64Data = file.buffer.toString('base64');
-    newImage.originalName = file.originalname;
-    return this.imageService.create(newImage);
+    return this.imageService.create(file);
   }
 
   @ApiOperation({ summary: 'Descargar una imagen asociada al ID' })

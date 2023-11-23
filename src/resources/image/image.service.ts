@@ -15,8 +15,11 @@ export class ImageService {
     public readonly imageRepository: Repository<Image>,
   ) {}
 
-  async create(imageDto: ImageDto) {
-    const newImage = this.imageRepository.create(imageDto);
+  async create(file: Express.Multer.File) {
+    const newImage = this.imageRepository.create({
+      originalName: file.originalname,
+      base64Data: file.buffer.toString('base64'),
+    });
     const createImage = await this.imageRepository.save(newImage);
     const { id, originalName } = createImage;
     return { id, originalName };
