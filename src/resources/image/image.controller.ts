@@ -23,7 +23,7 @@ import { ImageService } from './image.service';
 import { UploadImageDTO } from 'cartelera-unahur';
 import type { Response } from 'express';
 import { createReadStream } from 'fs';
-import { ImageDto } from './dto/image.dto';
+import { Public } from 'src/common/guards/SetMetadata';
 
 @ApiBearerAuth()
 @ApiTags('Image')
@@ -77,6 +77,7 @@ export class ImageController {
     }
   }
 
+  @Public()
   @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
@@ -158,6 +159,7 @@ export class ImageController {
     }
   }
 
+  @Public()
   @ApiOperation({ summary: 'Crear el qr del plano' })
   @Get('qr/plane/view')
   async qrPlane(@Res() res: Response) {

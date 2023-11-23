@@ -42,25 +42,36 @@ export class AuthService {
         expiresIn: '1h',
       },
     );
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET || '12',
-      expiresIn: '24h',
-    });
+    const refreshToken = this.jwtService.sign(
+      { payload },
+      {
+        secret: process.env.JWT_REFRESH_SECRET || '12',
+        expiresIn: '24h',
+      },
+    );
     return { accessToken, refreshToken };
   }
 
   refreshAccessToken(refreshToken: string) {
     if (this.validateRefreshToken(refreshToken)) {
       const payload = this.jwtService.decode(refreshToken);
+      const originPayload = payload['payload'];
       if (payload) {
         const accessToken = this.jwtService.sign(
-          { payload },
+          { payload: originPayload },
           {
             secret: process.env.JWT_ACCESS_SECRET || 'a1b2c3d4',
             expiresIn: '1h',
           },
         );
-        return accessToken;
+        const refreshToken = this.jwtService.sign(
+          { payload: originPayload },
+          {
+            secret: process.env.JWT_REFRESH_SECRET || '12',
+            expiresIn: '24h',
+          },
+        );
+        return { accessToken, refreshToken };
       }
     }
     throw new HttpException('Invalid refresh token', 400);

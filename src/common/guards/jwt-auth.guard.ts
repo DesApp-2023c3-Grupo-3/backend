@@ -17,7 +17,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
     if (isPublic) {
       return true;
     }
-    //return super.canActivate(context);
-    return true; // TODO: Para activar token eliminar esta linea, descomentar linea superior
+    return super.canActivate(context);
   }
 }
