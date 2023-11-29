@@ -33,3 +33,13 @@ export const rangeHours = [
     endHour: new Date('2023-10-06 23:59:00.000 -0300'),
   },
 ];
+
+export function getTurnoByHour(hour) {
+  const hora = new Date(hour);
+
+  for (const turno of rangeHours) {
+    if (hora.getTime() === turno.startHour.getTime()) {
+      return turno.turno;
+    }
+  }
+}

@@ -15,7 +15,7 @@ import { SectorService } from '../sector/sector.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { SubjectService } from '../subject/subject.service';
 import { ClassroomService } from '../classroom/classroom.service';
-import { rangeHours, rangeDate } from './stubs/rangeDate.Stub';
+import { rangeHours, rangeDate, getTurnoByHour } from './stubs/rangeDate.Stub';
 import * as DateUtils from 'src/utils/dateUtils';
 
 @Injectable()
@@ -71,6 +71,19 @@ export class CourseService {
         subject: true,
       },
     });
+  }
+
+  async findAllBySector(id: number) {
+    const data = await this.courseRepository.find({
+      where: { sector: { id } },
+      relations: {
+        classroom: true,
+        schedule: true,
+        sector: true,
+        subject: true,
+      },
+    });
+    return data;
   }
 
   public async findOne(id: number) {
@@ -130,8 +143,27 @@ export class CourseService {
     });
   }
 
-  async createCommissionTemplate() {
+  async createCommissionTemplate(id: number) {
+    const courses = await this.findAllBySector(id);
+    const jsonInfo = courses.map((course) => {
+      return {
+        Nombre: course.name,
+        'Nombre materia': course.subject.name,
+        Aula: course.classroom.name,
+        Turno: getTurnoByHour(course.schedule.startHour),
+        Dia: course.schedule.dayCode,
+      };
+    });
     const data = [['Nombre', 'Nombre materia', 'Aula', 'Turno', 'Dia']];
+    jsonInfo.forEach((course) => {
+      data.push([
+        course.Nombre,
+        course['Nombre materia'],
+        course.Aula,
+        course.Turno,
+        course.Dia,
+      ]);
+    });
     const worksheet = xlsx.utils.aoa_to_sheet(data);
     worksheet['!cols'] = [
       { wch: 15 },
