@@ -25,6 +25,9 @@ export class ScreenService {
       where: {
         deletedAt: null,
       },
+      relations: {
+        sector: true,
+      },
     });
   }
 
