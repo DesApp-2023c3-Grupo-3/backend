@@ -75,7 +75,7 @@ export class CourseService {
 
   async findAllBySector(id: number) {
     const data = await this.courseRepository.find({
-      where: { sector: { id } },
+      where: { sector: { id }, deletedAt: IsNull() },
       relations: {
         classroom: true,
         schedule: true,
@@ -189,10 +189,12 @@ export class CourseService {
     sectorId: number,
   ) {
     try {
+      const course = await this.findAllBySector(sectorId);
       const newStartDate = new Date(startDate);
       const newEndDate = new Date(endDate);
       const jsonCommision = this.serviceImage.createJson(file);
       const sector = await this.sectorService.findOne(sectorId);
+      course.map((course) => this.remove(course.id));
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );
