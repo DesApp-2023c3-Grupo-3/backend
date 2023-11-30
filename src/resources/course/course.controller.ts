@@ -44,12 +44,15 @@ export class CourseController {
     return this.courseService.create(createCourseDto);
   }
 
-  @Get('/download-template')
+  @Get('/download-template/:sectorId')
   async downloadTemplete(
+    @Param('sectorId') sectorId: number,
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     try {
-      const excelBuffer = await this.courseService.createCommissionTemplate();
+      const excelBuffer = await this.courseService.createCommissionTemplate(
+        sectorId,
+      );
       const excelBufferStream = new StreamableFile(excelBuffer);
 
       res.setHeader(
