@@ -36,7 +36,10 @@ export class SocketConnectionModule {
 
   private async initializeSocketConnection() {
     const PORT = this.serverConfiguration.socket.port;
-    this.socketServer = new WebSocketServer({ port: PORT, path: '/messaging' });
+    this.socketServer = new WebSocket.Server({
+      port: PORT,
+      path: '/messaging',
+    });
     this.socketServer.on('connection', this.makeConnection.bind(this));
     console.info(`Socket server connected on port ${PORT}...`);
   }
