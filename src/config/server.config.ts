@@ -13,7 +13,7 @@ export interface ServerConfig {
 export default registerAs(
   'server',
   (): ServerConfig => ({
-    port: parseInt(process.env.PORT, 10) || 4000,
+    port: parseInt(process.env.PORTT, 10) || 4000,
     environment: (process.env.NODE_ENV as Env) ?? 'development',
     socket: {
       port: Number(process.env.SOCKET_PORT) || 1234,
