@@ -87,7 +87,7 @@ export class ImageService {
 
   public async qrPlane(): Promise<string> {
     const HOST = process.env.HOST || 'localhost';
-    const PORT = process.env.PORTT || '3001';
+    const PORT = process.env.PORT || '3001';
     if (!this.generatedPlaneQr) {
       this.generatedPlaneQr = await this.createQr(
         `${HOST}:${PORT}/image/plane`,
