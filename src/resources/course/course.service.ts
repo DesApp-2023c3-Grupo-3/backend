@@ -111,6 +111,8 @@ export class CourseService {
   }
 
   public async remove(id: number) {
+    const course = await this.findOne(id);
+    this.scheduleService.remove(course[0].schedule.id);
     try {
       return this.courseRepository.update(
         { id },
@@ -189,12 +191,10 @@ export class CourseService {
     sectorId: number,
   ) {
     try {
-      const course = await this.findAllBySector(sectorId);
       const newStartDate = new Date(startDate);
       const newEndDate = new Date(endDate);
       const jsonCommision = this.serviceImage.createJson(file);
       const sector = await this.sectorService.findOne(sectorId);
-      course.map((course) => this.remove(course.id));
       const subjects = await this.createSubjects(
         jsonCommision.map((subject) => subject['Nombre materia']),
       );

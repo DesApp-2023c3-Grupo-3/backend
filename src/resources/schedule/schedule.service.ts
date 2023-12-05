@@ -61,7 +61,7 @@ export class ScheduleService {
         { id },
         {
           id,
-          deletedAt: Date.now(),
+          deletedAt: new Date(),
         },
       );
     } catch (error) {
