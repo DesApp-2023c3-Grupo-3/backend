@@ -81,7 +81,7 @@ export class AdvertisingService {
   public async findAll() {
     const avisos = await this.advertisingRepository.find({
       where: {
-        deletedAt: null,
+        deletedAt: IsNull(),
       },
       relations: {
         user: {
