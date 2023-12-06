@@ -19,6 +19,6 @@ export const getUtcDate = (date: string) => {
 };
 
 export const getDateTimeString = (date: Date): string => {
-  const [hours, minutes, seconds] = date.toISOString().split('T')[1].split(':');
+  const [hours, minutes] = date.toISOString().split('T')[1].split(':');
   return `${hours}:${minutes}:${'00'}`;
 };

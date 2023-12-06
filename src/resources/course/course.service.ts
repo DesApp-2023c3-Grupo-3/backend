@@ -1,21 +1,16 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import {
-  CreateCourseDto,
-  ScheduleDto,
-  UpdateCourseDto,
-} from 'cartelera-unahur';
+import { CreateCourseDto, UpdateCourseDto } from 'cartelera-unahur';
 import { SocketService } from 'src/plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { Course } from 'src/entities/course.entity';
-import { coursesStub } from './stubs/courses.stub';
 import * as xlsx from 'xlsx';
 import { ImageService } from '../image/image.service';
 import { SectorService } from '../sector/sector.service';
 import { ScheduleService } from '../schedule/schedule.service';
 import { SubjectService } from '../subject/subject.service';
 import { ClassroomService } from '../classroom/classroom.service';
-import { rangeHours, rangeDate, getTurnoByHour } from './stubs/rangeDate.Stub';
+import { rangeHours, getTurnoByHour } from './stubs/rangeDate.Stub';
 import * as DateUtils from 'src/utils/dateUtils';
 
 @Injectable()
