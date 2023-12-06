@@ -53,17 +53,14 @@ export class SocketConnectionModule {
   }
 
   private async makeConnection(ws: WebSocket) {
-    console.log('hola');
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
       try {
         let screenFound = await this.getScreen(data.screenId);
-        console.log({ screenFound });
         if (!screenFound) {
           screenFound = await this.createScreenWithDefaultConfig(data.screenId);
         }
         const sectorFound = await this.getSector(screenFound.sector.id);
-        console.log({ sectorFound });
         if (!sectorFound) {
           ws.send(
             JSON.stringify({
@@ -91,7 +88,6 @@ export class SocketConnectionModule {
             data: screenFound,
             ws,
           });
-          console.log('estoy aca');
           sectorSubject.attach(screenObserver);
           screenObserver.update({
             id: -1,

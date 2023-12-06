@@ -10,7 +10,6 @@ export class SocketService {
   ) {}
 
   private getSectors(topic: string) {
-    console.log(this.socketConnectionModule.sectors);
     return (
       this.socketConnectionModule.sectors.filter((sectorSubject) => {
         return sectorSubject.data.topic === topic;
@@ -35,9 +34,7 @@ export class SocketService {
     data: MessageDto,
   ): Promise<void> {
     try {
-      console.log('estoy en el send message');
       const sectorsFound = this.getSectors(topic);
-      console.log(sectorsFound);
       sectorsFound.map((sector) => {
         sector.notifySubscription(subscription, data);
       });
@@ -49,7 +46,6 @@ export class SocketService {
   unsubscribe(topic: string, id: number) {
     const sectorsFound = this.getSectors(topic);
     sectorsFound.map((sector) => {
-      console.log('estoy dentro de unsubscribe', sector, id);
       sector.detach(id);
     });
   }
