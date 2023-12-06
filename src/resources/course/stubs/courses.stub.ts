@@ -1,4 +1,4 @@
-import { CourseDto, ResponseCourseDto } from 'cartelera-unahur';
+import { ResponseCourseDto } from 'cartelera-unahur';
 
 export const coursesStub: ResponseCourseDto[] = [
   {

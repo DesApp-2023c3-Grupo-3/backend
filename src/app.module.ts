@@ -5,8 +5,6 @@ import serverConfig from './config/server.config';
 import { DatabaseModule } from './database/database.module';
 import { CommonModule } from './common/common.module';
 import { SocketModule } from './plugins/socket/socket.module';
-import { SocketConnectionModule } from './plugins/socket/socketConnection.module';
-
 import { UserModule } from './resources/user/user.module';
 import { AdvertisingModule } from './resources/advertising/advertising.module';
 import { CourseModule } from './resources/course/course.module';
@@ -20,8 +18,6 @@ import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
 import { AuthModule } from './resources/auth/auth.module';
-// import { ScheduleModule } from './resources/schedule/schedule.module';
-// import { AdvertisingScheduleModule } from './resources/advertising-schedule/advertising-schedule.module';
 @Module({
   imports: [
     ConfigModule.forRoot({

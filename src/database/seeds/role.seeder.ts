@@ -7,7 +7,16 @@ export default class ContactoSeeder implements Seeder {
     const repository = dataSource.getRepository(Role);
     await repository.insert([
       {
-        name: 'Admin',
+        id: 1,
+        name: 'Administrador',
+      },
+      {
+        id: 2,
+        name: 'Comunicaciones',
+      },
+      {
+        id: 3,
+        name: 'Gestion Estudiantil',
       },
     ]);
   }

@@ -1,4 +1,4 @@
-import { Global, Inject, Module } from '@nestjs/common';
+import { Inject, Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 
 import { WebSocketServer, WebSocket } from 'ws';
