@@ -42,4 +42,11 @@ export class SocketService {
       console.error('SEND_SUBSCRIPTION_MESSAGE ERROR: ', error);
     }
   }
+
+  unsubscribe(topic: string, id: number) {
+    const sectorsFound = this.getSectors(topic);
+    sectorsFound.map((sector) => {
+      sector.detach(id);
+    });
+  }
 }

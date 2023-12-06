@@ -37,8 +37,19 @@ export class SocketConnectionModule {
   private async initializeSocketConnection() {
     const PORT = this.serverConfiguration.socket.port;
     this.socketServer = new WebSocketServer({ port: PORT, path: '/messaging' });
+    this.initializeSectors();
     this.socketServer.on('connection', this.makeConnection.bind(this));
     console.info(`Socket server connected on port ${PORT}...`);
+  }
+
+  private async initializeSectors() {
+    const sectorsFound = await this.sectorRepository.find();
+    sectorsFound.map((sectorFound) => {
+      const sectorSubject = new SectorSubject({
+        data: sectorFound,
+      });
+      this.sectors.push(sectorSubject);
+    });
   }
 
   private async makeConnection(ws: WebSocket) {
