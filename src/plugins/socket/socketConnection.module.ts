@@ -37,19 +37,33 @@ export class SocketConnectionModule {
   private async initializeSocketConnection() {
     const PORT = this.serverConfiguration.socket.port;
     this.socketServer = new WebSocketServer({ port: PORT, path: '/messaging' });
+    this.initializeSectors();
     this.socketServer.on('connection', this.makeConnection.bind(this));
     console.info(`Socket server connected on port ${PORT}...`);
   }
 
+  private async initializeSectors() {
+    const sectorsFound = await this.sectorRepository.find();
+    sectorsFound.map((sectorFound) => {
+      const sectorSubject = new SectorSubject({
+        data: sectorFound,
+      });
+      this.sectors.push(sectorSubject);
+    });
+  }
+
   private async makeConnection(ws: WebSocket) {
+    console.log('hola');
     ws.on('message', async (message) => {
       const data = JSON.parse(String(message));
       try {
         let screenFound = await this.getScreen(data.screenId);
+        console.log({ screenFound });
         if (!screenFound) {
           screenFound = await this.createScreenWithDefaultConfig(data.screenId);
         }
         const sectorFound = await this.getSector(screenFound.sector.id);
+        console.log({ sectorFound });
         if (!sectorFound) {
           ws.send(
             JSON.stringify({
@@ -77,6 +91,7 @@ export class SocketConnectionModule {
             data: screenFound,
             ws,
           });
+          console.log('estoy aca');
           sectorSubject.attach(screenObserver);
           screenObserver.update({
             id: -1,

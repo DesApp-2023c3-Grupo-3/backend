@@ -71,9 +71,12 @@ export class ScreenService {
       const screensUpdated = await this.screenRepository.save(screensToUpdate);
       if (screensUpdated.length) {
         screensUpdated.map((screenUpdated) => {
+          const oldScreenFound = screenFounds.find(
+            (screenFound) => screenFound.id === screenUpdated.id,
+          );
           this.socketService.sendSubscriptionMessage(
-            screenUpdated.sector.topic,
-            screenUpdated.subscription,
+            oldScreenFound.sector.topic,
+            oldScreenFound.subscription,
             {
               id: -1,
               action: 'UPDATE_SCREEN_CONFIGURATION',
@@ -83,6 +86,11 @@ export class ScreenService {
               },
             },
           );
+          if (oldScreenFound.sector.id !== screenUpdated.sector.id)
+            this.socketService.unsubscribe(
+              oldScreenFound.sector.topic,
+              oldScreenFound.id,
+            );
         });
       }
       return {
