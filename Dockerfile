@@ -23,4 +23,4 @@ RUN npm prune --omit dev
 COPY --from=builder /usr/src/app/dist ./dist
 
 EXPOSE 4000
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "npm run db:migrate:prod && node dist/main"]
