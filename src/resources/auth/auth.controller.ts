@@ -10,7 +10,6 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
   @Post('/register')
   registerUser(@Body() registerUser: CreateUserDto) {
     return this.authService.registerUser(registerUser);
