@@ -7,19 +7,19 @@ export default class ContactoSeeder implements Seeder {
     const repository = dataSource.getRepository(Sector);
     await repository.insert([
       {
-        name: 'Origone A',
-        topic: 'oa',
-      },
-      {
         name: 'Malvinas Argentinas',
         topic: 'ma',
       },
       {
-        name: 'Sector E',
-        topic: 'se',
+        name: 'Gratuidad Universitaria',
+        topic: 'gu',
       },
       {
-        name: 'Sector 6',
+        name: 'Trabajo Argentino',
+        topic: 'ta',
+      },
+      {
+        name: 'Justicia Social',
         topic: 's6',
       },
       {
