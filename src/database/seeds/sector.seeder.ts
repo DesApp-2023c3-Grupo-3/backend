@@ -22,6 +22,10 @@ export default class ContactoSeeder implements Seeder {
         name: 'Sector 6',
         topic: 's6',
       },
+      {
+        name: 'La Patria',
+        topic: 'lp',
+      },
     ]);
   }
 }
