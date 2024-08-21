@@ -95,15 +95,21 @@ export class ScheduleService {
     const currentDate = DateUtils.getNewLocalDate();
     const startDate = DateUtils.getLocalDate(schedule.startDate);
     const endDate = DateUtils.getLocalDate(schedule.endDate);
-    const inRange = startDate <= currentDate && endDate >= currentDate;
+    const hourEnd = DateUtils.getLocalDate(schedule.endHour);
+    const newDate = new Date(endDate);
+    newDate.setHours(hourEnd.getHours(), hourEnd.getMinutes());
+    const current = new Date(newDate);
+    current.setDate(endDate.getDate() + 1);
+    const inRange = startDate <= currentDate && current >= currentDate;
     const isToday = schedule.dayCode === this.getDayCode(currentDate.getDay());
     const isActive = this.isInHourRange(
       currentDate,
       DateUtils.getLocalDate(schedule.startHour),
       DateUtils.getLocalDate(schedule.endHour),
     );
+
     const status =
-      endDate < currentDate
+      current < currentDate
         ? 'deprecated'
         : inRange
         ? isToday
@@ -112,6 +118,7 @@ export class ScheduleService {
             : 'today'
           : 'pending'
         : 'pending';
+
     return status;
   }
 
