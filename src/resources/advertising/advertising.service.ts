@@ -78,6 +78,7 @@ export class AdvertisingService {
     });
     return advertisingCreated;
   }
+
   public async findPageAndLimit(page: number, limit: number) {
     const newDate = getNewLocalDate();
     const hour = newDate;
@@ -93,7 +94,7 @@ export class AdvertisingService {
             WHEN s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
             WHEN s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 2
             ELSE 3 
-        END AS "statusId"`,
+         END AS "statusId"`,
         's2."startDate"',
         's2."endDate"',
       ])
@@ -106,21 +107,21 @@ export class AdvertisingService {
         'a.id',
         'a.name',
         `JSON_AGG(
-            jsonb_build_object(
-              'startDate', s."startDate",
-              'endDate', s."endDate",
-              'startHour', s."startHour",
-              'endHour', s."endHour",
-              'dayCode', s."dayCode"
-            ) 
+          jsonb_build_object(
+            'startDate', s."startDate",
+            'endDate', s."endDate",
+            'startHour', s."startHour",
+            'endHour', s."endHour",
+            'dayCode', s."dayCode"
+          )   
         ) AS "schedules"`,
         `JSON_AGG(
-            nb_build_object(
-              'id', sec."id",
-              'name', sec."name",
-              'topic', sec."topic"
-            )
-        ) AS "sectors"`,
+          jsonb_build_object(
+            'id', sec."id",
+            'name', sec."name",
+            'topic', sec."topic"
+          )
+       ) AS "sectors"`,
         'MIN(u.name) AS "user"',
         'MIN(r.name) AS "role"',
         'MIN(sq."statusId") AS "statusId"',
