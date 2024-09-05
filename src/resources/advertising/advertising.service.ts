@@ -142,7 +142,7 @@ export class AdvertisingService {
       .groupBy('a.id')
       .orderBy('MIN("statusId")', 'ASC')
       .setParameters({ hour, day })
-      .skip(offset)
+      .offset(offset)
       .limit(limit);
 
     const totalRecords = await this.advertisingRepository
