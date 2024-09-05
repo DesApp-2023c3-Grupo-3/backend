@@ -104,26 +104,25 @@ export class AdvertisingService {
     const query = this.advertisingRepository
       .createQueryBuilder('a')
       .select([
-        'a.id',
-        'a.name',
-        `JSON_AGG(
+        'a.*',
+        `JSON_AGG(DISTINCT(
           jsonb_build_object(
-            'startDate', s."startDate",
-            'endDate', s."endDate",
-            'startHour', s."startHour",
-            'endHour', s."endHour",
-            'dayCode', s."dayCode"
-          )   
-        ) AS "schedules"`,
-        `JSON_AGG(
+            'schedule', jsonb_build_object(
+                'startDate', s."startDate",
+                'endDate', s."endDate",
+                'startHour', s."startHour",
+                'endHour', s."endHour",
+                'dayCode', s."dayCode"
+              )
+          ) 
+      )  
+        ) AS "advertisingSchedules"`,
+        `JSON_AGG(DISTINCT(
           jsonb_build_object(
-            'id', sec."id",
-            'name', sec."name",
-            'topic', sec."topic"
+            'sector', jsonb_build_object('id',sec.id,'name',sec.name,'topic',sec.topic)
           )
-       ) AS "sectors"`,
-        'MIN(u.name) AS "user"',
-        'MIN(r.name) AS "role"',
+      )) AS "advertisingSectors"`,
+        `jsonb_build_object('name',MIN(u.name),'role', jsonb_build_object('name', MIN(r.name))) AS "user"`,
         'MIN(sq."statusId") AS "statusId"',
         `CASE 
             WHEN MIN(sq."statusId") = 1 THEN 'active'
@@ -131,6 +130,7 @@ export class AdvertisingService {
             WHEN MIN(sq."statusId") = 3 THEN 'pending'
             ELSE 'deprecated' 
          END AS status`,
+        `jsonb_build_object('id', MIN(a.advertisingTypeId)) AS "advertisingType"`,
       ])
       .innerJoin(`(${subQuery.getQuery()})`, 'sq', 'sq."advertisingId" = a.id')
       .innerJoin('AdvertisingSchedule', 'ads', 'a.id = ads."advertisingId"')
@@ -155,10 +155,10 @@ export class AdvertisingService {
 
     return {
       data: await query.getRawMany(),
-      currentPage: page,
-      pageSize: limit,
+      page: page,
+      total: total,
+      limit: limit,
       totalPages,
-      totalRecords: total,
     };
   }
 
