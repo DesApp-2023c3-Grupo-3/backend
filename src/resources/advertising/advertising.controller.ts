@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
 import {
   AdvertisingDto,
   CreateAdvertisingDto,
@@ -46,6 +46,28 @@ export class AdvertisingController {
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   findAllRole(@Param('roleId') roleId: number) {
     return this.advertisingService.findAllRole(roleId);
+  }
+
+  @Public()
+  @Get('findPageAndLimit/:page/:limit')
+  @ApiParam({
+    name: 'page',
+    required: true,
+    type: Number,
+    description: 'Número de la página',
+  })
+  @ApiParam({
+    name: 'limit',
+    required: true,
+    type: Number,
+    description: 'Número de registros por página',
+  })
+  @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
+  async findPageAndLimit(
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+  ) {
+    return this.advertisingService.findPageAndLimit(page, limit);
   }
 
   @Get(':id')
