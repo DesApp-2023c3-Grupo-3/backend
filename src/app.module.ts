@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import databaseConfig from './config/database.config';
 import serverConfig from './config/server.config';
@@ -21,6 +21,8 @@ import { AuthGuard, KeycloakConnectModule } from 'nest-keycloak-connect';
 import { KeycloakConfigModule } from './common/middlewares/keycloak.module';
 import { KeycloakConfigService } from './common/middlewares/keycloak-config.service';
 import { APP_GUARD } from '@nestjs/core';
+import { TokenMiddlewareValidate } from './common/middlewares/CreateUserToken.module';
+import { CreateUserToken } from './common/middlewares/createUserToken.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -31,6 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
       useExisting: KeycloakConfigService,
       imports: [KeycloakConfigModule],
     }),
+    TokenMiddlewareValidate,
     DatabaseModule,
     SocketModule,
     AuthModule,
@@ -56,4 +59,8 @@ import { APP_GUARD } from '@nestjs/core';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CreateUserToken).forRoutes('*'); // Aplica el middleware a todas las rutas
+  }
+}
