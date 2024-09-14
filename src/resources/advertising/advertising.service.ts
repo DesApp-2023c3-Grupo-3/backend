@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
 import { SocketService } from '../../plugins/socket/socket.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Advertising } from '../../entities/advertising.entity';
-import { IsNull, Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 import { CreateAdvertisingDto, UpdateAdvertisingDto } from 'cartelera-unahur';
 import { ScheduleService } from '../schedule/schedule.service';
 import { AdvertisingScheduleService } from '../advertising-schedule/advertising-schedule.service';
@@ -79,7 +79,11 @@ export class AdvertisingService {
     return advertisingCreated;
   }
 
-  public async findPageAndLimit(page: number, limit: number) {
+  public async findPageAndLimit(
+    page: number,
+    limit: number,
+    searchQuery: string,
+  ) {
     const newDate = getNewLocalDate();
     const hour = newDate;
     const day = this.scheduleService.getDayCode(newDate.getDay());
@@ -139,11 +143,24 @@ export class AdvertisingService {
       .innerJoin('Sector', 'sec', 'sec.id = asec."sectorId"')
       .leftJoin('User', 'u', 'u.id = a."userId"')
       .leftJoin('Role', 'r', 'r.id = u."roleId"')
+      .where('a.deletedAt IS NULL')
       .groupBy('a.id')
       .orderBy('MIN("statusId")', 'ASC')
       .setParameters({ hour, day })
       .offset(offset)
       .limit(limit);
+
+    if (searchQuery.length > 1) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(a.name) LIKE LOWER(:searchTerm)', {
+            searchTerm: `%${searchQuery}%`,
+          }).orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
+            searchTerm: `%${searchQuery}%`,
+          });
+        }),
+      );
+    }
 
     const totalRecords = await this.advertisingRepository
       .createQueryBuilder('a')

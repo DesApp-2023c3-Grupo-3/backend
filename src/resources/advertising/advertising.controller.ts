@@ -49,7 +49,7 @@ export class AdvertisingController {
   }
 
   @Public()
-  @Get('findPageAndLimit/:page/:limit')
+  @Get('findPageAndLimit/:page/:limit/:find')
   @ApiParam({
     name: 'page',
     required: true,
@@ -62,12 +62,19 @@ export class AdvertisingController {
     type: Number,
     description: 'Número de registros por página',
   })
+  @ApiParam({
+    name: 'find',
+    required: false,
+    type: String,
+    description: 'Busca los avisos por nombre',
+  })
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   async findPageAndLimit(
     @Param('page') page: number,
     @Param('limit') limit: number,
+    @Param('find') find: string,
   ) {
-    return this.advertisingService.findPageAndLimit(page, limit);
+    return this.advertisingService.findPageAndLimit(page, limit, find);
   }
 
   @Get(':id')
