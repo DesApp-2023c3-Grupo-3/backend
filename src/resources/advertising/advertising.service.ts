@@ -79,7 +79,7 @@ export class AdvertisingService {
     return advertisingCreated;
   }
 
-  public async findPageAndLimit(page: number, limit: number, searchQuery = '') {
+  public async findPageAndLimit(page: number, limit: number, search = '') {
     const newDate = getNewLocalDate();
     const hour = newDate;
     const day = this.scheduleService.getDayCode(newDate.getDay());
@@ -146,13 +146,13 @@ export class AdvertisingService {
       .offset(offset)
       .limit(limit);
 
-    if (searchQuery.length > 1) {
+    if (search.length > 1) {
       query.andWhere(
         new Brackets((qb) => {
           qb.where('LOWER(a.name) LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${searchQuery}%`,
+            searchTerm: `%${search}%`,
           }).orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${searchQuery}%`,
+            searchTerm: `%${search}%`,
           });
         }),
       );

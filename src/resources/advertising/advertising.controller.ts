@@ -70,7 +70,7 @@ export class AdvertisingController {
     description: 'Número de registros por página',
   })
   @ApiQuery({
-    name: 'find',
+    name: 'search',
     required: false,
     type: String,
     description: 'Busca los avisos por nombre',
@@ -79,9 +79,9 @@ export class AdvertisingController {
   async findPageAndLimit(
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Query('find') find: string,
+    @Query('search') search: string,
   ) {
-    return this.advertisingService.findPageAndLimit(page, limit, find);
+    return this.advertisingService.findPageAndLimit(page, limit, search);
   }
 
   @Get(':id')
