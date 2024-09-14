@@ -15,7 +15,7 @@ import {
   ResponseAdvertisingDto,
   UpdateAdvertisingDto,
 } from 'cartelera-unahur';
-import { Public } from 'src/common/guards/SetMetadata';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('Advertising')
@@ -35,7 +35,7 @@ export class AdvertisingController {
     return this.advertisingService.findAll();
   }
 
-  @Public()
+  @Unprotected()
   @Get('/screen/:screenId')
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   findTodayScreenAdvertising(@Param('screenId') screenId: number) {
@@ -48,7 +48,6 @@ export class AdvertisingController {
     return this.advertisingService.findAllRole(roleId);
   }
 
-  @Public()
   @Get('findPageAndLimit/:page/:limit')
   @ApiParam({
     name: 'page',

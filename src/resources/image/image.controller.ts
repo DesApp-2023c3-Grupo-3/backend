@@ -23,7 +23,7 @@ import { ImageService } from './image.service';
 import { UploadImageDTO } from 'cartelera-unahur';
 import type { Response } from 'express';
 import { createReadStream } from 'fs';
-import { Public } from 'src/common/guards/SetMetadata';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('Image')
@@ -77,7 +77,7 @@ export class ImageController {
     }
   }
 
-  @Public()
+  @Unprotected()
   @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
@@ -159,7 +159,7 @@ export class ImageController {
     }
   }
 
-  @Public()
+  @Unprotected()
   @ApiOperation({ summary: 'Crear el qr del plano' })
   @Get('qr/plane/view')
   async qrPlane(@Res() res: Response) {
@@ -174,7 +174,7 @@ export class ImageController {
       );
     }
   }
-  @Public()
+  @Unprotected()
   @ApiOperation({ summary: 'Muestra la imagen del plano' })
   @Get('/plane')
   async getImagePlane(@Res() response: Response) {
