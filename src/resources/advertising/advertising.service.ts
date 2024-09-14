@@ -79,11 +79,7 @@ export class AdvertisingService {
     return advertisingCreated;
   }
 
-  public async findPageAndLimit(
-    page: number,
-    limit: number,
-    searchQuery: string,
-  ) {
+  public async findPageAndLimit(page: number, limit: number, searchQuery = '') {
     const newDate = getNewLocalDate();
     const hour = newDate;
     const day = this.scheduleService.getDayCode(newDate.getDay());

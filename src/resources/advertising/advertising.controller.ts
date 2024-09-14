@@ -6,9 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import { ApiBearerAuth, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import {
   AdvertisingDto,
   CreateAdvertisingDto,
@@ -49,20 +56,20 @@ export class AdvertisingController {
   }
 
   @Public()
-  @Get('findPageAndLimit/:page/:limit/:find')
-  @ApiParam({
+  @Get('all/')
+  @ApiQuery({
     name: 'page',
     required: true,
     type: Number,
     description: 'Número de la página',
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'limit',
     required: true,
     type: Number,
     description: 'Número de registros por página',
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'find',
     required: false,
     type: String,
@@ -70,9 +77,9 @@ export class AdvertisingController {
   })
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   async findPageAndLimit(
-    @Param('page') page: number,
-    @Param('limit') limit: number,
-    @Param('find') find: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('find') find: string,
   ) {
     return this.advertisingService.findPageAndLimit(page, limit, find);
   }
