@@ -146,23 +146,30 @@ export class AdvertisingService {
       .offset(offset)
       .limit(limit);
 
-    if (search.length > 1) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('LOWER(a.name) LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${search}%`,
-          }).orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${search}%`,
-          });
-        }),
-      );
-    }
-
-    const totalRecords = await this.advertisingRepository
+    const applySearchFilter = (qb) => {
+      if (search.length > 1) {
+        qb.andWhere(
+          new Brackets((qb2) => {
+            qb2
+              .where('LOWER(a.name) LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              });
+          }),
+        );
+      }
+    };
+    applySearchFilter(query);
+    const totalQuery = this.advertisingRepository
       .createQueryBuilder('a')
       .select('COUNT(a.id)', 'total')
-      .getRawOne();
+      .leftJoin('User', 'u', 'u.id = a."userId"')
+      .where('a.deletedAt IS NULL');
+    applySearchFilter(totalQuery);
 
+    const totalRecords = await totalQuery.getRawOne();
     const total = parseInt(totalRecords.total, 10);
     const totalPages = Math.ceil(total / limit);
 
