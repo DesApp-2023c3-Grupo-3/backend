@@ -9,7 +9,10 @@ import { AdvertisingScheduleService } from '../advertising-schedule/advertising-
 import { AdvertisingSectorService } from '../advertising-sector/advertising-sector.service';
 import { SectorService } from '../sector/sector.service';
 import { MessageDto } from 'src/plugins/socket/dto/Message.dto';
-import { getNewLocalDate } from 'src/utils/dateUtils';
+import {
+  getNewLocalDate,
+  getNewLocalDateCompareDate,
+} from 'src/utils/dateUtils';
 
 @Injectable()
 export class AdvertisingService {
@@ -80,9 +83,10 @@ export class AdvertisingService {
   }
 
   public async findPageAndLimit(page: number, limit: number, search = '') {
-    const newDate = getNewLocalDate();
-    const hour = newDate;
-    const day = this.scheduleService.getDayCode(newDate.getDay());
+    const hour = await getNewLocalDateCompareDate();
+    const day = this.scheduleService.getDayCode(
+      await getNewLocalDate().getDay(),
+    );
     const offset = (page - 1) * limit;
 
     const subQuery = this.advertisingRepository
@@ -90,13 +94,15 @@ export class AdvertisingService {
       .select([
         'a2.id AS "advertisingId"',
         `CASE 
-            WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
-            WHEN s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
-            WHEN s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 2
-            ELSE 3 
-         END AS "statusId"`,
+    WHEN s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1 
+    WHEN s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") AND (:hour < s2."startHour")THEN 2
+    WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
+    ELSE 3 
+    END AS "statusId"`,
         's2."startDate"',
         's2."endDate"',
+        's2."startHour"',
+        's2."endHour"',
       ])
       .innerJoin('AdvertisingSchedule', 'ads2', 'a2.id = ads2."advertisingId"')
       .innerJoin('Schedule', 's2', 's2.id = ads2."scheduleId"');
@@ -106,30 +112,30 @@ export class AdvertisingService {
       .select([
         'a.*',
         `JSON_AGG(DISTINCT(
-          jsonb_build_object(
-            'schedule', jsonb_build_object(
-                'startDate', s."startDate",
-                'endDate', s."endDate",
-                'startHour', s."startHour",
-                'endHour', s."endHour",
-                'dayCode', s."dayCode"
-              )
-          ) 
-      )  
-        ) AS "advertisingSchedules"`,
+    jsonb_build_object(
+    'schedule', jsonb_build_object(
+    'startDate', s."startDate",
+    'endDate', s."endDate",
+    'startHour', s."startHour",
+    'endHour', s."endHour",
+    'dayCode', s."dayCode"
+    )
+    ) 
+    ) 
+    ) AS "advertisingSchedules"`,
         `JSON_AGG(DISTINCT(
-          jsonb_build_object(
-            'sector', jsonb_build_object('id',sec.id,'name',sec.name,'topic',sec.topic)
-          )
-      )) AS "advertisingSectors"`,
+    jsonb_build_object(
+    'sector', jsonb_build_object('id',sec.id,'name',sec.name,'topic',sec.topic)
+    )
+    )) AS "advertisingSectors"`,
         `jsonb_build_object('name',MIN(u.name),'role', jsonb_build_object('name', MIN(r.name))) AS "user"`,
         'MIN(sq."statusId") AS "statusId"',
         `CASE 
-            WHEN MIN(sq."statusId") = 1 THEN 'active'
-            WHEN MIN(sq."statusId") = 2 THEN 'today'
-            WHEN MIN(sq."statusId") = 3 THEN 'pending'
-            ELSE 'deprecated' 
-         END AS status`,
+    WHEN MIN(sq."statusId") = 1 THEN 'active'
+    WHEN MIN(sq."statusId") = 2 THEN 'today'
+    WHEN MIN(sq."statusId") = 3 THEN 'pending'
+    ELSE 'deprecated' 
+    END AS status`,
         `jsonb_build_object('id', MIN(a.advertisingTypeId)) AS "advertisingType"`,
       ])
       .innerJoin(`(${subQuery.getQuery()})`, 'sq', 'sq."advertisingId" = a.id')
