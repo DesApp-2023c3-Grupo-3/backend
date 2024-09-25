@@ -49,7 +49,6 @@ export class AdvertisingController {
     return this.advertisingService.findAllRole(roleId);
   }
 
-  @Public()
   @Get('all/')
   @ApiQuery({
     name: 'page',
