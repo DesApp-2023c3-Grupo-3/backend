@@ -38,9 +38,9 @@ export class CreateUserToken implements NestMiddleware {
           name: payload['name'],
           password: '1111',
           role: { id: 2 },
+          idKeycloak: payload['sub'].toString(),
         });
       }
-      console.info('hola aca toy', user);
       next();
     } catch (error) {
       throw new UnauthorizedException('Error al decodificar el token');
