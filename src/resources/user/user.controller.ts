@@ -30,14 +30,12 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Public()
   @Get()
   @ApiResponse({ type: ResponseUserDto, isArray: true })
   findAll() {
     return this.userService.findAll();
   }
 
-  @Public()
   @Get('all/')
   @ApiQuery({
     name: 'page',
