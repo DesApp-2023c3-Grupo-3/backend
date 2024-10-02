@@ -30,7 +30,7 @@ import {
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/common/guards/SetMetadata';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('Course')
@@ -79,7 +79,7 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
-  @Public()
+  @Unprotected()
   @Get('/sector/:sectorId')
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findBySector(@Param('sectorId') sectorId: number) {
