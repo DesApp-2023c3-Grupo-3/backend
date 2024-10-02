@@ -17,6 +17,7 @@ export const coursesStub: ResponseCourseDto[] = [
         id: 2,
         name: 'Profesor',
       },
+      idKeycloak: '12',
     },
     sector: {
       id: 2,
