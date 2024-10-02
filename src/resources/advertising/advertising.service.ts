@@ -162,9 +162,6 @@ export class AdvertisingService {
               })
               .orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
                 searchTerm: `%${search}%`,
-              })
-              .orWhere('LOWER(sq."statusId") LIKE LOWER(:searchTerm)', {
-                searchTerm: `%${search}%`,
               });
           }),
         );
@@ -190,7 +187,6 @@ export class AdvertisingService {
       totalPages,
     };
   }
-
   public async findAll() {
     const avisos = await this.advertisingRepository.find({
       where: {
