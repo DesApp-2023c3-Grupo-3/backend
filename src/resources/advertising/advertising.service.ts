@@ -162,6 +162,9 @@ export class AdvertisingService {
               })
               .orWhere('LOWER(u.name) LIKE LOWER(:searchTerm)', {
                 searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(sq."statusId") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
               });
           }),
         );
