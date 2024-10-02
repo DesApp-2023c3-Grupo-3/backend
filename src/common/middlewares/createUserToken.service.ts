@@ -10,13 +10,13 @@ import { UserService } from 'src/resources/user/user.service';
 
 @Injectable()
 export class CreateUserToken implements NestMiddleware {
-  private userCreationInProgress: Set<string> = new Set();
   constructor(
     @Inject(UserService)
     private readonly userService: UserService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
+
     if (!authHeader) {
       throw new UnauthorizedException('Token no proporcionado');
     }
@@ -31,22 +31,17 @@ export class CreateUserToken implements NestMiddleware {
         throw new UnauthorizedException('Token inválido');
       }
       const payload = (req['tokenPayload'] = decoded.payload);
-      const dni = payload['Documento'];
-      if (this.userCreationInProgress.has(dni)) {
-        return next();
-      }
-      this.userCreationInProgress.add(dni);
-      const user = await this.userService.getUserByDni(dni);
+      const user = await this.userService.getUserByDni(payload['Documento']);
+      console.log('Usuario', user);
       if (!user) {
         await this.userService.create({
-          dni,
+          dni: payload['Documento'],
           name: payload['name'],
           password: '1111',
           role: { id: 2 },
           idKeycloak: payload['sub'].toString(),
         });
       }
-      this.userCreationInProgress.delete(dni);
       next();
     } catch (error) {
       throw new UnauthorizedException('Error al decodificar el token');
