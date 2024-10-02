@@ -76,14 +76,12 @@ export class CourseController {
     }
   }
 
-  @Public()
   @Get()
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findAll() {
     return this.courseService.findAll();
   }
 
-  @Public()
   @Get('all/')
   @ApiQuery({
     name: 'page',

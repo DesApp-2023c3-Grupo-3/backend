@@ -70,6 +70,27 @@ export class CourseService {
 
   public async findPageAndLimit(page: number, limit: number, search = '') {
     const offset = (page - 1) * limit;
+    const applySearchFilter = (qb) => {
+      if (search.length > 1) {
+        qb.andWhere(
+          new Brackets((qb2) => {
+            qb2
+              .where('LOWER(c."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(su."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(sec."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(cl."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              });
+          }),
+        );
+      }
+    };
     const query = this.courseRepository
       .createQueryBuilder('c')
       .select([
@@ -103,24 +124,8 @@ export class CourseService {
       .offset(offset)
       .limit(limit);
 
-    if (search.length > 1) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('LOWER(c."name") LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${search}%`,
-          })
-            .orWhere('LOWER(su."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            })
-            .orWhere('LOWER(sec."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            })
-            .orWhere('LOWER(cl."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            });
-        }),
-      );
-    }
+    applySearchFilter(query);
+
     const data = await query.getRawMany();
     const totalQuery = this.courseRepository
       .createQueryBuilder('c')
@@ -131,32 +136,16 @@ export class CourseService {
       .innerJoin('Classroom', 'cl', 'cl.id = c."classroomId"')
       .where('c."deletedAt" IS NULL');
 
-    if (search.length > 1) {
-      totalQuery.andWhere(
-        new Brackets((qb) => {
-          qb.where('LOWER(c."name") LIKE LOWER(:searchTerm)', {
-            searchTerm: `%${search}%`,
-          })
-            .orWhere('LOWER(su."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            })
-            .orWhere('LOWER(sec."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            })
-            .orWhere('LOWER(cl."name") LIKE LOWER(:searchTerm)', {
-              searchTerm: `%${search}%`,
-            });
-        }),
-      );
-    }
+    applySearchFilter(totalQuery);
+
     const totalResult = await totalQuery.getRawOne();
-    const totalItems = parseInt(totalResult.count, 10);
-    const totalPages = Math.ceil(totalItems / limit);
+    const total = parseInt(totalResult.count, 10);
+    const totalPages = Math.ceil(total / limit);
 
     return {
       data,
       page,
-      totalItems,
+      total,
       limit,
       totalPages,
     };
