@@ -11,6 +11,7 @@ import {
   HttpException,
   HttpStatus,
   StreamableFile,
+  Query,
 } from '@nestjs/common';
 import { CourseService } from './course.service';
 import {
@@ -18,6 +19,7 @@ import {
   CreateCourseDto,
   UpdateCourseDto,
   ResponseCourseDto,
+  ResponseAdvertisingDto,
 } from 'cartelera-unahur';
 import {
   ApiTags,
@@ -26,6 +28,7 @@ import {
   ApiConsumes,
   ApiOperation,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
@@ -73,10 +76,40 @@ export class CourseController {
     }
   }
 
+  @Public()
   @Get()
   @ApiResponse({ type: ResponseCourseDto, isArray: true })
   findAll() {
     return this.courseService.findAll();
+  }
+
+  @Public()
+  @Get('all/')
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    type: Number,
+    description: 'Número de la página',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: true,
+    type: Number,
+    description: 'Número de registros por página',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Busca los cursos por nombre',
+  })
+  @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
+  async findPageAndLimit(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('search') search: string,
+  ) {
+    return this.courseService.findPageAndLimit(page, limit, search);
   }
 
   @Public()
