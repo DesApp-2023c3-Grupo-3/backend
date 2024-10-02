@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
 import { User } from 'src/entities/user.entity';
-import { IsNull, Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 @Injectable()
 export class UserService {
@@ -28,6 +28,64 @@ export class UserService {
       relations: { role: true },
       order: { id: 'DESC' },
     });
+  }
+
+  public async findPageAndLimit(page: number, limit: number, search = '') {
+    const offset = (page - 1) * limit;
+    const applySearchFilter = (qb) => {
+      if (search.length > 1) {
+        qb.andWhere(
+          new Brackets((qb2) => {
+            qb2
+              .where('LOWER(u."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(u."dni") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              })
+              .orWhere('LOWER(rl."name") LIKE LOWER(:searchTerm)', {
+                searchTerm: `%${search}%`,
+              });
+          }),
+        );
+      }
+    };
+    const query = this.userRepository
+      .createQueryBuilder('u')
+      .select([
+        'u.*',
+        `jsonb_build_object(
+           'id', rl.id,
+           'name', rl."name"
+         ) AS "role"`,
+      ])
+      .innerJoin('Role', 'rl', 'rl.id = u."roleId"')
+      .where('u."deletedAt" IS NULL')
+      .offset(offset)
+      .limit(limit);
+
+    applySearchFilter(query);
+
+    const data = await query.getRawMany();
+    const totalQuery = this.userRepository
+      .createQueryBuilder('u')
+      .select('COUNT(*)', 'count')
+      .innerJoin('Role', 'rl', 'rl.id = u."roleId"')
+      .where('u."deletedAt" IS NULL');
+
+    applySearchFilter(totalQuery);
+
+    const totalResult = await totalQuery.getRawOne();
+    const total = parseInt(totalResult.count, 10);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      page,
+      total,
+      limit,
+      totalPages,
+    };
   }
 
   public async findOne(id: number) {
