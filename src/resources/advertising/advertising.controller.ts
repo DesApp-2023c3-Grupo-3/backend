@@ -9,13 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import {
-  ApiBearerAuth,
-  ApiResponse,
-  ApiTags,
-  ApiParam,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import {
   AdvertisingDto,
   CreateAdvertisingDto,
