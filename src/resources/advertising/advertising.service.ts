@@ -87,30 +87,40 @@ export class AdvertisingService {
     const day = this.scheduleService.getDayCode(getNewLocalDate().getDay());
     const offset = (page - 1) * limit;
 
-    const subQuery = this.advertisingRepository
+    const categorizeAdsSubquery = this.advertisingRepository
+      .createQueryBuilder('a3')
+      .select([
+        'a3.id AS "advertisingId"',
+        `CASE 
+		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
+		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 2
+		        WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
+		        ELSE 3
+		    END AS "statusId"`,
+      ])
+      .innerJoin('AdvertisingSchedule', 'ads2', 'a3.id = ads2."advertisingId"')
+      .innerJoin('Schedule', 's2', 's2.id = ads2."scheduleId"')
+      .where('a3."deletedAt" IS null')
+      .andWhere('s2."dayCode" = :day') // TODO: Revisar el bug con el pending en fechas anteriores
+      .orderBy('"statusId"');
+
+    const labelizeAdsSubquery = this.advertisingRepository
       .createQueryBuilder('a2')
       .select([
         'a2.id AS "advertisingId"',
-        `MIN(CASE 
-          WHEN s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
-          WHEN s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour")  THEN 2
-          WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
-          ELSE 3
-        END) AS "statusId"`,
-        `MIN(CASE 
-          WHEN s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 'active'
-          WHEN s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour")  THEN 'today'
-          WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 'deprecated'
-          ELSE 'pending'
+        'status_values."statusId" AS "statusId"',
+        `(CASE 
+	        WHEN status_values."statusId" = 1 THEN 'active'
+	        WHEN status_values."statusId" = 2 THEN 'today'
+	        WHEN status_values."statusId" = 4 THEN 'deprecated'
+	        ELSE 'pending'
 	      END) AS "status"`,
-        'MIN(s2."startDate")',
-        'MIN(s2."endDate")',
-        'MIN(s2."startHour")',
-        'MIN(s2."endHour")',
       ])
-      .innerJoin('AdvertisingSchedule', 'ads2', 'a2.id = ads2."advertisingId"')
-      .innerJoin('Schedule', 's2', 's2.id = ads2."scheduleId"')
-      .groupBy('a2.id');
+      .leftJoin(
+        `(${categorizeAdsSubquery.getQuery()})`,
+        'status_values',
+        'status_values."advertisingId" = a2."id"',
+      );
 
     const query = this.advertisingRepository
       .createQueryBuilder('a')
@@ -140,11 +150,15 @@ export class AdvertisingService {
           'name', MIN(u.name),
           'role', jsonb_build_object('name', MIN(r.name))
         ) AS "user"`,
-        'MIN(sq."statusId") AS "statusId"',
-        `MIN(sq."status") AS status`,
+        'MIN(status_label."statusId") AS "statusId"',
+        `MIN(status_label."status") AS status`,
         `jsonb_build_object('id', MIN(a.advertisingTypeId)) AS "advertisingType"`,
       ])
-      .innerJoin(`(${subQuery.getQuery()})`, 'sq', 'sq."advertisingId" = a.id')
+      .innerJoin(
+        `(${labelizeAdsSubquery.getQuery()})`,
+        'status_label',
+        'status_label."advertisingId" = a.id',
+      )
       .innerJoin('AdvertisingSchedule', 'ads', 'a.id = ads."advertisingId"')
       .innerJoin('Schedule', 's', 's.id = ads."scheduleId"')
       .innerJoin('AdvertisingSector', 'asec', 'a.id = asec."advertisingId"')
@@ -153,11 +167,11 @@ export class AdvertisingService {
       .leftJoin('Role', 'r', 'r.id = u."roleId"')
       .where('a.deletedAt IS NULL')
       .andWhere('LOWER("a".name) LIKE LOWER(:searchTerm)')
-      .orWhere(`"sq"."status" LIKE LOWER(:searchTerm)`)
+      .orWhere(`"status_label"."status" LIKE LOWER(:searchTerm)`)
       .orWhere('LOWER("u".name) LIKE LOWER(:searchTerm)')
       .groupBy('a.id')
       .setParameters({ hour, day, searchTerm: `%${search}%` })
-      .orderBy('MIN("statusId")', 'ASC');
+      .orderBy('"statusId"', 'ASC');
 
     const count = await query.getCount();
     const totalPages = Math.ceil(count / limit);
