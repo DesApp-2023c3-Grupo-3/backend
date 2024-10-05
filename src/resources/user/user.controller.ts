@@ -16,7 +16,6 @@ import {
   ResponseUserDto,
   UpdateUserDto,
 } from 'cartelera-unahur';
-import { Public } from 'src/common/guards/SetMetadata';
 
 @ApiBearerAuth()
 @ApiTags('User')
