@@ -93,7 +93,7 @@ export class AdvertisingService {
         'a3.id AS "advertisingId"',
         `CASE 
 		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
-		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 2
+		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") AND (:hour > s2."endHour" ) THEN 2
 		        WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
 		        ELSE 3
 		    END AS "statusId"`,
@@ -101,7 +101,7 @@ export class AdvertisingService {
       .innerJoin('AdvertisingSchedule', 'ads2', 'a3.id = ads2."advertisingId"')
       .innerJoin('Schedule', 's2', 's2.id = ads2."scheduleId"')
       .where('a3."deletedAt" IS null')
-      .andWhere('s2."dayCode" = :day') // TODO: Revisar el bug con el pending en fechas anteriores
+      .andWhere('s2."dayCode" = :day')
       .orderBy('"statusId"');
 
     const labelizeAdsSubquery = this.advertisingRepository
