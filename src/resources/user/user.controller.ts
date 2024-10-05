@@ -70,6 +70,12 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
+  @Get('keycloak/:sub')
+  @ApiResponse({ type: ResponseUserDto })
+  findByIdKeycloak(@Param('sub') sub: string) {
+    return this.userService.findByIdKeycloak(sub);
+  }
+
   @Patch(':id')
   @ApiResponse({ type: ResponseUserDto })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

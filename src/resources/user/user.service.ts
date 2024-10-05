@@ -96,6 +96,17 @@ export class UserService {
     }
   }
 
+  public async findByIdKeycloak(idKeycloak: string) {
+    try {
+      return this.userRepository.find({
+        where: { idKeycloak: idKeycloak.toString() },
+        relations: { role: true },
+      });
+    } catch (error) {
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+    }
+  }
+
   public async getUserByDni(dni: string) {
     try {
       return this.userRepository.findOne({

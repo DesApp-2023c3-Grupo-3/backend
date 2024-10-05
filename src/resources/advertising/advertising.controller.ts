@@ -6,16 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { AdvertisingService } from './advertising.service';
-import { ApiBearerAuth, ApiResponse, ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import {
   AdvertisingDto,
   CreateAdvertisingDto,
   ResponseAdvertisingDto,
   UpdateAdvertisingDto,
 } from 'cartelera-unahur';
-import { Public } from 'src/common/guards/SetMetadata';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('Advertising')
@@ -35,7 +36,7 @@ export class AdvertisingController {
     return this.advertisingService.findAll();
   }
 
-  @Public()
+  @Unprotected()
   @Get('/screen/:screenId')
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   findTodayScreenAdvertising(@Param('screenId') screenId: number) {
@@ -48,28 +49,33 @@ export class AdvertisingController {
     return this.advertisingService.findAllRole(roleId);
   }
 
-  @Public()
-  @Get('findPageAndLimit/:page/:limit')
-  @ApiParam({
+  @Get('all/')
+  @ApiQuery({
     name: 'page',
     required: true,
     type: Number,
     description: 'Número de la página',
   })
-  @ApiParam({
+  @ApiQuery({
     name: 'limit',
     required: true,
     type: Number,
     description: 'Número de registros por página',
   })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Busca los avisos por nombre',
+  })
   @ApiResponse({ type: ResponseAdvertisingDto, isArray: true })
   async findPageAndLimit(
-    @Param('page') page: number,
-    @Param('limit') limit: number,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('search') search: string,
   ) {
-    return this.advertisingService.findPageAndLimit(page, limit);
+    return this.advertisingService.findPageAndLimit(page, limit, search);
   }
-
   @Get(':id')
   @ApiResponse({ type: ResponseAdvertisingDto })
   findOne(@Param('id') id: string) {
