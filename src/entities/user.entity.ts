@@ -23,6 +23,9 @@ export class User {
   @Column({ length: 1024 })
   password: string;
 
+  @Column({ length: 1024, nullable: true })
+  idKeycloak: string;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 

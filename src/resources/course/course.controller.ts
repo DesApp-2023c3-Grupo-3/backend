@@ -33,7 +33,7 @@ import {
 import { Res } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/common/guards/SetMetadata';
+import { Public, Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('Course')
