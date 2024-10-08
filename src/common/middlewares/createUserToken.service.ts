@@ -14,23 +14,25 @@ export class CreateUserToken implements NestMiddleware {
     @Inject(UserService)
     private readonly userService: UserService,
   ) {}
+
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
-      throw new UnauthorizedException('Token no proporcionado');
+      return next();
     }
+
     const token = authHeader.split(' ')[1];
     if (!token) {
       throw new UnauthorizedException('Formato de token inválido');
     }
-    try {
-      const decoded = jwt.decode(token, { complete: true });
 
+    try {
+      const decoded = jwt.decode(token);
       if (!decoded) {
         throw new UnauthorizedException('Token inválido');
       }
-      const payload = (req['tokenPayload'] = decoded.payload);
+      const payload = (req['tokenPayload'] = decoded);
       const user = await this.userService.getUserByDni(payload['Documento']);
       console.log('Usuario', user);
       if (!user) {

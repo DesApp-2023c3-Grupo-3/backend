@@ -31,6 +31,7 @@ import { Unprotected } from 'nest-keycloak-connect';
 export class ImageController {
   constructor(public readonly imageService: ImageService) {}
 
+  @Unprotected()
   @ApiOperation({ summary: 'Carga al servidor una imagen' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({

@@ -23,6 +23,7 @@ import { KeycloakConfigService } from './common/middlewares/keycloak-config.serv
 import { APP_GUARD } from '@nestjs/core';
 import { TokenMiddlewareValidate } from './common/middlewares/CreateUserToken.module';
 import { CreateUserToken } from './common/middlewares/createUserToken.service';
+import { MapModule } from './resources/map/map.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -49,6 +50,7 @@ import { CreateUserToken } from './common/middlewares/createUserToken.service';
     ClassroomModule,
     RoleModule,
     ImageModule,
+    MapModule,
     // ScheduleModule,
     // AdvertisingScheduleModule,
   ],
