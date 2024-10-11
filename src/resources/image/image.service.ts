@@ -15,7 +15,6 @@ export class ImageService {
   ) {}
 
   async create(file: Express.Multer.File) {
-    console.log(file);
     const uploadFile = await this.uploadImage(file);
     const newImage = this.imageRepository.create({
       originalName: file.originalname,

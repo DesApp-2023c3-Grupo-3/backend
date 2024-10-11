@@ -34,7 +34,6 @@ export class CreateUserToken implements NestMiddleware {
       }
       const payload = (req['tokenPayload'] = decoded);
       const user = await this.userService.getUserByDni(payload['Documento']);
-      console.log('Usuario', user);
       if (!user) {
         await this.userService.create({
           dni: payload['Documento'],

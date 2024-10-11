@@ -8,6 +8,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  Patch,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { MapService } from './map.service';
@@ -20,13 +21,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiTags('Map')
 @Controller('map')
 export class MapController {
   constructor(private readonly entityService: MapService) {}
 
-  @ApiOperation({ summary: 'Carga al servidor una imagen' })
+  @Unprotected()
+  @ApiOperation({ summary: 'Carga al servidor un mapa' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -38,6 +41,10 @@ export class MapController {
         },
         name: {
           type: 'string',
+        },
+        estaSeleccionado: {
+          type: 'boolean',
+          description: 'Indica si la imagen está seleccionada',
         },
       },
     },
@@ -57,7 +64,8 @@ export class MapController {
     return this.entityService.create(file, createEntityDto);
   }
 
-  @ApiOperation({ summary: 'Muestra la imagen asociada al ID' })
+  @Unprotected()
+  @ApiOperation({ summary: 'Muestra el mapa asociado a un ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
   @Get(':id/view')
@@ -73,7 +81,9 @@ export class MapController {
       response.status(404).send('Not Found');
     }
   }
-  @ApiOperation({ summary: 'Descargar una imagen asociada al ID' })
+
+  @Unprotected()
+  @ApiOperation({ summary: 'Descargar un mapa por ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
   @Get(':id/download')
@@ -93,11 +103,51 @@ export class MapController {
       response.status(404).send('Not Found');
     }
   }
+
+  @Unprotected()
   @Get()
   findAll() {
     return this.entityService.findAll();
   }
 
+  @Unprotected()
+  @ApiOperation({ summary: 'Actualiza un mapa' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        name: {
+          type: 'string',
+        },
+        estaSeleccionado: {
+          type: 'boolean',
+          description: 'Indica si la imagen está seleccionada',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Imagen actualizada correctamente',
+    type: MapDto,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch(':id')
+  async update(
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() updateEntityDto: MapDto,
+  ) {
+    return this.entityService.update(id, updateEntityDto, file);
+  }
+
+  @Unprotected()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.entityService.remove(+id);

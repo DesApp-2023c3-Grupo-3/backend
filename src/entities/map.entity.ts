@@ -14,6 +14,9 @@ export class Map {
   @Column({ type: 'text' })
   name: string;
 
+  @Column({ type: 'boolean' })
+  estaSeleccionado;
+
   @Column({ type: 'timestamptz', nullable: true })
   deletedAt: Date;
 }
