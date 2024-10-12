@@ -13,7 +13,7 @@ export class MapService {
     private readonly mapRepository: Repository<Map>,
     @Inject(ImageService)
     private readonly imageService: ImageService,
-  ) {}
+  ) { }
   async create(file: Express.Multer.File, createEntityDto: MapDto) {
     const uploadFile = await this.imageService.uploadImage(file);
     if (createEntityDto.estaSeleccionado) {
@@ -83,7 +83,7 @@ export class MapService {
   findAll() {
     return this.mapRepository.find({
       where: { deletedAt: IsNull() },
-      select: { name: true, id: true, originalName: true },
+      select: { name: true, id: true, originalName: true, estaSeleccionado: true },
       order: { id: 'DESC' },
     });
   }
