@@ -21,14 +21,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiTags('Map')
 @Controller('map')
 export class MapController {
   constructor(private readonly entityService: MapService) {}
 
-  @Unprotected()
   @ApiOperation({ summary: 'Carga al servidor un mapa' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -64,7 +62,6 @@ export class MapController {
     return this.entityService.create(file, createEntityDto);
   }
 
-  @Unprotected()
   @ApiOperation({ summary: 'Muestra el mapa asociado a un ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
@@ -82,7 +79,6 @@ export class MapController {
     }
   }
 
-  @Unprotected()
   @ApiOperation({ summary: 'Descargar un mapa por ID' })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not Found.' })
@@ -104,13 +100,11 @@ export class MapController {
     }
   }
 
-  @Unprotected()
   @Get()
   findAll() {
     return this.entityService.findAll();
   }
 
-  @Unprotected()
   @ApiOperation({ summary: 'Actualiza un mapa' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -147,7 +141,6 @@ export class MapController {
     return this.entityService.update(id, updateEntityDto, file);
   }
 
-  @Unprotected()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.entityService.remove(+id);
