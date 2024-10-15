@@ -15,17 +15,21 @@ export class ImageService {
   ) {}
 
   async create(file: Express.Multer.File) {
-    const compressedBuffer = await sharp(file.buffer)
-      .resize({ width: 1000, withoutEnlargement: true })
-      .jpeg({ quality: 70 })
-      .toBuffer();
+    const uploadFile = await this.uploadImage(file);
     const newImage = this.imageRepository.create({
       originalName: file.originalname,
-      base64Data: compressedBuffer.toString('base64'),
+      base64Data: uploadFile.toString('base64'),
     });
     const createImage = await this.imageRepository.save(newImage);
     const { id, originalName } = createImage;
     return { id, originalName };
+  }
+
+  async uploadImage(file: Express.Multer.File) {
+    return sharp(file.buffer)
+      .resize({ width: 1000, withoutEnlargement: true })
+      .jpeg({ quality: 70 })
+      .toBuffer();
   }
 
   async findByIdAndArchivoNotIsNull(id: number): Promise<Image> {
