@@ -92,11 +92,19 @@ export class AdvertisingService {
       .select([
         'a3.id AS "advertisingId"',
         `CASE 
-		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND (:hour BETWEEN s2."startHour" AND s2."endHour") THEN 1
-		        WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND NOT (:hour BETWEEN s2."startHour" AND s2."endHour") AND (:hour > s2."endHour" ) THEN 2
-		        WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
-		        ELSE 3
-		    END AS "statusId"`,
+            WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND 
+                  ((s2."startHour" <= s2."endHour" AND :hour BETWEEN s2."startHour" AND s2."endHour")
+                  OR 
+                  (s2."startHour" > s2."endHour" AND (:hour >= s2."startHour" OR :hour <= s2."endHour"))
+                  ) THEN 1
+            WHEN (:hour BETWEEN s2."startDate" AND s2."endDate") AND s2."dayCode" = :day AND NOT 
+                ((s2."startHour" <= s2."endHour" AND :hour BETWEEN s2."startHour" AND s2."endHour")
+                OR 
+                (s2."startHour" > s2."endHour" AND (:hour >= s2."startHour" OR :hour <= s2."endHour"))
+                ) AND (:hour > s2."endHour") THEN 2
+            WHEN NOT (:hour BETWEEN s2."startDate" AND s2."endDate") THEN 4
+            ELSE 3
+        END AS "statusId"`,
       ])
       .innerJoin('AdvertisingSchedule', 'ads2', 'a3.id = ads2."advertisingId"')
       .innerJoin('Schedule', 's2', 's2.id = ads2."scheduleId"')
