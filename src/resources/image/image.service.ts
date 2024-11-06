@@ -94,7 +94,7 @@ export class ImageService {
     const PORT = process.env.PORT || '3001';
     if (!this.generatedPlaneQr) {
       this.generatedPlaneQr = await this.createQr(
-        `${HOST}:${PORT}/image/plane`,
+        `${HOST}:${PORT}/map/view/active`,
       );
     }
     return this.generatedPlaneQr;
