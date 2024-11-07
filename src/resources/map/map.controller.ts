@@ -21,6 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiTags('Map')
 @Controller('map')
@@ -72,6 +73,21 @@ export class MapController {
   ): Promise<void> {
     try {
       const image = await this.entityService.findByIdAndArchivoNotIsNull(+id);
+      response.setHeader('Content-Type', ['image/jpeg']);
+      response.send(Buffer.from(image.base64Data, 'base64'));
+    } catch (error) {
+      response.status(404).send('Not Found');
+    }
+  }
+
+  @ApiOperation({ summary: 'Muestra el mapa activo' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not Found.' })
+  @Unprotected()
+  @Get('/view/active')
+  async viewMap(@Res() response: Response): Promise<void> {
+    try {
+      const image = await this.entityService.findByActiveAndArchivoNotIsNull();
       response.setHeader('Content-Type', ['image/jpeg']);
       response.send(Buffer.from(image.base64Data, 'base64'));
     } catch (error) {

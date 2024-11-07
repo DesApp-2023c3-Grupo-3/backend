@@ -13,7 +13,7 @@ export class MapService {
     private readonly mapRepository: Repository<Map>,
     @Inject(ImageService)
     private readonly imageService: ImageService,
-  ) { }
+  ) {}
   async create(file: Express.Multer.File, createEntityDto: MapDto) {
     const uploadFile = await this.imageService.uploadImage(file);
     if (createEntityDto.estaSeleccionado) {
@@ -22,7 +22,7 @@ export class MapService {
     const newImage = this.mapRepository.create({
       originalName: file.originalname,
       base64Data: uploadFile.toString('base64'),
-      estaSeleccionado: createEntityDto.estaSeleccionado,
+      estaSeleccionado: true,
       name: createEntityDto.name,
     });
     const createImage = await this.mapRepository.save(newImage);
@@ -79,11 +79,22 @@ export class MapService {
       where: { id, originalName: Not(IsNull()) },
     });
   }
+  async findByActiveAndArchivoNotIsNull(): Promise<Image> {
+    return this.mapRepository.findOneOrFail({
+      select: ['originalName', 'base64Data'],
+      where: { estaSeleccionado: true, originalName: Not(IsNull()) },
+    });
+  }
 
   findAll() {
     return this.mapRepository.find({
       where: { deletedAt: IsNull() },
-      select: { name: true, id: true, originalName: true, estaSeleccionado: true },
+      select: {
+        name: true,
+        id: true,
+        originalName: true,
+        estaSeleccionado: true,
+      },
       order: { id: 'DESC' },
     });
   }
