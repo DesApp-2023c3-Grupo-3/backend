@@ -33,11 +33,12 @@ export class CreateUserToken implements NestMiddleware {
         throw new UnauthorizedException('Token inválido');
       }
       const payload = (req['tokenPayload'] = decoded);
-      const user = await this.userService.getUserByDni(payload['Documento']);
+      const dni = payload['Documento'].toString();
+      const user = await this.userService.getUserByDni(dni);
       if (!user) {
         await this.userService.create({
           dni: payload['Documento'],
-          name: payload['name'],
+          name: payload['preferred_username'],
           password: '1111',
           role: { id: 2 },
           idKeycloak: payload['sub'].toString(),
