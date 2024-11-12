@@ -24,21 +24,17 @@ export class UserService {
     const newUser = this.userRepository.create(createUserDto);
     const { dni } = newUser;
 
-    // Verificar si el usuario ya existe en la base de datos
     const userFound = await this.getUserByDni(dni);
     if (userFound) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    // Guardar el usuario en la base de datos
     const savedUser = await this.userRepository.save(newUser);
 
-    // Intentar crear el usuario en Keycloak
     try {
       const token = await this.getKeycloakToken();
       await this.createUserInKeycloak(createUserDto, token);
     } catch (error) {
-      // Si ocurre un error, eliminar el usuario de la base de datos
       await this.userRepository.delete(savedUser.id);
       throw new HttpException(
         'Failed to create user in Keycloak',
@@ -90,8 +86,8 @@ export class UserService {
       credentials: [
         {
           type: 'password',
-          value: createUserDto.password, // Solo se envía si deseas establecer una contraseña inicial
-          temporary: false, // Configura la contraseña como temporal para que el usuario deba cambiarla en el primer inicio de sesión
+          value: createUserDto.password,
+          temporary: true,
         },
       ],
     };
@@ -108,12 +104,10 @@ export class UserService {
         },
       );
 
-      // Obtener el ID del usuario desde la cabecera 'Location'
       const keycloakUserId = response.headers['location'].split('/').pop();
 
-      // Ahora actualizas tu base de datos con el idKeycloak
       await this.userRepository.update(
-        { dni: createUserDto.dni }, // Asumiendo que 'dni' es único
+        { dni: createUserDto.dni },
         { idKeycloak: keycloakUserId },
       );
     } catch (error) {
