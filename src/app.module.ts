@@ -16,7 +16,6 @@ import { AdvertisingScreenModule } from './resources/advertising-screen/advertis
 import { ClassroomModule } from './resources/classroom/classroom.module';
 import { RoleModule } from './resources/role/role.module';
 import { ImageModule } from './resources/image/image.module';
-import { AuthModule } from './resources/auth/auth.module';
 import { AuthGuard, KeycloakConnectModule } from 'nest-keycloak-connect';
 import { KeycloakConfigModule } from './common/middlewares/keycloak.module';
 import { KeycloakConfigService } from './common/middlewares/keycloak-config.service';
@@ -37,7 +36,6 @@ import { MapModule } from './resources/map/map.module';
     TokenMiddlewareValidate,
     DatabaseModule,
     SocketModule,
-    AuthModule,
     UserModule,
     AdvertisingModule,
     CourseModule,
