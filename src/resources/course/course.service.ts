@@ -269,6 +269,7 @@ export class CourseService {
     sectorId: number,
   ) {
     try {
+      await this.removeMultiple(sectorId);
       const newStartDate = new Date(startDate);
       const newEndDate = new Date(endDate);
       const jsonCommision = this.serviceImage.createJson(file);
@@ -349,6 +350,18 @@ export class CourseService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async removeMultiple(id) {
+    const courses = await this.courseRepository.find({
+      where: { sector: { id: id } },
+    });
+    await Promise.all(
+      courses.map((course) => {
+        course.deletedAt = new Date();
+        return this.courseRepository.save(course);
+      }),
+    );
   }
 
   private searchByName(array: any[], name: string) {

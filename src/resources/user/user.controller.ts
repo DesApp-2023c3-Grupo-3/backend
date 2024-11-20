@@ -16,13 +16,14 @@ import {
   ResponseUserDto,
   UpdateUserDto,
 } from 'cartelera-unahur';
+import { Unprotected } from 'nest-keycloak-connect';
 
 @ApiBearerAuth()
 @ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
+  @Unprotected()
   @Post()
   @ApiResponse({ type: ResponseUserDto })
   create(@Body() createUserDto: CreateUserDto) {

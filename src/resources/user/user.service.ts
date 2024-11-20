@@ -4,6 +4,7 @@ import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
 import { User } from 'src/entities/user.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { hash } from 'bcrypt';
+import axios from 'axios';
 @Injectable()
 export class UserService {
   constructor(
@@ -11,15 +12,114 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  private readonly keycloakUrl =
+    process.env.KEYCLOAK_URL ?? 'http://localhost:8080';
+  private readonly realm = process.env.KEYCLOAK_REALM ?? 'cartelera';
+  private readonly clientId =
+    process.env.KEYCLOAK_CLIENT_ID ?? 'cartelera-back';
+  private readonly clientSecret =
+    process.env.KEYCLOAK_CLIENT_SECRET ?? 'qt77AIDXQGu2aQ4hU3thTstcuXxk2Eoz';
+
   public async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     const { dni } = newUser;
+
     const userFound = await this.getUserByDni(dni);
-    if (!userFound) {
-      return this.userRepository.save(newUser);
-    } else {
+    if (userFound) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
+
+    const savedUser = await this.userRepository.save(newUser);
+
+    try {
+      const token = await this.getKeycloakToken();
+      await this.createUserInKeycloak(createUserDto, token);
+    } catch (error) {
+      await this.userRepository.delete(savedUser.id);
+      throw new HttpException(
+        'Failed to create user in Keycloak',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return savedUser;
+  }
+
+  private async getKeycloakToken(): Promise<string> {
+    try {
+      const response = await axios.post(
+        `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/token`,
+        new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: this.clientId,
+          client_secret: this.clientSecret,
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
+      return response.data.access_token;
+    } catch (error) {
+      console.error(
+        'Error obteniendo el token:',
+        error.response?.data || error.message,
+      );
+      throw new HttpException(
+        'Failed to obtain Keycloak token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  private async createUserInKeycloak(
+    createUserDto: CreateUserDto,
+    token: string,
+  ) {
+    const keycloakUser = {
+      username: createUserDto.name,
+      enabled: true,
+      attributes: {
+        DNI: createUserDto.dni,
+      },
+      credentials: [
+        {
+          type: 'password',
+          value: createUserDto.password,
+          temporary: true,
+        },
+      ],
+    };
+
+    try {
+      const response = await axios.post(
+        `${this.keycloakUrl}/admin/realms/${this.realm}/users`,
+        keycloakUser,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const keycloakUserId = response.headers['location'].split('/').pop();
+
+      await this.userRepository.update(
+        { dni: createUserDto.dni },
+        { idKeycloak: keycloakUserId },
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Failed to create user in Keycloak',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  public async getUserByDni(dni: string): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { dni } });
   }
 
   public async findAll() {
@@ -100,17 +200,6 @@ export class UserService {
     try {
       return this.userRepository.find({
         where: { idKeycloak: idKeycloak.toString() },
-        relations: { role: true },
-      });
-    } catch (error) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  public async getUserByDni(dni: string) {
-    try {
-      return this.userRepository.findOne({
-        where: { dni, deletedAt: IsNull() },
         relations: { role: true },
       });
     } catch (error) {

@@ -20,7 +20,7 @@ export class User {
   @Column({ length: 1024 })
   dni: string;
 
-  @Column({ length: 1024 })
+  @Column({ length: 1024, nullable: true })
   password: string;
 
   @Column({ length: 1024, nullable: true })
