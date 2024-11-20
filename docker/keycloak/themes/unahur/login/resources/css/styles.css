@@ -1,11 +1,11 @@
 
 :root {
-    --textColor: #4b4a4a;
-    --textOffColor: #7c858d;
-    --baseColor: rgb(255, 255, 255);
-    --buttonColor: #3b90a9;
-    --baseLightColor: #283b48;
-    --secColor: white;
+    --textColor: rgb(249, 249, 249);
+    --textOffColor: #ffffff;
+    --baseColor: white;
+    --buttonColor: #00BCD4;
+    --baseLightColor: #ffffff;
+    --secColor: #7cb551;
   }
 
   body {
@@ -13,18 +13,31 @@
     color: var(--textColor);
     font-size: 18px;
   }
+  
   /* Header */
-
+  
   #kc-header {
-    margin-bottom: 0;
-    background-image: url('../img/keycloak-logo-text.png');
-    background-size: contain; /* La imagen se ajusta sin cortar */
-    background-repeat: no-repeat;
-    background-position: left;
-    height: 200px; /* Ajusta la altura según necesites */
+    margin-bottom: 0px;
+    height: 100%; /* Ajusta la altura según necesites */
     width: 100%; /* Ocupa el ancho de la pantalla */
     color: #222222;
   }
+
+  #kc-header-wrapper {
+    padding: 0;
+    padding-bottom: 25px;
+  }
+
+  #kc-header-wrapper::after {
+    content: "";
+    background-image: url('../img/keycloak-logo-text.png'); /* Asegúrate de que la ruta sea correcta */
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 80px;
+    width: 100%;
+    display: block;
+    background-position: center;
+}
 
   /* Form header */
 
@@ -41,7 +54,7 @@
   .login-pf-page .card-pf {
     border-radius: 20px;
     background: var(--secColor);
-    border-color: white;
+    border-color: #aace8f;
   }
 
   /* Card Title */
@@ -144,14 +157,48 @@
   #kc-login, #kc-form-buttons input {
     border: none;
     padding: 22px 30px;
-    font-size: 18px;
-    color: var(--secColor);
+    font-size: 20px;
+    color: white;
     font-weight: 600;
     border-radius: 32px;
     background-color: var(--buttonColor); 
   }
   
   #kc-login:active:focus {
-    background: #3b90a9;
+    background: #919191;
     outline: none;
+  }
+
+  a[href*="reset-credentials"], a[href*="authenticate"] {
+    color: #ffffff;
+    text-decoration: underline;
+    font-style: italic; 
+  }
+
+  @media (max-width: 767px) {
+    a[href*="registration"] {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    #kc-registration span {
+      color: #ffffff;
+    }
+  }
+
+
+
+  .required {
+    color: rgb(244, 86, 86);
+  }
+
+  .subtitle {
+    color: #e6e6e6;
+  }
+
+  input {
+    padding-top: 25px !important;
+    padding-right: 25px !important;
+    padding-bottom: 25px !important;
+    padding-left: 15px !important;
   }
