@@ -30,10 +30,10 @@ export class UserService {
     };
     const user = await this.getUserByDni(defaultUser.dni);
     if (!user) {
-      console.log('Default user does not exist. Creating...');
+      console.log('Generando usuario...');
       await this.create(defaultUser);
     } else {
-      console.log('Default user already exists.');
+      console.log('El usuario ya existe...');
     }
   }
 
