@@ -20,6 +20,23 @@ export class UserService {
   private readonly clientSecret =
     process.env.KEYCLOAK_CLIENT_SECRET ?? 'qt77AIDXQGu2aQ4hU3thTstcuXxk2Eoz';
 
+  async onModuleInit() {
+    const defaultUser: CreateUserDto = {
+      name: process.env.KEYCLOAK_NAME ?? 'admin',
+      dni: process.env.KEYCLOAK_DNI ?? '12345678',
+      password: process.env.KEYCLOAK_PASSWORD ?? 'admin1234',
+      role: { id: 1 },
+      idKeycloak: '',
+    };
+    const user = await this.getUserByDni(defaultUser.dni);
+    if (!user) {
+      console.log('Generando usuario...');
+      await this.create(defaultUser);
+    } else {
+      console.log('El usuario ya existe...');
+    }
+  }
+
   public async create(createUserDto: CreateUserDto) {
     const newUser = this.userRepository.create(createUserDto);
     const { dni } = newUser;
