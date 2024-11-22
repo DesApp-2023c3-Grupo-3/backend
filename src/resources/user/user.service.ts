@@ -1,15 +1,18 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto, UpdateUserDto } from 'cartelera-unahur';
 import { User } from 'src/entities/user.entity';
 import { Brackets, IsNull, Repository } from 'typeorm';
 import { hash } from 'bcrypt';
 import axios from 'axios';
+import { RoleService } from '../role/role.service';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @Inject(RoleService)
+    private readonly roleservice: RoleService,
   ) {}
 
   private readonly keycloakUrl =
@@ -21,6 +24,7 @@ export class UserService {
     process.env.KEYCLOAK_CLIENT_SECRET ?? 'qt77AIDXQGu2aQ4hU3thTstcuXxk2Eoz';
 
   async onModuleInit() {
+    const role = (await this.roleservice.findAll()).length === 0;
     const defaultUser: CreateUserDto = {
       name: process.env.KEYCLOAK_NAME ?? 'admin',
       dni: process.env.KEYCLOAK_DNI ?? '12345678',
@@ -28,8 +32,9 @@ export class UserService {
       role: { id: 1 },
       idKeycloak: '',
     };
+    console.log('--------------', role);
     const user = await this.getUserByDni(defaultUser.dni);
-    if (!user) {
+    if (!user && !role) {
       console.log('Generando usuario...');
       await this.create(defaultUser);
     } else {
